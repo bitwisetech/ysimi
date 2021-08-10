@@ -1,0 +1,75 @@
+<!-- autoPlot.py  -->
+ 2021Jl17 Obs: Now is yasiVers/multiPlot.py
+ This program makes repeated automatic runs of yasim to create gnuplots of Lift, Drag, L/D.
+Two different elements in the yasim config file are stepped in a nested colums rows fashion.  
+
+  Before running, edit the script to cutomise column, row, range and text legend.
+In the section of code after each section's parsing: set up a conditional to substitute 
+stepped values for the tyasim elemnts of interest. 
+
+For example: to explore approach Speed and AoA :
+  
+    #Cols: Appr aoa  
+    colsLgnd = 'ApA'
+    colsRnge = range(4, 17, 4 )
+    #Rows: Appr Spd  
+    rowsLgnd = 'ApS'
+    rowsRnge = range(72, 89, 8 )
+    ##
+    
+    and, in the <approach> section: 
+ 
+    # 
+    if 'ApS' in colsLgnd: numbApS = subsColV
+    if 'ApS' in rowsLgnd: numbApS = subsRowV
+    if 'ApA' in colsLgnd: numbApA = subsColV
+    if 'ApA' in rowsLgnd: numbApA = subsRowV
+
+ The code does not do an exhaustive name=value parsing of the various sections. Elements 
+in each section must be in a particular order. Symlink the yasim config xml from your 
+model to file: yasimCfighas those elements described in the same order as in the template xml file, sections are
+copied here:   
+ 
+  <wing x="-2.755"     y="0.5"    z="-0.53"     taper="0.48" incidence="4.00" twist="-3"
+    length="4.3" chord="2.25" sweep="-2.0" dihedral="6.00" camber="0.068" idrag="0.95">
+    <stall aoa="15" width="18.0" peak="1.5"/>
+    <flap0 start="0.00" end="0.54" lift="1.1" drag="1.7"/>
+
+  <hstab x="-7.0" y="0.0" z="0.31" taper="0.72"
+        length="1.72" chord="1.06" sweep="0" dihedral="30" >
+    <stall aoa="24.0" width="4.0" peak="1.5"/>
+    <flap0 start="0.05" end="1.0" lift="2.25" drag="1.7" />
+    
+ The python program substitutes in the <stall> and <flap0> sections for both <wing> and
+ for <hstab>    
+
+<!-- rowcPlot.py -f aYasimConfig.xml -->
+  is tixyPlot + start of args supporting col/row stepper parms
+  obs (?) version of autoPlot with all sections parsed and 2.7 Tix calls
+
+<!-- filePlot.py -f aYasimConfig.xml --> 
+py3 needs tix changes
+  Runs yasim -graphical output and gnuplot display of the specified yasim configuration, saving the 
+yasim datafile under the same name as its input yasim configuration.  The saved file is useful for 
+e.g. comparison between different yasim version configuration files. 
+
+<!-- tixyPlot.py -f aYasimConfig.xml -->
+  Connects a Tcl-Tk tix notebook style user interface with yasim - gnuplot graphical display.
+Use it to change elements in approach, cruise, wing and hstab sections and display the 
+reulting Lift/Drag curves. Any of the elements on the tix notebook pages may be altered but 
+be sure, after altering any element, to click on 'plot' button before swapping notebook pages.
+  As you make changes they are written to a temporary yasim config file,  the config file you
+specified on the command line remains unchanged.  The temporary file, named outpYCfg.xml, is
+available after you exit tixyPlot so you can copy it into your  aircraft directory as a 
+yasim configuration file for testing. 
+
+
+<!-- versyPlot.py -f aYasimConfig.xml -->
+    Use this script to run two versions of yasim against a single configuration file in order
+to explore the effect of changes in the yasim program versions.  This script is similar to 
+tixyPlot.py,  a notebook style menu gives you the option to alter configuration elements.
+ When the 'plot' button is clicked the script susbstitutes the version number in the 
+configuration file and runs the configuration against each version of yasim. Both versions of 
+configuration file and  yasim data files are saved with appropriate suffixes. 
+  
+

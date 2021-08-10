@@ -1,0 +1,852 @@
+#!/usr/bin/env python
+#
+#### tixyPlot : Tix Menu driven yasim element explorer with yasim - gnuplot displays
+import getopt, os, shlex, subprocess, sys, Tix
+import Tkinter as tk
+# default yasim config under test
+def normArgs(argv):
+  global ycfgFid
+  ycfgFid   = 'yasimCfg.xml'
+  global ycfgNam
+  global acfgFid
+  acfgFid   = 'outpYCfg.xml'
+  global dataFid
+  dataFid = "outpData.txt"
+  # template gnuplot spec files for 2, 3 variables plot
+  global plt2Fid
+  plt2Fid   = 'tplt2arg.p'
+  global plt3Fid
+  plt3Fid   = 'tplt3arg.p'
+  global vbl2Fid
+  vbl2Fid   = 'outp2arg.p'
+  global vbl3Fid
+  vbl3Fid   = 'outp3arg.p'
+  # get yasim config FileID from args
+  try:
+    opts, args = getopt.getopt(argv, "f:", "file=")
+  except getopt.GetoptError:
+     print 'sorry, I need -f or file= yasim config  fileID '
+     sys.exit(2)
+    #
+  for opt, arg in opts:
+    if   opt in ("-f", "--file"):
+      ycfgFid = arg
+      ycfgNam = ycfgFid.find('.')
+      ycfgNam = ycfgFid[0:ycfgNam]
+
+##
+# Scan template yasim cfig and extract numeric elements, copy for tix menu
+#
+def vblsFromTplt():
+  global ycfgFid
+  global ycfgNam
+  global plt2Fid
+  global plt3Fid
+  global vbl2Fid
+  global vbl3Fid
+  global Va
+  global Aa
+  global Ka
+  global Ra
+  global Fa
+  global Vc
+  global Hc
+  global Kc
+  global Rc
+  global Cw
+  global Iw
+  global Aw
+  global Ww
+  global Pw
+  global Lw
+  global Dw
+  global Ah
+  global Wh
+  global Ph
+  global Lh
+  global Dh
+
+  apprFlag   = 0
+  cruzFlag   = 0
+  wingFlag   = 0
+  hstabFlag  = 0
+  ## # open auto yasim config file
+  ## acfgHndl  = open(acfgFid, 'w', 0)
+  # Phase 1 open base yasim config file and parse elements
+  with open(ycfgFid, 'r') as ycfg:
+  # step each line in template yasim config file
+    for line in ycfg:
+      # flag on appr section
+      if '<approach' in line:
+        apprFlag = 1
+      if '</approach' in line:
+        apprFlag = 0
+      # flag on cruise section
+      if '<cruise' in line:
+        cruzFlag = 1
+      if '</cruise' in line:
+        cruzFlag = 0
+      # flag on wing section
+      if '<wing' in line:
+        wingFlag = 1
+      if '</wing' in line:
+        wingFlag = 0
+      # flag on hstab section
+      if '<hstab' in line:
+        hstabFlag = 1
+      if '</hstab' in line:
+        hstabFlag = 0
+      ### appr section parse approach speed and AoA elements
+      if (apprFlag == 1):
+        #in appr section, find elements
+        if ('approach speed' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textVa = line[0:(sepsList[0]+1)]
+          Va     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
+          textAa = line[(sepsList[1]):(sepsList[2]+1)]
+          Aa     = float(line[(sepsList[2]+1):(sepsList[3])])
+          textKa = line[(sepsList[3]):(sepsList[4]+1)]
+          Ka     = float(line[(sepsList[4]+1):(sepsList[5])])
+          textEL = line[(sepsList[5]):]
+          line   = textVa + str(Va) + textAa + str(Aa) + textKa + str(Ka)   \
+                 + textEL
+        if ('throttle' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textRa = line[0:(sepsList[2]+1)]
+          Ra     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
+          textEL = line[(sepsList[3]):]
+          line   = textRa + str(Ra) + textEL
+        if ('flaps' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textFa = line[0:(sepsList[2]+1)]
+          Fa     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
+          textEL = line[(sepsList[3]):]
+          line   = textFa + str(Fa) + textEL
+        ###
+      ### cruise section parse cruise speed element
+      if (cruzFlag == 1):
+        #in cruise section, find element
+        if ('cruise speed' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textVc = line[0:(sepsList[0]+1)]
+          Vc     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
+          textHc = line[(sepsList[1]):(sepsList[2]+1)]
+          Hc     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
+          textKc = line[(sepsList[3]):(sepsList[4]+1)]
+          Kc     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
+          textEL = line[(sepsList[5]):]
+          line   = textVc + str(Vc) + textHc + str(Hc) + textKc + str(Kc)   \
+                 + textEL
+        if ('throttle' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textRc = line[0:(sepsList[2]+1)]
+          Rc     = float ( (line[(sepsList[2]+1):(sepsList[3])]))
+          textEL = line[(sepsList[3]):]
+          line   = textRc + str(Rc) + textEL
+        ###
+      ### wing section parse camber and induced drag elements
+      # Be Sure length, chord ... camber, idrag elements are on a single line
+      if (wingFlag == 1):
+        #in wing section, find elements
+        if ('camber' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textCw = line[0:(sepsList[8]+1)]
+          Cw     = float ( (line[(sepsList[8]+1):(sepsList[9])]))
+          textIw = line[(sepsList[9]):(sepsList[10]+1)]
+          Iw     = float(line[(sepsList[10]+1):(sepsList[11])])
+          textEL = line[(sepsList[11]):]
+          # overwrite line with substituted elements
+          line   = textCw + str(Cw) + textIw + str(Iw) + textEL
+        ###
+        #in wing section, find stall elements
+        if ('stall' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textAw = line[0:(sepsList[0]+1)]
+          Aw     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
+          textWw = line[(sepsList[1]):(sepsList[2]+1)]
+          Ww     = float(line[(sepsList[2]+1):(sepsList[3])])
+          textPw = line[(sepsList[3]):(sepsList[4]+1)]
+          Pw     = float(line[(sepsList[4]+1):(sepsList[5])])
+          textEL = line[(sepsList[5]):]
+          line   = textAw + str(Aw) + textWw + str(Ww) + textPw + str(Pw)  \
+                 + textEL
+        ###
+        #in wing section, find flap0 elements
+        if ('flap0' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textLw = line[0:(sepsList[4]+1)]
+          Lw     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
+          textDw = line[(sepsList[5]):(sepsList[6]+1)]
+          Dw     = float( line[(sepsList[6]+1):(sepsList[7])])
+          textEL = line[(sepsList[7]):]
+          line   = textLw + str(Lw) + textDw + str(Dw) + textEL
+      ### hstab section parse stall and flap0 elements
+      if (hstabFlag == 1):
+        #in hstab section, find stall elements
+        if ('stall' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textAh = line[0:(sepsList[0]+1)]
+          Ah     = float ( (line[(sepsList[0]+1):(sepsList[1])]))
+          textWh = line[(sepsList[1]):(sepsList[2]+1)]
+          Wh     = float(line[(sepsList[2]+1):(sepsList[3])])
+          textPh = line[(sepsList[3]):(sepsList[4]+1)]
+          Ph     = float(line[(sepsList[4]+1):(sepsList[5])])
+          textEL = line[(sepsList[5]):]
+          line   = textAh + str(Ah) + textWh + str(Wh) + textPh + str(Ph)    \
+                 + textEL
+        ###
+        #in hstab section, find flap0 elements
+        if ('flap0' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textLh = line[0:(sepsList[4]+1)]
+          Lh     = float ( (line[(sepsList[4]+1):(sepsList[5])]))
+          textDh = line[(sepsList[5]):(sepsList[6]+1)]
+          Dh     = float( line[(sepsList[6]+1):(sepsList[7])])
+          textE  = line[(sepsList[7]):]
+          line   = textLh + str( Lh) + textDh + str(Dh) + textEL
+  #close and sync file
+    ycfg.flush
+    os.fsync(ycfg.fileno())
+  ycfg.close
+##
+# After tix menu changes, create temp yasim config file woth new elements
+#
+def autoFromVbls():
+  global ycfgFid
+  global ycfgNam
+  global acfgFid
+  global plt2Fid
+  global plt3Fid
+  global vbl2Fid
+  global vbl3Fid
+  global Va
+  global Aa
+  global Ka
+  global Ra
+  global Fa
+  global Vc
+  global Hc
+  global Kc
+  global Rc
+  global Cw
+  global Iw
+  global Aw
+  global Ww
+  global Pw
+  global Lw
+  global Dw
+  global Ah
+  global Wh
+  global Ph
+  global Lh
+  global Dh
+
+  apprFlag   = 0
+  cruzFlag   = 0
+  wingFlag   = 0
+  hstabFlag  = 0
+  ## # open auto yasim config file
+  acfgHndl  = open(acfgFid, 'w', 0)
+  # Phase 3 write auto file via yconfig template and subsVbls from Tix
+  with open(ycfgFid, 'r') as ycfg:
+  # step each line in template yasim config file
+    for line in ycfg:
+      # flag on appr section
+      if '<approach' in line:
+        apprFlag = 1
+      if '</approach' in line:
+        apprFlag = 0
+      # flag on cruise section
+      if '<cruise' in line:
+        cruzFlag = 1
+      if '</cruise' in line:
+        cruzFlag = 0
+      # flag on wing section
+      if '<wing' in line:
+        wingFlag = 1
+      if '</wing' in line:
+        wingFlag = 0
+      # flag on hstab section
+      if '<hstab' in line:
+        hstabFlag = 1
+      if '</hstab' in line:
+        hstabFlag = 0
+      ### appr section parse approach speed and AoA elements
+      if (apprFlag == 1):
+        #in appr section, find elements
+        if ('approach speed' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textVa = line[0:(sepsList[0]+1)]
+          textAa = line[(sepsList[1]):(sepsList[2]+1)]
+          textKa = line[(sepsList[3]):(sepsList[4]+1)]
+          textEL = line[(sepsList[5]):]
+          line   = textVa + str(Va) + textAa + str(Aa) + textKa + str(Ka)   \
+                 + textEL
+        if ('throttle' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textRa = line[0:(sepsList[2]+1)]
+          textEL = line[(sepsList[3]):]
+          line   = textRa + str(Ra) + textEL
+        if ('flaps' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textFa = line[0:(sepsList[2]+1)]
+          textEL = line[(sepsList[3]):]
+          line   = textFa + str(Fa) + textEL
+        ###
+      ### cruise section parse cruise speed element
+      if (cruzFlag == 1):
+        #in cruise section, find element
+        if ('cruise speed' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textVc = line[0:(sepsList[0]+1)]
+          textHc = line[(sepsList[1]):(sepsList[2]+1)]
+          textKc = line[(sepsList[3]):(sepsList[4]+1)]
+          textEL = line[(sepsList[5]):]
+          line   = textVc + str(Vc) + textHc + str(Hc) + textKc + str(Kc)   \
+                 + textEL
+        if ('throttle' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textRc = line[0:(sepsList[2]+1)]
+          textEL = line[(sepsList[3]):]
+          line   = textRc + str(Rc) + textEL
+        ###
+      ### wing section parse camber and induced drag elements
+      if (wingFlag == 1):
+        #in wing section, find elements
+        if ('camber' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textCw = line[0:(sepsList[8]+1)]
+          textIw = line[(sepsList[9]):(sepsList[10]+1)]
+          textEL = line[(sepsList[11]):]
+          # overwrite line with substituted elements
+          line   = textCw + str(Cw) + textIw + str(Iw) + textEL
+        ###
+        #in wing section, find stall elements
+        if ('stall' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textAw = line[0:(sepsList[0]+1)]
+          textWw = line[(sepsList[1]):(sepsList[2]+1)]
+          textPw = line[(sepsList[3]):(sepsList[4]+1)]
+          textEL = line[(sepsList[5]):]
+          line   = textAw + str(Aw) + textWw + str(Ww) + textPw + str(Pw)  \
+                 + textEL
+        ###
+        #in wing section, find flap0 elements
+        if ('flap0' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textLw = line[0:(sepsList[4]+1)]
+          textDw = line[(sepsList[5]):(sepsList[6]+1)]
+          textEL = line[(sepsList[7]):]
+          line   = textLw + str(Lw) + textDw + str(Dw) + textEL
+      ### hstab section parse stall and flap0 elements
+      if (hstabFlag == 1):
+        #in hstab section, find stall elements
+        if ('stall' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textAh = line[0:(sepsList[0]+1)]
+          textWh = line[(sepsList[1]):(sepsList[2]+1)]
+          textPh = line[(sepsList[3]):(sepsList[4]+1)]
+          textEL = line[(sepsList[5]):]
+          line   = textAh + str(Ah) + textWh + str(Wh) + textPh + str(Ph)    \
+                 + textEL
+        ###
+        #in hstab section, find flap0 elements
+        if ('flap0' in line):
+          # make an index list of double quotes in the line
+          sepsList = []
+          sepsChar = '"'
+          lastIndx = 0
+          while (lastIndx > -1):
+            sepsIndx = line.find( sepsChar, (lastIndx +1))
+            if (sepsIndx > 0) :
+              sepsList.append(sepsIndx)
+            lastIndx = sepsIndx
+          # Use index list to split line into text and numbers
+          textLh = line[0:(sepsList[4]+1)]
+          textDh = line[(sepsList[5]):(sepsList[6]+1)]
+          textEL = line[(sepsList[7]):]
+          line   = textLh + str( Lh) + textDh + str(Dh) + textEL
+      # Write unchanged/modified line into auto.xml
+      acfgHndl.write(line)
+    #close and sync files
+    acfgHndl.flush
+    os.fsync(acfgHndl.fileno())
+    acfgHndl.close
+    ycfg.flush
+    os.fsync(ycfg.fileno())
+  ycfg.close
+  ## auto create 2 vble gnuplot config file
+  apltHndl  = open(vbl2Fid, 'w', 0)
+  with open(plt2Fid, 'r') as tplt:
+    for line in tplt:
+      # find the title line in template config
+      if ('set title' in line):
+          #create title using parsed / substituted values
+          line = ' set title "'+ 'Ap:'   + str(Va) + ' ' + str(Aa)            \
+            + ' '     + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa)               \
+            + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '         \
+            + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)    \
+            + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)   \
+            + '\\nHs:' + str(Ah) + ' ' + str(Wh) + ' ' + str(Ph)              \
+            + ' '   + str(Lh) + ' ' + str(Dh) + '" \n'
+      # Write line into auto.xml
+      apltHndl.write(line)
+  #  apltHndl.flush
+  #  os.fsync(apltHndl.fileno())
+    apltHndl.close
+  #  tplt.flush
+  #  os.fsync(tplt.fileno())
+    tplt.close
+  #
+  ## auto create 3 vble gnuplot config file
+  apltHndl  = open(vbl3Fid, 'w', 0)
+  with open(plt3Fid, 'r') as tplt:
+    for line in tplt:
+      # find the title line in template config
+      if ('set title' in line):
+          #create title using parsed / substituted values
+          line = ' set title "'+ 'Ap:'   + str(Va) + ' ' + str(Aa)            \
+            + ' '     + str(Ka) + ' ' + str(Ra) + ' ' + str(Fa)               \
+            + ' Cr:'  + str(Vc) + ' ' + str(Hc) + ' ' + str(Kc) + ' '         \
+            + str(Rc) + '\\nWi:' + str(Cw) + ' ' + str(Iw) + ' ' + str(Aw)    \
+            + ' ' + str(Ww) + ' ' + str(Pw) + ' ' + str(Lw) + ' ' + str(Dw)   \
+            + '\\nHs:' + str(Ah) + ' ' + str(Wh) + ' ' + str(Ph)              \
+            + ' '   + str(Lh) + ' ' + str(Dh) + '" \n'
+      # Write unchanged/modified line into auto.xml
+      apltHndl.write(line)
+  #  apltHndl.flush
+  #  os.fsync(apltHndl.fileno())
+    apltHndl.close
+  #  tplt.flush
+  #  os.fsync(tplt.fileno())
+    tplt.close
+
+##
+# Call yasim data and gnuplot with auto-created config and plot spec files
+def callPlot():
+  global acfgFid
+  global dataFid
+  # run yasim external process to show console output
+  command_line = 'yasim ' + acfgFid
+  args = shlex.split(command_line)
+  p = subprocess.Popen(args)
+  p.communicate()
+  p.wait()
+  #
+  ## # run yasim external process for saved dataset file
+  ## dataFid = ycfgNam + '.dat'
+  ## dataHndl = open(dataFid, 'w')
+  ## command_line = "yasim auto.xml -g "
+  ## args = shlex.split(command_line)
+  ## p = subprocess.Popen(args, stdout=dataHndl)
+  ## #dataHndl.flush
+  ## #os.fsync(dataHndl.fileno())
+  ## dataHndl.close
+  ## p.wait()
+  #
+  # run yasim external process to create auto dataset
+  dataHndl = open(dataFid, 'w')
+  command_line = 'yasim ' + acfgFid + ' -g '
+  args = shlex.split(command_line)
+  p = subprocess.Popen(args, stdout=dataHndl)
+  #dataHndl.flush
+  #os.fsync(dataHndl.fileno())
+  dataHndl.close
+  p.wait()
+  #
+  # run gnuplot with 2 vble command file to plot dataset
+  command_line = "gnuplot -p " + vbl2Fid
+  args = shlex.split(command_line)
+  p = subprocess.Popen(args)
+  p.communicate()
+  #
+  # run gnuplot with 3 vble command file to plot dataset
+  command_line = "gnuplot -p " + vbl3Fid
+  args = shlex.split(command_line)
+  p = subprocess.Popen(args)
+  p.communicate()
+#
+
+##
+# Tix Interface Menu #
+##
+class PropertyField:
+  def __init__(self, parent, prop, label):
+    self.prop = prop
+    self.field = Tix.LabelEntry( parent, label=label,
+       options='''
+       label.width 12
+       label.anchor e
+       entry.width 12
+       ''' )
+    self.field.pack( side=Tix.TOP, padx=8, pady=2 )
+
+  # Pull numeric vals from menu entries and store into variables
+  def eval_field(self):
+    global Va
+    global Aa
+    global Ka
+    global Ra
+    global Fa
+    global Vc
+    global Hc
+    global Kc
+    global Rc
+    global Cw
+    global Iw
+    global Aw
+    global Ww
+    global Pw
+    global Lw
+    global Dw
+    global Ah
+    global Wh
+    global Ph
+    global Lh
+    global Dh
+    val = self.field.entry.get()
+    lbl = self.field.label.cget('text')
+    self.prop = val
+    if 'ApprSpd'    in lbl: Va = val
+    if 'ApprAoA'    in lbl: Aa = val
+    if 'ApprFuel'   in lbl: Ka = val
+    if 'ApprThrt'   in lbl: Ra = val
+    if 'ApprFlap'   in lbl: Fa = val
+    if 'CruiseSpd'  in lbl: Vc = val
+    if 'CruiseAlt'  in lbl: Hc = val
+    if 'CruiseFuel' in lbl: Kc = val
+    if 'WingCambr'  in lbl: Cw = val
+    if 'WingIDrag'  in lbl: Iw = val
+    if 'WingStAoA'  in lbl: Aw = val
+    if 'WingStWid'  in lbl: Ww = val
+    if 'WingStlPk'  in lbl: Pw = val
+    if 'WFlapLift'  in lbl: Lw = val
+    if 'WFlapDrag'  in lbl: Dw = val
+    if 'HstbStAoA'  in lbl: Ah = val
+    if 'HstbStWid'  in lbl: Wh = val
+    if 'HstbStlPk'  in lbl: Ph = val
+    if 'HFlapLift'  in lbl: Lh = val
+    if 'HFlapDrag'  in lbl: Dh = val
+
+  def update_field(self):
+    val = self.prop
+    self.field.entry.delete(0,'end')
+    self.field.entry.insert(0, val)
+
+class PropertyPage(Tix.Frame):
+  def __init__(self,parent):
+    Tix.Frame.__init__(self,parent)
+    #self.fgfs = fgfs
+    self.pack( side=Tix.TOP, padx=2, pady=2, fill=Tix.BOTH, expand=1 )
+    self.fields = []
+
+  def addField(self, prop, label):
+    f = PropertyField(self, prop, label)
+    self.fields.append(f)
+
+  def eval_fields(self):
+    for f in self.fields:
+      f.eval_field()
+
+  def update_fields(self):
+    for f in self.fields:
+      #f.update_field(self.fgfs)
+      f.update_field()
+      Tix.Frame.update(self)
+
+class ycTix(Tix.Frame):
+  global Va
+  global Aa
+  def __init__(self,root=None):
+    Tix.Frame.__init__(self,root)
+    z = root.winfo_toplevel()
+    z.wm_protocol("WM_DELETE_WINDOW", lambda self=self: self.quitcmd())
+    #self.fgfs = fgfs
+    self.pack()
+    self.pages = {}
+    self.after_id = None
+    self.createWidgets()
+    self.update()
+
+  def createWidgets(self):
+    self.nb = Tix.NoteBook(self)
+    self.nb.add( 'appr', label='APPR',
+           raisecmd= lambda self=self: self.update_page() )
+    self.nb.add( 'cruz', label='CRUISE',
+           raisecmd= lambda self=self: self.update_page() )
+    self.nb.add( 'wing', label='WING',
+           raisecmd= lambda self=self: self.update_page() )
+    self.nb.add( 'hstb', label='HSTAB',
+           raisecmd= lambda self=self: self.update_page() )
+
+    page = PropertyPage( self.nb.appr )
+    self.pages['appr'] = page
+    page.addField( Va,    'ApprSpd:')
+    page.addField( Aa,    'ApprAoA:')
+    page.addField( Ka,    'ApprFuel:')
+    page.addField( Ra,    'ApprThrt:')
+    page.addField( Fa,    'ApprFlap:')
+
+    page = PropertyPage( self.nb.cruz )
+    self.pages['cruz'] = page
+    page.addField( Vc,    'CruiseSpd:')
+    page.addField( Hc,    'CruiseAlt:')
+    page.addField( Kc,   'CruiseFuel:')
+
+    page = PropertyPage( self.nb.wing )
+    self.pages['wing'] = page
+    page.addField( Cw,    'WingCambr:')
+    page.addField( Iw,    'WingIDrag:')
+    page.addField( Aw,    'WingStAoA:')
+    page.addField( Ww,    'WingStWid:')
+    page.addField( Pw,    'WingStlPk:')
+    page.addField( Lw,    'WFlapLift:')
+    page.addField( Dw,    'WFlapDrag:')
+
+    page = PropertyPage( self.nb.hstb )
+    self.pages['hstb'] = page
+    page.addField( Ah,    'HstbStAoA:')
+    page.addField( Wh,    'HstbStWid:')
+    page.addField( Ph,    'HstbStlPk:')
+    page.addField( Lh,    'HFlapLift:')
+    page.addField( Dh,    'HFlapDrag:')
+
+    self.nb.pack( expand=1, fill=Tix.BOTH, padx=5, pady=5, side=Tix.TOP )
+
+    self.QUIT = Tix.Button(self)
+    self.QUIT['text'] = 'Quit'
+    self.QUIT['command'] = self.quitCmd
+    self.QUIT.pack({"side": "right"})
+
+    self.PLOT = Tix.Button(self)
+    self.PLOT['text'] = 'Plot'
+    self.PLOT['command'] = self.plotCmd
+    self.PLOT.pack({"side": "left"})
+
+  def plotCmd(self):
+    page = self.pages[ self.nb.raised() ]
+    ##for k in self.pages.keys():
+      ##p = self.pages[k]
+      ##print ('p: ', p)
+      ##p.eval_fields()
+    page.eval_fields()
+    autoFromVbls()
+    callPlot()
+
+  def quitCmd(self):
+    if self.after_id:
+      self.after_cancel(self.after_id)
+    self.quit()
+    self.destroy()
+
+  def update_page(self):
+    page = self.pages[ self.nb.raised() ]
+    page.update_fields()
+    self.update()
+    ###self.after_id = self.after( 1000, lambda self=self: self.update_page() )
+
+def main():
+  global ycfgFid
+  global ycfgNam
+  global Va
+  global Aa
+  global Ka
+  global Ra
+  global Fa
+  global Vc
+  global Hc
+  global Kc
+  global Rc
+  global Cw
+  global Iw
+  global Aw
+  global Ww
+  global Pw
+  global Lw
+  global Dw
+  global Ah
+  global Wh
+  global Ph
+  global Lh
+  global Dh
+  normArgs(sys.argv[1:])
+  root = Tix.Tk()
+  vblsFromTplt()
+  app = ycTix( root )
+  app.mainloop()
+
+if __name__ == '__main__':
+  main()
+
+##### ycTixPlot Ends
