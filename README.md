@@ -12,7 +12,34 @@ the yasim conguration file to real-time generate Lift / Drag LvsD plots.
   inciMarg.py takes a named yasim configuration file and, using the landing gear's heights 
 to figure the wing's inclination while on the ground and compares this with wing's stall angle.
 
-  aoaStatic.py command line utility for incidence, stall margin with console output.
+  aoaStatic.py command line utility for incidence, stall margin with console output. 
+  
+  
+  Buckaroo's Yasim Reference : 
+https://buckarooshangar.com/flightgear/yasimtut.html  
+
+
+  Running Real-Time Plots:
+  Use a working directory in a folder below the executables: 
+cd some/yasiPlot; mkdir myrun; cd myrun
+
+  copy or link to the yasim configuration file(s) of interest :
+ln -s /pathTo/fgaddon/Aircraft/Douglas-Dc3/dc-3-yasim.xml  xsimi-yasim.xml
+ln -s /pathTo/fgaddon/Aircraft/Beechcraft-C18S/Systems/FDM/model18-yasim.xml ysimi-yasim.xml
+( e.g. to compare a GA tailGear with a larger tailGear model ) 
+
+  xsimi.py ysimi.py are clones, run each in a terminal with its command: 
+pathToEnv/bokeh serve --port 5006 ysimi.py 
+pathToEnv/bokeh serve --port 5007 xsimi.py 
+(5006 is the standard port,  here xsimi is the reference for changes on ysimi ) 
+  
+  open a web browser and in seperate tabs: 
+http://localhost:5007/xsimi 
+http://localhost:5006/ysimi 
+
+  To see the effect on Lift and Drag curves slowly adjust any pointer. Each step will 
+trigger a yasim re-run and re-plot of the three curves while on the console a brief message
+reports key results: Elevator on Approach  and  Center of Gravity relative to Wing's MAC. 
 
 
 VVV Older Utilities /  Versions may not be pyhon3 ready   !!!    VVV

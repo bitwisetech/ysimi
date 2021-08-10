@@ -1,1 +1,0 @@
-/comm/opt/aPyt/yasiVers/multi-tplt-3arg.p
