@@ -20,6 +20,10 @@ https://buckarooshangar.com/flightgear/yasimtut.html
 
 
   Running Real-Time Plots:
+  
+  ** Presently flightgear/src/FDM/yasim/yasim-test.cpp must be patched to produce 3-way data
+copy yasim-test.cpp into flighgear source and rebuild.
+  
   Use a working directory in a folder below the executables: 
 cd some/yasiPlot; mkdir myrun; cd myrun
 
