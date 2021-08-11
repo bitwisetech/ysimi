@@ -766,7 +766,7 @@ dragPlot  = figure(plot_height=200, plot_width=256, title="Drag G vs AoA",
 lvsdPlot  = figure(plot_height=200, plot_width=256, title="L / D  vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-miasPlot  = figure(plot_height=200, plot_width=256, title="IAS + Lift vs AoA",
+miasPlot  = figure(plot_height=200, plot_width=256, title="Vs0 IAS, %Lift vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 #7 #plot_i.line(x='x', 'y', source=source, line_width=3, line_alpha=0.6)
