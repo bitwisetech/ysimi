@@ -154,7 +154,7 @@ void findMinSpeed(Airplane* a, float alt)
         for(int kts=15; kts<=180; kts++) {
             _calculateAcceleration(a, aoa, kts * KTS2MPS, acc);
             float lift = acc[2];
-            if (lift > 0) {
+            if (lift > 1.0) {
                 printf("%d\t%d\t%f\n", deg, kts, lift);
                 break;
             }

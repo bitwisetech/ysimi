@@ -42,7 +42,7 @@ pythVers = sys.version_info[0]
 from collections import OrderedDict 
 ##
 global yCfgName, yCfgFid, aCfgFid, atptFid, tpltFid, versDict
-global solnDict, solnCDS, solnFid, solnCols, solnDT, solnIter, solnElev, solnCofG
+global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 ## These vbles correspond to the elements in the config file: 
 global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
@@ -57,7 +57,7 @@ global Hy, Vy                                        # Solver    parms
 def presets():
   ## Default File IDs 
   ##   FileID's for each yasim Version are defined in spinVersions(), spinYasim()
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, solnFid, versDict
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   procPref = "xsimi"
   # yasim config xml file read input 
   yCfgFid   = procPref + '-yasim.xml'
@@ -73,6 +73,7 @@ def presets():
   #
   vCfgFid   = procPref + '-vCfg-vCurr.xml'
   lvsdFid   = procPref + '-LvsD-vCurr.txt'
+  miasFid   = procPref + '-mias-vCurr.txt'
   solndFid  = procPref + '-soln-vCurr.txt'
   #
   # Versions in Yasim configuration strings, OrderedDict
@@ -108,7 +109,7 @@ def tuplSubs( tName, tText, tValu ):
 # Scan original Yyasim config and extract numeric elements, save for tix menu
 #
 def vblsFromTplt():
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, solnFid
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
@@ -408,7 +409,7 @@ def vblsFromTplt():
 # After tix menu changes, copy input yasim config file to output with new elements
 #
 def cfigFromVbls( tFID):
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, solnFid
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
   global Vc, Hc, Kc, Rc                                        # Cruise    parms 
   global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
@@ -602,13 +603,14 @@ def cfigFromVbls( tFID):
 # Call Yasim as external process to generate Lift, Drag ( LvsD ? ) data tables 
 ## 
 def spinVersions(tFid):
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, solnFid, versDict
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
 #
   ## Iterate through each version in dictionary
   for versKywd in versDict.keys():
     versSfix = versDict[versKywd]
     vCfgFid  = yCfgName + versSfix + '.xml'
     lvsdFid  = procPref + '-LvsD' + versSfix + '.txt'
+    miasFid  = procPref + '-mias' + versSfix + '.txt'
     solnFid  = procPref + '-soln' + versSfix + '.txt'
     ##
     ## # open version - yasim config file, apply version string 
@@ -665,7 +667,7 @@ def spinVersions(tFid):
 #
 ## 
 def spinYasim(tFid):
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, solnFid, versDict
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   global Hy, Vy                                                # Solver    parms
 #
   ## Iterate through each version in dictionary
@@ -673,12 +675,25 @@ def spinYasim(tFid):
     versSfix = versDict[versKywd]
     vCfgFid  = yCfgName + versSfix + '.xml'
     lvsdFid  = procPref + '-LvsD' + versSfix + '.txt'
+    miasFid  = procPref + '-mias' + versSfix + '.txt'
     solnFid  = procPref + '-soln' + versSfix + '.txt'
     ##
     ##
     # run yasim external process to generate LvsD data table saved dataset file
     vDatHndl = open(lvsdFid, 'w')
-    command_line = 'yasim ' + vCfgFid + ' -g -a '+ str(Hy) + ' -s ' + str(Vy)
+    command_line = 'yasim ' + vCfgFid + ' -g -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
+    #    print(command_line)
+    args = shlex.split(command_line)
+    DEVNULL = open(os.devnull, 'wb')
+    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+    DEVNULL.close()
+    vDatHndl.close
+    os.sync()
+    #p.wait()
+    ##
+    # run yasim external process to generate min IAS data table saved dataset file
+    vDatHndl = open(miasFid, 'w')
+    command_line = 'yasim ' + vCfgFid + ' --min-speed -a '+ str(Hy/3.3)
     #    print(command_line)
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -722,8 +737,11 @@ spinVersions( aCfgFid )
 spinYasim( aCfgFid )
 
 # sources for bokeh dataframe and readout data 
-yDf  = pd.read_csv(lvsdFid, delimiter='\t')
-yDs  = ColumnDataSource(yDf)
+lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
+lvsdDsrc  = ColumnDataSource(lvsdDfrm)
+
+miasDfrm  = pd.read_csv(miasFid, delimiter='\t')
+miasDsrc  = ColumnDataSource(miasDfrm)
 
 # Pull key values from yasim solution console output
 solnIter = scanSoln( solnFid, 'Iterations')
@@ -739,19 +757,24 @@ solnCols = [TableColumn( field="dNames", title="Solution Item" ),
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
 
 # Set up plots
-liftPlot  = figure(plot_height=240, plot_width=256, title="Lift vs AoA",
+liftPlot  = figure(plot_height=200, plot_width=256, title="Lift G vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-dragPlot  = figure(plot_height=240, plot_width=256, title="Drag vs AoA",
+dragPlot  = figure(plot_height=200, plot_width=256, title="Drag G vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-lvsdPlot  = figure(plot_height=240, plot_width=256, title="L / D vs AoA",
+lvsdPlot  = figure(plot_height=200, plot_width=256, title="L / D  vs AoA",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+miasPlot  = figure(plot_height=200, plot_width=256, title="IAS + Lift vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 #7 #plot_i.line(x='x', 'y', source=source, line_width=3, line_alpha=0.6)
-liftPlot.line( x='aoa', y='Lift', source=yDs, line_width=3, line_alpha=0.6)
-dragPlot.line( x='aoa', y='Drag', source=yDs, line_width=3, line_alpha=0.6)
-lvsdPlot.line( x='aoa', y='LvsD', source=yDs, line_width=3, line_alpha=0.6)
+liftPlot.line( x='aoa', y='Lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+dragPlot.line( x='aoa', y='Drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+lvsdPlot.line( x='aoa', y='LvsD',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+miasPlot.line( x='aoa', y='knots', source=miasDsrc, line_width=3, line_alpha=0.6)
+miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6)
 
 # Set up widgets, balance range / step size each affects re-calc
 #  Approach group
@@ -806,8 +829,10 @@ def update_elem(attrname, old, new):
   cfigFromVbls( aCfgFid )
   spinVersions( aCfgFid )
   spinYasim( aCfgFid )
-  yDf  = pd.read_csv( lvsdFid, delimiter='\t')
-  yDs.data  = yDf
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDsrc.data  = lvsdDfrm
+  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
+  miasDsrc.data  = miasDfrm
 
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
@@ -836,7 +861,8 @@ for v in [varyVa, varyAa, varyRa, varyKa, varyFa, varyVc, varyHc, varyKc, varyRc
 # Set up layouts and add to document
 varyAppr = column(varyVa, varyAa, varyRa, varyKa, varyFa)
 varyCrze = column(varyVc, varyHc, varyKc, varyRc)
-varyWing = column(varyIw, varyAw, varyWw, varyPw, varyMb, varyXb)
+varyWing = column(varyIw, varyAw, varyWw, varyPw)
+varyBlst = column(varyMb, varyXb)
 
 ##
 presets()
@@ -850,6 +876,7 @@ curdoc().title = yCfgName
 curdoc().add_root(row(varyAppr, liftPlot, width=480))
 curdoc().add_root(row(varyCrze, dragPlot, width=480))
 curdoc().add_root(row(varyWing, lvsdPlot, width=480))
+curdoc().add_root(row(varyBlst, miasPlot, width=480))
 curdoc().add_root(row(solnDT, width=480))
 
 ## yasimian ends
