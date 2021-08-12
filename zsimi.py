@@ -637,7 +637,7 @@ def spinVersions(tFid):
   # find keyword for inserting into vCfg 
   versKywd = versDict[versSfix]
   vCfgFid  = yCfgName + versSfix + '.xml'
-  print ('spinVers Fid:', vCfgFid)
+  print ('spinVers tFid:', tFid,  ' vCfgFid: ', vCfgFid )
   lvsdFid  = procPref + '-LvsD' + versSfix + '.txt'
   miasFid  = procPref + '-mias' + versSfix + '.txt'
   solnFid  = procPref + '-soln' + versSfix + '.txt'
@@ -759,6 +759,61 @@ def scanSoln( tFid, tText) :
         return ( tLine[ tPosn + 1 : ].strip('\n'))
 
 #
+def update_elem(attrname, old, new):
+## These vbles correspond to the elements in the config file: 
+  global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
+  global Vc, Hc, Kc, Rc                                        # Cruise    parms 
+  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
+  global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
+  global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
+  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
+  global Hy, Vy                                                # Solver    parms
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  # Get the current slider values
+  Va =  varyVa.value
+  Aa =  varyAa.value
+  Ra =  varyRa.value
+  Ka =  varyKa.value
+  Fa =  varyFa.value
+  #
+  Vc =  varyVc.value
+  Kc =  varyKc.value
+  Rc =  varyRc.value
+  #
+  Iw =  varyIw.value
+  Aw =  varyAw.value
+  Ww =  varyWw.value
+  Pw =  varyPw.value
+  Mb =  varyMb.value
+  Xb =  varyXb.value
+  #
+  cfigFromVbls( vCfgFid )
+  spinVersions( vCfgFid )
+  spinYasim( vCfgFid )
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDsrc.data  = lvsdDfrm
+  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
+  miasDsrc.data  = miasDfrm
+
+  # Pull key values from yasim solution console output
+  solnIter = scanSoln( solnFid, 'Iterations')
+  solnElev = scanSoln( solnFid, 'Approach Elevator')
+  solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
+  # dunno how to update text input boxes so output to console 
+  print( 'Iterations: ', solnIter, '  Approach Elevator:', \
+                         solnElev, '  CG-x rel. MAC', solnCofG )
+  solnDict = dict( 
+              dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
+              dValues = [  solnIter,     solnElev,            solnCofG      ])
+  solnCDS  = ColumnDataSource ( solnDict)
+  solnCols = [TableColumn( field="dNames", title="Solved" ),
+              TableColumn( field="dValues", title="Value" ), ]
+  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
+  solnCDS.update()
+  solnDT.update()
+#
 
 def dropHdlr(event) :
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
@@ -865,61 +920,6 @@ varyPw    = Slider(title="Wing Stall Peak  Pw",  value= Pw, start=(0.2   ), end=
 varyMb    = Slider(title="Ballast Mass     Mb",  value= Mb, start=(-4000 ), end=(4000),  step=(200   ))
 varyXb    = Slider(title="Ballast Posn     Xb",  value= Xb, start=(-200  ), end=(200 ),  step=(0.5   ))
 
-def update_elem(attrname, old, new):
-## These vbles correspond to the elements in the config file: 
-  global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
-  global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
-  global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
-  global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
-  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
-  global Hy, Vy                                                # Solver    parms
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
-  # Get the current slider values
-  Va =  varyVa.value
-  Aa =  varyAa.value
-  Ra =  varyRa.value
-  Ka =  varyKa.value
-  Fa =  varyFa.value
-  #
-  Vc =  varyVc.value
-  Kc =  varyKc.value
-  Rc =  varyRc.value
-  #
-  Iw =  varyIw.value
-  Aw =  varyAw.value
-  Ww =  varyWw.value
-  Pw =  varyPw.value
-  Mb =  varyMb.value
-  Xb =  varyXb.value
-  #
-  cfigFromVbls( vCfgFid )
-  spinVersions( vCfgFid )
-  spinYasim( vCfgFid )
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
-  lvsdDsrc.data  = lvsdDfrm
-  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
-  miasDsrc.data  = miasDfrm
-
-  # Pull key values from yasim solution console output
-  solnIter = scanSoln( solnFid, 'Iterations')
-  solnElev = scanSoln( solnFid, 'Approach Elevator')
-  solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
-  # dunno how to update text input boxes so output to console 
-  print( 'Iterations: ', solnIter, '  Approach Elevator:', \
-                         solnElev, '  CG-x rel. MAC', solnCofG )
-  solnDict = dict( 
-              dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
-              dValues = [  solnIter,     solnElev,            solnCofG      ])
-  solnCDS  = ColumnDataSource ( solnDict)
-  solnCols = [TableColumn( field="dNames", title="Solved" ),
-              TableColumn( field="dValues", title="Value" ), ]
-  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
-  solnCDS.update()
-  solnDT.update()
-#
 
 for v in [varyVa, varyAa, varyRa, varyKa, varyFa, varyVc, varyHc, varyKc, varyRc, \
           varyIw, varyAw, varyWw, varyPw, varyMb, varyXb]:
@@ -938,7 +938,7 @@ varyBlst = column(varyMb, varyXb)
 presets()
 vblsFromTplt()
 cfigFromVbls( vCfgFid )
-spinVersions(vCfgFid)
+#spinVersions(vCfgFid)
 spinYasim(vCfgFid)
 #
 curdoc().title = yCfgName
@@ -949,4 +949,4 @@ curdoc().add_root(row(varyWing, lvsdPlot, width=480))
 curdoc().add_root(row(varyBlst, miasPlot, width=480))
 #curdoc().add_root(row(solnDT, width=480))
 
-## yasimian ends
+## simi ends
