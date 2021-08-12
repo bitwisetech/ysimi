@@ -871,7 +871,6 @@ cfigFromVbls( aCfgFid )
 spinVersions(aCfgFid)
 spinYasim(aCfgFid)
 #
-#curdoc().title = 'ysimi'
 curdoc().title = yCfgName
 curdoc().add_root(row(varyAppr, liftPlot, width=480))
 curdoc().add_root(row(varyCrze, dragPlot, width=480))
