@@ -56,6 +56,7 @@ def presets():
   ## Default File IDs 
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   global procPref, lvsdFid, miasFid, solnFid
+  global Hy, Vy                                  # Solver    parms
   procPref = "zsimi"
   # yasim config xml file read input 
   yCfgFid  = procPref + '-yasim.xml'
@@ -82,7 +83,10 @@ def presets():
    
   versToDo = '-vCurr'
   versKywd = versDict[versToDo]
-  print('presets versKywd:', versKywd)
+  #print('presets versKywd:', versKywd)
+# # Yasim 'Solve At' values for Speed and Altitude 
+  Vy = 130
+  Hy = 4000
 ##
 
 #  Return numeric value from 'name="nn.nnn"' tuple in config file
@@ -127,9 +131,6 @@ def vblsFromTplt():
   vstabFlag  = 0
   ballFlag   = 0
   propFlag   = 0
-# # Yasim 'Solve At' values for Speed and Altitude 
-  Vy = 130
-  Hy = 4000
   # 
   Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
   Cw = Aw = Ww = Pw = Lf = Df = Lr = Dr = 0
@@ -712,7 +713,7 @@ def spinYasim(tFid):
   ##
   # run yasim external process to generate LvsD data table saved dataset file
   vDatHndl = open(lvsdFid, 'w')
-  command_line = 'yasim ' + tFid + ' -g -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
+  command_line = 'yasim ' + tFid + ' -g -a '+ str(Hy/3.3) + ' -s ' + str( (Vy))
   #    print(command_line)
   args = shlex.split(command_line)
   DEVNULL = open(os.devnull, 'wb')
@@ -771,6 +772,7 @@ def update_elem(attrname, old, new):
   global Hy, Vy                                                # Solver    parms
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  global procPref, lvsdFid, miasFid, solnFid
   # Get the current slider values
   Va =  varyVa.value
   Aa =  varyAa.value
@@ -779,6 +781,7 @@ def update_elem(attrname, old, new):
   Fa =  varyFa.value
   #
   Vc =  varyVc.value
+  Hc =  varyHc.value
   Kc =  varyKc.value
   Rc =  varyRc.value
   #
@@ -786,11 +789,14 @@ def update_elem(attrname, old, new):
   Aw =  varyAw.value
   Ww =  varyWw.value
   Pw =  varyPw.value
+  #
   Mb =  varyMb.value
   Xb =  varyXb.value
+  Hy =  varyHy.value
+  Vy =  varyVy.value
   #
   cfigFromVbls( vCfgFid )
-  spinVersions( vCfgFid )
+  #spinVersions( vCfgFid )
   spinYasim( vCfgFid )
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
@@ -824,7 +830,7 @@ def dropHdlr(event) :
   print('dropHdlr versToDo:',  versToDo, '  versKywd: ', versKywd)
   # cf update_elem
   cfigFromVbls( vCfgFid )
-  spinVersions( vCfgFid )
+  #spinVersions( vCfgFid )
   spinYasim( vCfgFid )
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
@@ -917,12 +923,15 @@ varyIw    = Slider(title="Wing Incidence   Iw",  value= Iw, start=(-8.0  ), end=
 varyAw    = Slider(title="Wing Stall Aoa   Aw",  value= Aw, start=(-2.0  ), end=(24.0),  step=(0.1   ))
 varyWw    = Slider(title="Wing Stall Width Ww",  value= Ww, start=(0.0   ), end=(32  ),  step=(0.50  ))
 varyPw    = Slider(title="Wing Stall Peak  Pw",  value= Pw, start=(0.2   ), end=(20.0),  step=(0.2   ))
+#
 varyMb    = Slider(title="Ballast Mass     Mb",  value= Mb, start=(-4000 ), end=(4000),  step=(200   ))
 varyXb    = Slider(title="Ballast Posn     Xb",  value= Xb, start=(-200  ), end=(200 ),  step=(0.5   ))
+varyHy    = Slider(title="Solve at Alt Ft  Hy",  value= Hy, start=(500   ), end=(40000), step=(500   ))
+varyVy    = Slider(title="Solve at IAS Kt  Vy",  value= Vy, start=(40    ), end=(300  ), step=(50    ))
 
 
 for v in [varyVa, varyAa, varyRa, varyKa, varyFa, varyVc, varyHc, varyKc, varyRc, \
-          varyIw, varyAw, varyWw, varyPw, varyMb, varyXb]:
+          varyIw, varyAw, varyWw, varyPw, varyMb, varyXb, varyHy, varyVy ]:
   v.on_change('value', update_elem)
   
 versDrop.on_click( dropHdlr)
@@ -932,7 +941,7 @@ versDrop.on_click( dropHdlr)
 varyAppr = column(varyVa, varyAa, varyRa, varyKa, varyFa)
 varyCrze = column(varyVc, varyHc, varyKc, varyRc)
 varyWing = column(varyIw, varyAw, varyWw, varyPw)
-varyBlst = column(varyMb, varyXb)
+varyBlst = column(varyMb, varyXb, varyHy, varyVy)
 
 ##
 presets()
