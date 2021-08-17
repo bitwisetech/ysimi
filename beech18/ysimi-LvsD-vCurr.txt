@@ -1,42 +1,39 @@
-XML parse error: no element found
- at ysimi-yasim-vCurr.xml,
-line 1, column 0 (SimGear XML Parser)
 aoa	Lift	Drag	LvsD
--5	-nan	-nan	-nan
--4	-nan	-nan	-nan
--3	-nan	-nan	-nan
--2	-nan	-nan	-nan
--1	-nan	-nan	-nan
- 0	-nan	-nan	-nan
- 1	-nan	-nan	-nan
- 2	-nan	-nan	-nan
- 3	-nan	-nan	-nan
- 4	-nan	-nan	-nan
- 5	-nan	-nan	-nan
- 6	-nan	-nan	-nan
- 7	-nan	-nan	-nan
- 8	-nan	-nan	-nan
- 9	-nan	-nan	-nan
-10	-nan	-nan	-nan
-11	-nan	-nan	-nan
-12	-nan	-nan	-nan
-13	-nan	-nan	-nan
-14	-nan	-nan	-nan
-15	-nan	-nan	-nan
-16	-nan	-nan	-nan
-17	-nan	-nan	-nan
-18	-nan	-nan	-nan
-19	-nan	-nan	-nan
-20	-nan	-nan	-nan
-21	-nan	-nan	-nan
-22	-nan	-nan	-nan
-23	-nan	-nan	-nan
-24	-nan	-nan	-nan
-25	-nan	-nan	-nan
-26	-nan	-nan	-nan
-27	-nan	-nan	-nan
-28	-nan	-nan	-nan
-29	-nan	-nan	-nan
-# cl_max 0.0000 at 0 deg
-# cd_min 1000000.0000 at 0 deg
-# ld_max 0.0000 at 0 deg
+-5	-3.2928	0.0940	-35.0161
+-4	-2.5783	0.0501	-51.4126
+-3	-1.8590	0.0256	-72.5874
+-2	-1.1363	0.0220	-51.7442
+-1	-0.4120	0.0253	-16.2990
+ 0	0.3129	0.0356	8.7881
+ 1	1.0376	0.0530	19.5933
+ 2	1.7613	0.0774	22.7693
+ 3	2.4831	0.1088	22.8232
+ 4	3.2020	0.1473	21.7418
+ 5	3.9169	0.1974	19.8386
+ 6	4.6267	0.2582	17.9167
+ 7	5.3308	0.3259	16.3552
+ 8	6.0283	0.4005	15.0527
+ 9	6.7182	0.4837	13.8892
+10	7.3997	0.5736	12.9015
+11	8.0722	0.6698	12.0522
+12	8.7348	0.7723	11.3103
+13	9.3415	0.8768	10.6540
+14	8.6460	0.8565	10.0949
+15	6.6435	0.6868	9.6732
+16	4.4954	0.4776	9.4121
+17	3.8066	0.4163	9.1435
+18	3.8395	0.4396	8.7341
+19	4.0757	0.4894	8.3287
+20	4.2600	0.5348	7.9662
+21	4.4388	0.5816	7.6317
+22	4.6120	0.6299	7.3214
+23	4.7794	0.6796	7.0324
+24	4.9408	0.7307	6.7620
+25	5.0960	0.7830	6.5083
+26	5.2447	0.8366	6.2694
+27	5.3868	0.8913	6.0438
+28	5.5221	0.9471	5.8304
+29	5.6505	1.0040	5.6278
+# cl_max 9.3415 at 13 deg
+# cd_min 0.0220 at -2 deg
+# ld_max 22.8232 at 3 deg

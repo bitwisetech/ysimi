@@ -46,12 +46,12 @@ global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 ## These vbles correspond to the elements in the config file: 
 global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
-global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr            # Wing/Ailr parms
-global Ch, Ih, Ah, Wh, Ph, Lh, Dh                    # Hstab     parms
-global Cv, Iv, Av, Wv, Pv, Lv, Dv                    # Vstab     parms 
-global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop      parms 
-global Mb, Xb, Yb, Zb                                # Ballast   parms 
-global Hy, Vy                                        # Solver    parms
+global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
+global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
+global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
+global Mb, Xb, Yb, Zb                                # Ballast
+global Hy, Vy                                        # Solver
 
 #  Set Defaults and parse cammand args 
 def presets():
@@ -111,14 +111,14 @@ def tuplSubs( tName, tText, tValu ):
 def vblsFromTplt():
   global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   ## These vbles correspond to the elements in the config file: 
-  global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
-  global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
-  global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
-  global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
-  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
-  global Hy, Vy                                                # Solver    parms
+  global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
+  global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
+  global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
+  global Mb, Xb, Yb, Zb                                # Ballast
+  global Hy, Vy                                        # Solver
 #
   # These flags indicate parsing has detected various sections of yasim config 
   apprFlag   = 0
@@ -133,9 +133,12 @@ def vblsFromTplt():
   Hy = 4000
   # 
   Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
-  Cw = Aw = Ww = Pw = Lf = Df = Lr = Dr = 0
-  Ch = Ah = Wh = Ph = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lv = Dv = 0
-  Iw = Ih = 1.00
+  Iw = Aw = Lf = Df = Lr = Dr = 0
+  Ih = Ah = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lr = Dr = 0
+  Cw = Ch = 0.10
+  Dw = Dh = 1.00
+  Pw = Ph = 1.50
+  Ww = Wh = 2.00
   Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0
   # in case ballast element is missing, fake with tiny value
   Mb = Xb = Yb = Zb = 0.001
@@ -233,8 +236,16 @@ def vblsFromTplt():
           Cw =  tuplValu('camber', line)
         #
         if ('idrag' in line):
-          Iw = tuplValu('idrag', line)
-        #print ('Cw: ', Cw, ' Iw: ', Iw)  
+          Dw = tuplValu('idrag', line)
+        else:   
+          Dw = 1.0 
+        #  
+        if ( 'incidence' in line):
+          Iw = tuplValu('incidence', line)
+        else:   
+          Iw = 0
+        #
+        #print ('Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
         ##
         #in wing section, find stall element values
         if ('stall' in line):
@@ -242,11 +253,11 @@ def vblsFromTplt():
           if ( 'aoa' in line):
             Aw = tuplValu('aoa', line)
           #
-          if ( 'width' in line):
-            Ww = tuplValu('width', line)
-          #
           if ( 'peak' in line):
             Pw = tuplValu('peak', line)
+          #
+          if ( 'width' in line):
+            Ww = tuplValu('width', line)
           #
         #print ('Aw: ', Aw, ' Ww: ', Ww, ' Pw: ', Pw)  
         ##
@@ -265,10 +276,10 @@ def vblsFromTplt():
         if ('flap1' in line):
           # find element names, save values to post in Tix gui
           if ( 'lift' in line):
-            Lr = tuplValu('lift', line)
+            Lf = tuplValu('lift', line)
           #
           if ( 'drag' in line):
-            Dr = tuplValu('drag', line)
+            Df = tuplValu('drag', line)
           #
         #print ('Lr: ', Lr, ' Dr: ', Dr)  
       ### hstab section parse camber, idrag, stall and flap0 elements
@@ -281,10 +292,15 @@ def vblsFromTplt():
           Ch = 0
         #
         if ('idrag' in line):
-          Ih = tuplValu('idrag', line)
-        else:
-          # camber is not specified so deflt values to satisfy menu
-          Ih = 1
+          Dh = tuplValu('idrag', line)
+        else:   
+          Dh = 1.0 
+        #  
+        if ( 'incidence' in line):
+          Ih = tuplValu('incidence', line)
+        else:   
+          Ih = 0
+        #
         #print ('Ch: ', Ch, ' Ih: ', Ih)  
         ##
         #in hstab section, find stall elements
@@ -293,11 +309,11 @@ def vblsFromTplt():
           if ( 'aoa' in line):
             Ah = tuplValu('aoa', line)
           #
-          if ( 'width' in line):
-            Wh = tuplValu('width', line)
-          #
           if ( 'peak' in line):
             Ph = tuplValu('peak', line)
+          #
+          if ( 'width' in line):
+            Wh = tuplValu('width', line)
           #
         #print ('Ah: ', Ah, ' Wh: ', Wh, ' Ph: ', Ph)  
         ##
@@ -307,8 +323,8 @@ def vblsFromTplt():
           if ( 'lift' in line):
             Lh = tuplValu('lift', line)
           #
-          if ( 'drag' in line):
-            Dh = tuplValu('drag', line)
+          if ( 'idrag' in line):
+            Dh = tuplValu('idrag', line)
           #
         #print ('Lh: ', Lh, ' Dh: ', Dh)  
       ### vstab section parse camber, idrag, stall and flap0 elements
@@ -321,10 +337,10 @@ def vblsFromTplt():
           Cv = 0
         #
         if ('idrag' in line):
-          Iv = tuplValu('idrag', line)
+          Dv = tuplValu('idrag', line)
         else:
           # camber is not specified so deflt values to satisfy menu
-          Iv = 1
+          Dv = 1
         #print ('Cv: ', Cv, ' Iv: ', Iv)  
         #in vstab section, find stall elements
         if ('stall' in line):
@@ -343,12 +359,12 @@ def vblsFromTplt():
         if ('flap0' in line):
           # find element names, save values to post in Tix gui
           if ( 'lift' in line):
-            Lv = tuplValu('lift', line)
+            Lr = tuplValu('lift', line)
           #
           if ( 'drag' in line):
-            Dv = tuplValu('drag', line)
+            Dr = tuplValu('drag', line)
           #
-        #print ('Lv: ', Lv, ' Dv: ', Dv)
+        #print ('Lr: ', Lr, ' Dr: ', Dr)
       ###
       #ballast
       if (ballFlag == 1):
@@ -409,15 +425,14 @@ def vblsFromTplt():
 # After tix menu changes, copy input yasim config file to output with new elements
 #
 def cfigFromVbls( tFID):
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
-  global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
-  global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
-  global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
-  global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
-  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
-  global Hy, Vy                                                # Solver    parms
+  global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
+  global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
+  global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
+  global Mb, Xb, Yb, Zb                                # Ballast
+  global Hy, Vy                                        # Solver
 #
   apprFlag   = 0
   cruzFlag   = 0
@@ -489,32 +504,36 @@ def cfigFromVbls( tFID):
         if ('camber' in line):
           line = tuplSubs( 'camber',  line, Cw ) 
         if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Iw )
+          line = tuplSubs( 'idrag',   line, Dw )
+        if ('incidence' in line):
+          line = tuplSubs( 'incidence', line, Iw )
         #   
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Aw )
-          line = tuplSubs( 'width',   line, Ww ) 
           line = tuplSubs( 'peak' ,   line, Pw ) 
+          line = tuplSubs( 'width',   line, Ww ) 
         #  
         if ('flap0' in line):
           line = tuplSubs( 'lift',    line, Lf ) 
           line = tuplSubs( 'drag',    line, Df ) 
         #  
         if ('flap1' in line):
-          line = tuplSubs( 'lift',    line, Lr ) 
-          line = tuplSubs( 'drag',    line, Dr )
+          line = tuplSubs( 'lift',    line, Lf ) 
+          line = tuplSubs( 'drag',    line, Df )
         #
       ## HStab     
       if (hstabFlag == 1):
         if ('camber' in line):
           line = tuplSubs( 'camber',  line, Ch ) 
         if ('idrag' in line):
+          line = tuplSubs( 'idrag',   line, Dh )
+        if ('incidence' in line):
           line = tuplSubs( 'idrag',   line, Ih )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Ah ) 
-          line = tuplSubs( 'width',   line, Wh ) 
           line = tuplSubs( 'peak' ,   line, Ph )
+          line = tuplSubs( 'width',   line, Wh ) 
         #   
         if ('flap0' in line):
           line = tuplSubs( 'lift',    line, Lh ) 
@@ -524,16 +543,19 @@ def cfigFromVbls( tFID):
       if (vstabFlag == 1):
         if ('camber' in line):
           line = tuplSubs( 'lift',    line, Cv ) 
+        if ('idrag' in line):
+          line = tuplSubs( 'idrag',   line, Dv )
+        if ('incidence' in line):
           line = tuplSubs( 'idrag',   line, Iv )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Av ) 
-          line = tuplSubs( 'width',   line, Wv ) 
           line = tuplSubs( 'peak' ,   line, Pv )
+          line = tuplSubs( 'width',   line, Wv ) 
         #   
         if ('flap0' in line):
-          line = tuplSubs( 'lift',    line, Lv ) 
-          line = tuplSubs( 'drag',    line, Dv ) 
+          line = tuplSubs( 'lift',    line, Lr ) 
+          line = tuplSubs( 'drag',    line, Dr ) 
         # 
       ###
       #ballast
@@ -551,7 +573,8 @@ def cfigFromVbls( tFID):
         if ('z=' in line):
           line = tuplSubs( 'z',    line, Zb ) 
         #
-        ballFlag =  0
+        if ('/>' in line):
+          ballFlag =  0
         #
       ###
       #prop 
@@ -778,34 +801,54 @@ miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6
 
 # Set up widgets, balance range / step size each affects re-calc
 #  Approach group
-varyVa    = Slider(title="Appr IAS  Va",         value= Va, start=(40.0  ), end=(160 ),  step=(2.0   ))
-varyAa    = Slider(title="Appr AoA  Aa",         value= Aa, start=(-5.0  ), end=(20  ),  step=(0.2   ))
-varyKa    = Slider(title="Appr Thrt  Ka",        value= Ka, start=(0.0   ), end=(1.0 ),  step=(0.1   ))
-varyRa    = Slider(title="Appr Fuel  Ra",        value= Ra, start=(0.0   ), end=(1.0 ),  step=(0.1   ))
-varyFa    = Slider(title="Appr Flap  Fa",        value= Fa, start=(0.0   ), end=(1.0 ),  step=(0.1   ))
+varyVa = Slider(title="Appr IAS         Va", value= Va, start=(40.0 ), end=(160 ),  step=(2.0   ))
+varyAa = Slider(title="Appr AoA         Aa", value= Aa, start=(-5.0 ), end=(20  ),  step=(0.2   ))
+varyKa = Slider(title="Appr Thrt        Ka", value= Ka, start=(0.0  ), end=(1.0 ),  step=(0.1   ))
+varyRa = Slider(title="Appr Fuel        Ra", value= Ra, start=(0.0  ), end=(1.0 ),  step=(0.1   ))
+varyFa = Slider(title="Appr Flap        Fa", value= Fa, start=(0.0  ), end=(1.0 ),  step=(0.1   ))
 #  Cruise
-varyVc    = Slider(title="Cruise IAS  Vc",       value= Vc, start=(40    ), end=(240 ),  step=(2.0   ))
-varyHc    = Slider(title="Cruise Alt  Hc",       value= Hc, start=(1000  ), end=(40000), step=(500   ))
-varyKc    = Slider(title="Cruise Thrt  Kc",      value= Kc, start=(0.0   ), end=(1.0 ),  step=(0.1   ))
-varyRc    = Slider(title="Cruise Fuel  Rc",      value= Rc, start=(0.0   ), end=(1.0 ),  step=(0.1   ))
+varyVc = Slider(title="Cruise IAS       Vc", value= Vc, start=(40   ), end=(240 ),  step=(2.0   ))
+varyHc = Slider(title="Cruise Alt       Hc", value= Hc, start=(1000 ), end=(40000), step=(500   ))
+varyKc = Slider(title="Cruise Thrt      Kc", value= Kc, start=(0.0  ), end=(1.0 ),  step=(0.1   ))
+varyRc = Slider(title="Cruise Fuel      Rc", value= Rc, start=(0.0  ), end=(1.0 ),  step=(0.1   ))
 #  Wing
-varyIw    = Slider(title="Wing Incidence   Iw",  value= Iw, start=(-8.0  ), end=(24  ),  step=(0.2   ))
-varyAw    = Slider(title="Wing Stall Aoa   Aw",  value= Aw, start=(-2.0  ), end=(24.0),  step=(0.1   ))
-varyWw    = Slider(title="Wing Stall Width Ww",  value= Ww, start=(0.0   ), end=(32  ),  step=(0.50  ))
-varyPw    = Slider(title="Wing Stall Peak  Pw",  value= Pw, start=(0.2   ), end=(20.0),  step=(0.2   ))
-varyMb    = Slider(title="Ballast Mass     Mb",  value= Mb, start=(-4000 ), end=(4000),  step=(200   ))
-varyXb    = Slider(title="Ballast Posn     Xb",  value= Xb, start=(-200  ), end=(200 ),  step=(0.5   ))
-
+varyIw = Slider(title="Wing Icidence    Iw", value= Iw, start=(-4.0 ), end=(4   ),  step=(0.2   ))
+varyDw = Slider(title="Wing IDrag       Dw", value= Dw, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
+varyCw = Slider(title="Wing Camber      Cw", value= Iw, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyAw = Slider(title="Wing Stall Aoa   Aw", value= Aw, start=(-2.0 ), end=(24.0),  step=(0.1   ))
+varyPw = Slider(title="Wing Stall Peak  Pw", value= Pw, start=(0.2  ), end=(20.0),  step=(0.2   ))
+varyWw = Slider(title="Wing Stall Width Ww", value= Ww, start=(0.0  ), end=(32  ),  step=(0.50  ))
+#
+varyIh = Slider(title="Hstb Icidence    Ih", value= Ih, start=(-4.0 ), end=(4   ),  step=(0.2   ))
+varyDh = Slider(title="Hstb IDrag       Dh", value= Dh, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
+varyCh = Slider(title="Hstb Camber      Ch", value= Ih, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyAh = Slider(title="Hstb Stall Aoa   Ah", value= Ah, start=(-2.0 ), end=(24.0),  step=(0.1   ))
+varyPh = Slider(title="Hstb Stall Peak  Ph", value= Ph, start=(0.2  ), end=(20.0),  step=(0.2   ))
+varyWh = Slider(title="Hstb Stall Width Wh", value= Wh, start=(0.0  ), end=(32  ),  step=(0.50  ))
+#
+varyIv = Slider(title="Vstb Icidence    Iv", value= Iv, start=(-4.0 ), end=(4   ),  step=(0.2   ))
+varyDv = Slider(title="Vstb IDrag       Dv", value= Dv, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
+varyCv = Slider(title="Vstb Camber      Cv", value= Iv, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyAv = Slider(title="Vstb Stall Aoa   Av", value= Av, start=(-2.0 ), end=(24.0),  step=(0.1   ))
+varyPv = Slider(title="Vstb Stall Peak  Pv", value= Pv, start=(0.2  ), end=(20.0),  step=(0.2   ))
+varyWv = Slider(title="Vstb Stall Width Wv", value= Wv, start=(0.0  ), end=(32  ),  step=(0.50  ))
+#
+varyLr = Slider(title="Rudder Lift      Lr", value= Lr, start=(0.10  ), end=(2.00),  step=(0.10  ))
+varyDr = Slider(title="Rudder Drag      Dr", value= Dr, start=( 0.1  ), end=(4.0 ),  step=(0.1   ))
+#
+varyMb    = Slider(title="Ballast Mass  Mb", value= Mb, start=(-4000 ), end=(4000),  step=(200   ))
+varyXb    = Slider(title="Ballast Posn  Xb", value= Xb, start=(-200  ), end=(200 ),  step=(0.5   ))
+#
 def update_elem(attrname, old, new):
 ## These vbles correspond to the elements in the config file: 
-  global Va, Aa, Ka, Ra, Fa                                    # Approach  parms
-  global Vc, Hc, Kc, Rc                                        # Cruise    parms 
-  global Cw, Iw, Aw, Ww, Pw, Lf, Df, Lr, Dr                    # Wing/Ailr parms
-  global Ch, Ih, Ah, Wh, Ph, Lh, Dh                            # Hstab     parms
-  global Cv, Iv, Av, Wv, Pv, Lv, Dv                            # Vstab     parms 
-  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp                # Prop      parms 
-  global Mb, Xb, Yb, Zb                                        # Ballast   parms 
-  global Hy, Vy                                                # Solver    parms
+  global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
+  global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
+  global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+  global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
+  global Mb, Xb, Yb, Zb                                # Ballast
+  global Hy, Vy                                        # Solver
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
   # Get the current slider values
   Va =  varyVa.value
@@ -819,12 +862,32 @@ def update_elem(attrname, old, new):
   Rc =  varyRc.value
   #
   Iw =  varyIw.value
+  Cw =  varyCw.value
+  Dw =  varyDw.value
+  Iw =  varyIw.value
   Aw =  varyAw.value
-  Ww =  varyWw.value
   Pw =  varyPw.value
+  Ww =  varyWw.value
+  #
+  Ch =  varyCh.value
+  Dh =  varyDh.value
+  Ih =  varyIh.value
+  Ah =  varyAh.value
+  Ph =  varyPh.value
+  Wh =  varyWw.value
+  #
+  Cv =  varyCh.value
+  Dv =  varyDh.value
+  Iv =  varyIh.value
+  Av =  varyAh.value
+  Pv =  varyPh.value
+  Wv =  varyWw.value
+  #
+  Lr =  varyLr.value
+  Dr =  varyDw.value
+  #
   Mb =  varyMb.value
   Xb =  varyXb.value
-
   #
   cfigFromVbls( aCfgFid )
   spinVersions( aCfgFid )
@@ -850,18 +913,24 @@ def update_elem(attrname, old, new):
   solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
   solnCDS.update()
   solnDT.update()
-                         
 
 #
-for v in [varyVa, varyAa, varyRa, varyKa, varyFa, varyVc, varyHc, varyKc, varyRc, \
-          varyIw, varyAw, varyWw, varyPw, varyMb, varyXb]:
+for v in [varyVa, varyAa, varyRa, varyKa, varyFa, \
+          varyVc, varyHc, varyKc, varyRc, \
+          varyIw, varyCw, varyDw, varyAw, varyPw, varyWw, \
+          varyIh, varyCh, varyDh, varyAh, varyPh, varyWh, \
+          varyIv, varyCv, varyDv, varyAv, varyPv, varyWv, \
+          varyLr, varyDr, varyMb, varyXb]:
   v.on_change('value', update_elem)
 
 
 # Set up layouts and add to document
 varyAppr = column(varyVa, varyAa, varyRa, varyKa, varyFa)
 varyCrze = column(varyVc, varyHc, varyKc, varyRc)
-varyWing = column(varyIw, varyAw, varyWw, varyPw)
+varyWing = column(varyIw, varyCw, varyDw, varyAw, varyPw, varyWw)
+varyHstb = column(varyIh, varyCh, varyDh, varyAh, varyPh, varyWh)
+varyVstb = column(varyIv, varyCv, varyDv, varyAv)
+varyRudd = column(varyPv, varyWv, varyLr, varyDr)
 varyBlst = column(varyMb, varyXb)
 
 ##
@@ -871,12 +940,11 @@ cfigFromVbls( aCfgFid )
 spinVersions(aCfgFid)
 spinYasim(aCfgFid)
 #
-#curdoc().title = 'xsimi'
 curdoc().title = yCfgName
-curdoc().add_root(row(varyAppr, liftPlot, width=480))
-curdoc().add_root(row(varyCrze, dragPlot, width=480))
-curdoc().add_root(row(varyWing, lvsdPlot, width=480))
+curdoc().add_root(row(varyAppr, liftPlot, varyCrze, width=480))
+curdoc().add_root(row(varyWing, dragPlot, varyHstb, width=480))
+curdoc().add_root(row(varyVstb, lvsdPlot, varyRudd, width=480))
 curdoc().add_root(row(varyBlst, miasPlot, width=480))
-curdoc().add_root(row(solnDT, width=480))
+#curdoc().add_root(row(solnDT, width=480))
 
 ## yasimian ends

@@ -589,7 +589,7 @@ def cfigFromVbls( tFID):
       # graft for ?simi versions where YASim Version is menu selection 
       # look for eg <airplane mass="6175" version="YASIM_VERSION_CURRENT" mtow-lbs="7500">  
       if '<airplane mass="' in line:
-        print('airplane kywd:', versKywd, '  todo: ', versToDo)
+        #print('airplane kywd:', versKywd, '  todo: ', versToDo)
         # make an index list of double quotes in the line
         sepsList = []
         sepsChar = '"'
@@ -708,8 +708,7 @@ def spinYasim(tFid):
   ##lvsdFid  = procPref + '-LvsD' + versSfix + '.txt'
   ##miasFid  = procPref + '-mias' + versSfix + '.txt'
   ##solnFid  = procPref + '-soln' + versSfix + '.txt'
-  print('spinYasim tFid: ', tFid)
-  ##
+  #print('spinYasim tFid: ', tFid)
   ##
   # run yasim external process to generate LvsD data table saved dataset file
   vDatHndl = open(lvsdFid, 'w')
@@ -808,8 +807,8 @@ def update_elem(attrname, old, new):
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text input boxes so output to console 
-  print( 'Iterations: ', solnIter, '  Approach Elevator:', \
-                         solnElev, '  CG-x rel. MAC', solnCofG )
+  print( versToDo, ' : Iterations: ', solnIter, \
+         '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCofG )
   solnDict = dict( 
               dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
               dValues = [  solnIter,     solnElev,            solnCofG      ])
@@ -827,7 +826,7 @@ def dropHdlr(event) :
   # On dropdown action, record YASim version selected  
   versToDo = event.item
   versKywd = versDict[versToDo]
-  print('dropHdlr versToDo:',  versToDo, '  versKywd: ', versKywd)
+  #print('dropHdlr versToDo:',  versToDo, '  versKywd: ', versKywd)
   # cf update_elem
   cfigFromVbls( vCfgFid )
   #spinVersions( vCfgFid )
@@ -842,8 +841,8 @@ def dropHdlr(event) :
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text input boxes so output to console 
-  print( 'Iterations: ', solnIter, '  Approach Elevator:', \
-                         solnElev, '  CG-x rel. MAC', solnCofG )
+  print( versToDo, ' : Iterations: ', solnIter, \
+         '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCofG )
   solnDict = dict( 
               dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
               dValues = [  solnIter,     solnElev,            solnCofG      ])
