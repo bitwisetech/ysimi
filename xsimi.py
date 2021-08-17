@@ -47,8 +47,8 @@ global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
 global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
-global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
-global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+global Ch, Dh,     Ah, Ph, Wh, Lh, Dh                # Hstab, incidence is set by solver
+global Cv, Dv,     Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
 global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
 global Mb, Xb, Yb, Zb                                # Ballast
 global Hy, Vy                                        # Solver
@@ -114,8 +114,8 @@ def vblsFromTplt():
   global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
   global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
-  global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
-  global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+  global Ch, Dh,     Ah, Ph, Wh, Lh, Dh                # Hstab, incidence is set by solver
+  global Cv, Dv,     Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
   global Mb, Xb, Yb, Zb                                # Ballast
   global Hy, Vy                                        # Solver
@@ -134,7 +134,7 @@ def vblsFromTplt():
   # 
   Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
   Iw = Aw = Lf = Df = Lr = Dr = 0
-  Ih = Ah = Lh = Dh = Cv = Iv = Av = Wv = Pv = Lr = Dr = 0
+  Ah = Lh = Dh = Cv = Av = Wv = Pv = Lr = Dr = 0
   Cw = Ch = 0.10
   Dw = Dh = 1.00
   Pw = Ph = 1.50
@@ -296,12 +296,7 @@ def vblsFromTplt():
         else:   
           Dh = 1.0 
         #  
-        if ( 'incidence' in line):
-          Ih = tuplValu('incidence', line)
-        else:   
-          Ih = 0
-        #
-        #print ('Ch: ', Ch, ' Ih: ', Ih)  
+        #print ('Ch: ', Ch)  
         ##
         #in hstab section, find stall elements
         if ('stall' in line):
@@ -341,7 +336,7 @@ def vblsFromTplt():
         else:
           # camber is not specified so deflt values to satisfy menu
           Dv = 1
-        #print ('Cv: ', Cv, ' Iv: ', Iv)  
+        #print ('Cv: ', Cv)  
         #in vstab section, find stall elements
         if ('stall' in line):
           # find element names, save values to post in Tix gui
@@ -428,8 +423,8 @@ def cfigFromVbls( tFID):
   global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
   global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
-  global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
-  global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+  global Ch, Dh,     Ah, Ph, Wh, Lh, Dh                # Hstab, incidence is set by solver
+  global Cv, Dv,     Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
   global Mb, Xb, Yb, Zb                                # Ballast
   global Hy, Vy                                        # Solver
@@ -527,8 +522,6 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'camber',  line, Ch ) 
         if ('idrag' in line):
           line = tuplSubs( 'idrag',   line, Dh )
-        if ('incidence' in line):
-          line = tuplSubs( 'idrag',   line, Ih )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Ah ) 
@@ -545,8 +538,6 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'lift',    line, Cv ) 
         if ('idrag' in line):
           line = tuplSubs( 'idrag',   line, Dv )
-        if ('incidence' in line):
-          line = tuplSubs( 'idrag',   line, Iv )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Av ) 
@@ -814,21 +805,19 @@ varyRc = Slider(title="Cruise Fuel      Rc", value= Rc, start=(0.0  ), end=(1.0 
 #  Wing
 varyIw = Slider(title="Wing Icidence    Iw", value= Iw, start=(-4.0 ), end=(4   ),  step=(0.2   ))
 varyDw = Slider(title="Wing IDrag       Dw", value= Dw, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
-varyCw = Slider(title="Wing Camber      Cw", value= Iw, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyCw = Slider(title="Wing Camber      Cw", value= Cw, start=(0.01 ), end=(0.50),  step=(0.01  ))
 varyAw = Slider(title="Wing Stall Aoa   Aw", value= Aw, start=(-2.0 ), end=(24.0),  step=(0.1   ))
 varyPw = Slider(title="Wing Stall Peak  Pw", value= Pw, start=(0.2  ), end=(20.0),  step=(0.2   ))
 varyWw = Slider(title="Wing Stall Width Ww", value= Ww, start=(0.0  ), end=(32  ),  step=(0.50  ))
 #
-varyIh = Slider(title="Hstb Icidence    Ih", value= Ih, start=(-4.0 ), end=(4   ),  step=(0.2   ))
 varyDh = Slider(title="Hstb IDrag       Dh", value= Dh, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
-varyCh = Slider(title="Hstb Camber      Ch", value= Ih, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyCh = Slider(title="Hstb Camber      Ch", value= Ch, start=(0.01 ), end=(0.50),  step=(0.01  ))
 varyAh = Slider(title="Hstb Stall Aoa   Ah", value= Ah, start=(-2.0 ), end=(24.0),  step=(0.1   ))
 varyPh = Slider(title="Hstb Stall Peak  Ph", value= Ph, start=(0.2  ), end=(20.0),  step=(0.2   ))
 varyWh = Slider(title="Hstb Stall Width Wh", value= Wh, start=(0.0  ), end=(32  ),  step=(0.50  ))
 #
-varyIv = Slider(title="Vstb Icidence    Iv", value= Iv, start=(-4.0 ), end=(4   ),  step=(0.2   ))
 varyDv = Slider(title="Vstb IDrag       Dv", value= Dv, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
-varyCv = Slider(title="Vstb Camber      Cv", value= Iv, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyCv = Slider(title="Vstb Camber      Cv", value= Cv, start=(0.01 ), end=(0.50),  step=(0.01  ))
 varyAv = Slider(title="Vstb Stall Aoa   Av", value= Av, start=(-2.0 ), end=(24.0),  step=(0.1   ))
 varyPv = Slider(title="Vstb Stall Peak  Pv", value= Pv, start=(0.2  ), end=(20.0),  step=(0.2   ))
 varyWv = Slider(title="Vstb Stall Width Wv", value= Wv, start=(0.0  ), end=(32  ),  step=(0.50  ))
@@ -844,8 +833,8 @@ def update_elem(attrname, old, new):
   global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
   global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
-  global Ch, Dh, Ih, Ah, Ph, Wh, Lh, Dh                # Hstab
-  global Cv, Dv, Iv, Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
+  global Ch, Dh,     Ah, Ph, Wh, Lh, Dh                # Hstab, incidence is set by solver
+  global Cv, Dv,     Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
   global Mb, Xb, Yb, Zb                                # Ballast
   global Hy, Vy                                        # Solver
@@ -871,14 +860,12 @@ def update_elem(attrname, old, new):
   #
   Ch =  varyCh.value
   Dh =  varyDh.value
-  Ih =  varyIh.value
   Ah =  varyAh.value
   Ph =  varyPh.value
   Wh =  varyWw.value
   #
   Cv =  varyCh.value
   Dv =  varyDh.value
-  Iv =  varyIh.value
   Av =  varyAh.value
   Pv =  varyPh.value
   Wv =  varyWw.value
@@ -918,8 +905,8 @@ def update_elem(attrname, old, new):
 for v in [varyVa, varyAa, varyRa, varyKa, varyFa, \
           varyVc, varyHc, varyKc, varyRc, \
           varyIw, varyCw, varyDw, varyAw, varyPw, varyWw, \
-          varyIh, varyCh, varyDh, varyAh, varyPh, varyWh, \
-          varyIv, varyCv, varyDv, varyAv, varyPv, varyWv, \
+                  varyCh, varyDh, varyAh, varyPh, varyWh, \
+                  varyCv, varyDv, varyAv, varyPv, varyWv, \
           varyLr, varyDr, varyMb, varyXb]:
   v.on_change('value', update_elem)
 
@@ -928,8 +915,8 @@ for v in [varyVa, varyAa, varyRa, varyKa, varyFa, \
 varyAppr = column(varyVa, varyAa, varyRa, varyKa, varyFa)
 varyCrze = column(varyVc, varyHc, varyKc, varyRc)
 varyWing = column(varyIw, varyCw, varyDw, varyAw, varyPw, varyWw)
-varyHstb = column(varyIh, varyCh, varyDh, varyAh, varyPh, varyWh)
-varyVstb = column(varyIv, varyCv, varyDv, varyAv)
+varyHstb = column(        varyCh, varyDh, varyAh, varyPh, varyWh)
+varyVstb = column(        varyCv, varyDv, varyAv)
 varyRudd = column(varyPv, varyWv, varyLr, varyDr)
 varyBlst = column(varyMb, varyXb)
 

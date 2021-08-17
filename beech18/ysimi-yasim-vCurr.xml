@@ -16,7 +16,7 @@
 -->
 <airplane mass="6175" version="YASIM_VERSION_CURRENT" mtow-lbs="7500">
 
-  <approach speed="80" aoa="2.8000000000000007" fuel="0.2">
+  <approach speed="78" aoa="7.199999999999999" fuel="0.2">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.4"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1.00"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.57"/>
@@ -94,8 +94,8 @@
         taper="0.3"
         sweep="2.2"
         dihedral="3"
-        camber="0">
-        <stall   aoa="14" width="4"    peak="1.5"/>
+        camber="0.05">
+        <stall   aoa="14.500000000000004" width="4"    peak="2.2000000000000006"/>
         <flap0 start="0.11" end="0.50" lift="1.2" drag="1.1"/>
         <flap1 start="0.50" end="0.91" lift="1.2" drag="1.1"/>
 
@@ -263,6 +263,6 @@
   <tank x="1.756" y="-3" z="-0.5" capacity="2466"/>
 
   <!-- Mass distribution  -->
-  <ballast x="29" y="0.0" z="0.0" mass="200"/>
+  <ballast x="14" y="0.0" z="0.0" mass="400"/>
 
 </airplane>
