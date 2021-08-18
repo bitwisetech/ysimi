@@ -16,12 +16,12 @@
 -->
 <airplane mass="6175" version="YASIM_VERSION_CURRENT" mtow-lbs="7500">
 
-  <approach speed="78" aoa="7.199999999999999" fuel="0.2">
-    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.4"/>
+  <approach speed="78" aoa="4.800000000000001" fuel="0.2">
+    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.2"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1.00"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.57"/>
 
-    <control-setting axis="/controls/engines/engine[1]/throttle"        value="0.4"/>
+    <control-setting axis="/controls/engines/engine[1]/throttle"        value="0.2"/>
     <control-setting axis="/controls/engines/engine[1]/mixture"         value="1.00"/>
     <control-setting axis="/controls/engines/engine[1]/propeller-pitch" value="0.57"/>
 
@@ -29,7 +29,7 @@
     <control-setting axis="/controls/gear/gear-down"                    value="1.00"/>
   </approach>
 
-  <cruise speed="180.0" alt="15000.0" fuel="0.5">
+  <cruise speed="180" alt="15000.0" fuel="0.5">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="1.0"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="0.3"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.9"/>
@@ -95,7 +95,7 @@
         sweep="2.2"
         dihedral="3"
         camber="0.05">
-        <stall   aoa="14.500000000000004" width="4"    peak="2.2000000000000006"/>
+        <stall   aoa="14.500000000000004" width="8"    peak="1.5999999999999999"/>
         <flap0 start="0.11" end="0.50" lift="1.2" drag="1.1"/>
         <flap1 start="0.50" end="0.91" lift="1.2" drag="1.1"/>
 
@@ -116,7 +116,7 @@
          length="2.366"
          taper="0.6"
          sweep="8">
-         <stall   aoa="14.0" width="4"    peak="1.5"/>
+         <stall   aoa="16.000000000000004" width="8"    peak="1.5"/>
          <flap0 start="0"    end="0.88" lift="1.5" drag="1.0"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/elevator"/>
@@ -131,7 +131,7 @@
          length="1.582"
          sweep="5"
          taper="0.5">
-         <stall   aoa="14.0" width="4" peak="1.5"/>
+         <stall   aoa="16.000000000000004" width="8" peak="1.5"/>
          <flap0 start="0"    end="1" lift="1.5" drag="1.0"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>
@@ -145,7 +145,7 @@
          length="1.582"
          sweep="5"
          taper="0.5">
-         <stall   aoa="14.0" width="4" peak="1.5"/>
+         <stall   aoa="16.000000000000004" width="8" peak="1.5"/>
          <flap0 start="0"    end="1" lift="1.5" drag="1.0"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>

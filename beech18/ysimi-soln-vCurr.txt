@@ -1,12 +1,12 @@
 ==========================
 = YASim solution results =
 ==========================
-Iterations        : 2226
-Drag Coefficient  : 5.988
-Lift Ratio        : 223.918
-Cruise AoA        : 2.21 deg
-Tail Incidence    : -2.40 deg
-Approach Elevator : -0.917
+Iterations        : 1949
+Drag Coefficient  : 6.520
+Lift Ratio        : 351.293
+Cruise AoA        : 1.46 deg
+Tail Incidence    : -1.55 deg
+Approach Elevator : -0.608
 
 CG                : x:2.225, y:0.000, z:-0.288
 Wing MAC          : (x:2.80, y:2.96), length:2.3 

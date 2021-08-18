@@ -9,12 +9,13 @@
 #    aCfg.. Auto    yasim config xml generated with eg modified varied elements
 #    vCfg.. Version yasim config xml modified elements plus specific VERSION string
 #   ..-LvsD.txt     yasim generated Lift / Drag tables  
+#   ..-mias.txt     yasim generated IAS for 0vSpd vs AoA  
 #   ..-soln.txt     yasim generated solution values     
 #
 #
 #  install python3-bokeh, python3-pandas, numpy ( plus others ?? ) 
-#  To run a local server: bokeh serve yasimian.py and then
-#    browse to: http://localhost:5006/yasimian 
+#  To run a local server: bokeh serve ysimi.py and then
+#    browse to: http://localhost:5006/ysimi 
 #
 #   developed from bokeh example: bokehSliders.py
 #
@@ -805,19 +806,19 @@ varyRc = Slider(title="Cruise Fuel      Rc", value= Rc, start=(0.0  ), end=(1.0 
 #  Wing
 varyIw = Slider(title="Wing Icidence    Iw", value= Iw, start=(-4.0 ), end=(4   ),  step=(0.2   ))
 varyDw = Slider(title="Wing IDrag       Dw", value= Dw, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
-varyCw = Slider(title="Wing Camber      Cw", value= Cw, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyCw = Slider(title="Wing Camber      Cw", value= Cw, start=(0.00 ), end=(0.50),  step=(0.01  ))
 varyAw = Slider(title="Wing Stall Aoa   Aw", value= Aw, start=(-2.0 ), end=(24.0),  step=(0.1   ))
 varyPw = Slider(title="Wing Stall Peak  Pw", value= Pw, start=(0.2  ), end=(20.0),  step=(0.2   ))
 varyWw = Slider(title="Wing Stall Width Ww", value= Ww, start=(0.0  ), end=(32  ),  step=(0.50  ))
 #
 varyDh = Slider(title="Hstb IDrag       Dh", value= Dh, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
-varyCh = Slider(title="Hstb Camber      Ch", value= Ch, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyCh = Slider(title="Hstb Camber      Ch", value= Ch, start=(0.00 ), end=(0.50),  step=(0.01  ))
 varyAh = Slider(title="Hstb Stall Aoa   Ah", value= Ah, start=(-2.0 ), end=(24.0),  step=(0.1   ))
 varyPh = Slider(title="Hstb Stall Peak  Ph", value= Ph, start=(0.2  ), end=(20.0),  step=(0.2   ))
 varyWh = Slider(title="Hstb Stall Width Wh", value= Wh, start=(0.0  ), end=(32  ),  step=(0.50  ))
 #
 varyDv = Slider(title="Vstb IDrag       Dv", value= Dv, start=( 0.1 ), end=(4.0 ),  step=(0.1   ))
-varyCv = Slider(title="Vstb Camber      Cv", value= Cv, start=(0.01 ), end=(0.50),  step=(0.01  ))
+varyCv = Slider(title="Vstb Camber      Cv", value= Cv, start=(0.00 ), end=(0.50),  step=(0.01  ))
 varyAv = Slider(title="Vstb Stall Aoa   Av", value= Av, start=(-2.0 ), end=(24.0),  step=(0.1   ))
 varyPv = Slider(title="Vstb Stall Peak  Pv", value= Pv, start=(0.2  ), end=(20.0),  step=(0.2   ))
 varyWv = Slider(title="Vstb Stall Width Wv", value= Wv, start=(0.0  ), end=(32  ),  step=(0.50  ))
