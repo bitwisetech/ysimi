@@ -244,8 +244,7 @@ def vblsFromTplt():
         if ( 'incidence' in line):
           Iw = tuplValu('incidence', line)
         #
-        #
-        print ('Read Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
+        #print ('Read Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
         ##
         #in wing section, find stall element values
         if ('stall' in line):
@@ -492,7 +491,7 @@ def cfigFromVbls( tFID):
         if ('idrag' in line):
           line = tuplSubs( 'idrag',   line, Dw )
         if ('incidence' in line):
-          print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
+          #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
           line = tuplSubs( 'incidence', line, Iw )
         #   
         if ('stall' in line):
