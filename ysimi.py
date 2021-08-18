@@ -917,11 +917,12 @@ for v in [varyVa, varyAa, varyRa, varyKa, varyFa, \
 # Set up layouts and add to document
 varyAppr = column(varyVa, varyAa, varyRa, varyKa, varyFa)
 varyCrze = column(varyVc, varyHc, varyKc, varyRc)
-varyWing = column(varyIw, varyDw, varyCw, varyAw, varyPw, varyWw)
-varyHstb = column(varyLh, varyDh, varyCh, varyAh)
+varyWHC1 = column(varyIw, varyCw, varyPw, varyLh, varyCh)
+varyWHC2 = column(varyDw, varyAw, varyWw, varyDh, varyAh)
 varyVstb = column(varyLv, varyDv, varyCv, varyAv)
 varyRudd = column(varyPv, varyWv, varyLr, varyDr)
-varyBlst = column(varyMb, varyXb)
+varyMass = column(varyMb)
+varyMpos = column(varyXb)
 
 ##
 presets()
@@ -932,9 +933,9 @@ spinYasim(aCfgFid)
 #
 curdoc().title = yCfgName
 curdoc().add_root(row(varyAppr, liftPlot, varyCrze, width=480))
-curdoc().add_root(row(varyWing, dragPlot, varyHstb, width=480))
+curdoc().add_root(row(varyWHC1, dragPlot, varyWHC2, width=480))
 curdoc().add_root(row(varyVstb, lvsdPlot, varyRudd, width=480))
-curdoc().add_root(row(varyBlst, miasPlot, width=480))
+curdoc().add_root(row(varyMass, miasPlot, varyMpos, width=480))
 #curdoc().add_root(row(solnDT, width=480))
 
 ## yasimian ends
