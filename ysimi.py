@@ -48,7 +48,7 @@ global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
 global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
-global Ch, Dh,     Ah, Ph, Wh, Lh, Dh                # Hstab, incidence is set by solver
+global Ch, Dh,     Ah, Ph, Wh,                       # Hstab, incidence is set by solver
 global Cv, Dv,     Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
 global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
 global Mb, Xb, Yb, Zb                                # Ballast
@@ -115,7 +115,7 @@ def vblsFromTplt():
   global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
   global Cw, Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da        # Wing, Flap, Ailr
-  global Ch, Dh,     Ah, Ph, Wh, Lh, Dh                # Hstab, incidence is set by solver
+  global Ch, Dh,     Ah, Ph, Wh                        # Hstab, incidence is set by solver
   global Cv, Dv,     Av, Pv, Wv, Lr, Dr                # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
   global Mb, Xb, Yb, Zb                                # Ballast
@@ -236,8 +236,8 @@ def vblsFromTplt():
         if ( 'camber' in line):
           Cw =  tuplValu('camber', line)
         #
-        if ('idrag' in line):
-          Dw = tuplValu('idrag', line)
+        if ('drag' in line):
+          Dw = tuplValu('drag', line)
         else:   
           Dw = 1.0 
         #  
@@ -292,8 +292,8 @@ def vblsFromTplt():
           # camber is not specified so deflt values to satisfy menu
           Ch = 0
         #
-        if ('idrag' in line):
-          Dh = tuplValu('idrag', line)
+        if ('drag' in line):
+          Dh = tuplValu('drag', line)
         else:   
           Dh = 1.0 
         #  
@@ -319,8 +319,8 @@ def vblsFromTplt():
           if ( 'lift' in line):
             Lh = tuplValu('lift', line)
           #
-          if ( 'idrag' in line):
-            Dh = tuplValu('idrag', line)
+          if ( 'drag' in line):
+            Dh = tuplValu('drag', line)
           #
         #print ('Lh: ', Lh, ' Dh: ', Dh)  
       ### vstab section parse camber, idrag, stall and flap0 elements
@@ -332,8 +332,8 @@ def vblsFromTplt():
           # camber is not specified so deflt values to satisfy menu
           Cv = 0
         #
-        if ('idrag' in line):
-          Dv = tuplValu('idrag', line)
+        if ('drag' in line):
+          Dv = tuplValu('drag', line)
         else:
           # camber is not specified so deflt values to satisfy menu
           Dv = 1
@@ -499,8 +499,8 @@ def cfigFromVbls( tFID):
       if (wingFlag == 1):
         if ('camber' in line):
           line = tuplSubs( 'camber',  line, Cw ) 
-        if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Dw )
+        if ('drag' in line):
+          line = tuplSubs( 'drag',   line, Dw )
         if ('incidence' in line):
           line = tuplSubs( 'incidence', line, Iw )
         #   
@@ -521,8 +521,8 @@ def cfigFromVbls( tFID):
       if (hstabFlag == 1):
         if ('camber' in line):
           line = tuplSubs( 'camber',  line, Ch ) 
-        if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Dh )
+        if ('drag' in line):
+          line = tuplSubs( 'drag',   line, Dh )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Ah ) 
@@ -537,8 +537,8 @@ def cfigFromVbls( tFID):
       if (vstabFlag == 1):
         if ('camber' in line):
           line = tuplSubs( 'lift',    line, Cv ) 
-        if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Dv )
+        if ('drag' in line):
+          line = tuplSubs( 'drag',   line, Dv )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,   line, Av ) 
