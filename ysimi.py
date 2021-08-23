@@ -18,7 +18,7 @@
 #  Suggested workflow ( various files are created / written ) 
 #    Create a model-specific folder beneath this executable's folder:
 #      mkdir [myModel]; cd [myModel]
-#    Link to YASim configuration in Flightgear's Aircraft folder:
+#    Link or copy YASim configuration in Flightgear's Aircraft folder:
 #      ln -s [fgaddon/Aircraft/[myModel] ysimi-yasim.xml
 #      ( the executable's input YASim configuration file has a specific fileID )
 #    Start bokeh server with this executable: 
@@ -38,7 +38,7 @@
 #
 ##
 ##
-import os, shlex, subprocess, sys
+import os, shlex, subprocess, sys, math
 import csv, numpy as np, pandas as pd
 #
 from bokeh.io import curdoc      
@@ -52,6 +52,11 @@ from collections    import OrderedDict
 global pythVers
 pythVers = sys.version_info[0]
 #print('pythVers:', pythVers)
+if (pythVers < 3) :
+  import xml.etree.ElementTree as ET
+else :
+  import xml.etree.ElementTree as ET
+#
 ##
 global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
 global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
@@ -689,7 +694,7 @@ def spinYasim(tFid):
   #print( 'Exit spinYasim')
 #
 
-# scan YASim solution file for console printout of elevator, CofG values
+# scan YASim solution file for given text eg for console print of elev, CofG
 def scanSoln( tFid, tText) :
   #print( 'Entr scanSoln')
   with open(tFid, 'r') as solnHndl:
@@ -703,6 +708,53 @@ def scanSoln( tFid, tText) :
 
   #print( 'Exit scanSoln')
 ##
+
+# Given main, tail wheels x, z coords, return body incidence 
+def bodyInci( Mx, Mz, Tx, Tz ) :  
+  #
+  Gx = Mx - Tx
+  Ex = (Tz * Gx) / (Mz - Tz) 
+  inci = -1 * np.arctan ( Mz / ( Ex + Gx ) )
+  inci = math.degrees ( inci ) 
+  #
+  return(inci)
+##
+
+# Given fileID figure wing incidence and stall margin
+def wingInci( tFid) :
+  global totlInci, fracInci
+  tree = ET.parse(tFid)
+  root = tree.getroot()
+  x1 = z1 = x2 = z2 = 0 
+  for gearElem in root.iter('gear') :
+    xVal = float(gearElem.get('x'))
+    zVal = float(gearElem.get('z'))
+    if (( x1 == 0 ) & ( z1 == 0 )) :
+      x1 = xVal
+      z1 = zVal
+    else :
+      if (( xVal != x1 ) & ( zVal != z1 )) :
+        if (( x2 == 0 ) & ( z2 == 0 )) :
+          x2 = xVal
+          z2 = zVal
+  #print('x1: ', x1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
+  if  ( z1 <= z2 ) :
+    clinInci = bodyInci(x1, z1, x2, z2 )
+  else:   
+    clinInci = bodyInci(x2, z2, x1, z1 )
+  wingInci = wingAoaS = 0
+  wingElem = root.find('wing')
+  if ( wingElem.get('incidence') != None ) :
+    wingInci = float(wingElem.get('incidence'))
+  if ( wingElem.find('stall') != None ) :
+    wingAoaS = float(wingElem.find('stall').get('aoa'))
+  totlInci = clinInci + wingInci
+  fracInci = totlInci / wingAoaS
+##  
+  
+
+
+
 
 #  main section: Run the calls to YASim ready for bokeh interface to browser 
 presets()
@@ -810,6 +862,7 @@ def update_elem(attrname, old, new):
   global Mb, Xb, Yb, Zb                                # Ballast
   global Hy, Vy                                        # Solver
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global totlInci, fracInci
   # Get the current slider values
   Va =  varyVa.value
   Aa =  varyAa.value
@@ -859,14 +912,17 @@ def update_elem(attrname, old, new):
   lvsdDsrc.data  = lvsdDfrm
   miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
   miasDsrc.data  = miasDfrm
-  #
+  # Here: figure wing incidence vs stall angle
+  wingInci( aCfgFid)
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
-  # dunno how to update text input boxes so output to console 
-  print( 'Iterations: ', solnIter, '  Approach Elevator:', \
-                         solnElev, '  CG-x rel. MAC', solnCofG )
+  # dunno how to update text boxes so output to console
+  print( 'Iter: {:s} Appr Elev: {:s}  CG: {:s} MAC, Wing Inc {:2.1f}deg  Stall AoA {:.1f}deg  Margin {:.1f}% ' \
+          .format( solnIter, solnElev, solnCofG, totlInci, Aw, (100 * ( 1 - fracInci))))
+  #print( 'Iterations: ', solnIter, '  Approach Elevator:', \
+  #                       solnElev, '  CG-x rel. MAC', solnCofG )
   solnDict = dict( 
               dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
               dValues = [  solnIter,     solnElev,            solnCofG      ])
