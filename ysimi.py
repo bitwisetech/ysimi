@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-## yasimian.py: Yasim Interactively Adjust Numbers: a pandas / bokeh testbench for yasim
+## ysimi.py: Yasim Interactively Adjust Numbers: a pandas / bokeh testbench for yasim
 #    takes a given yasim config file, offers a web based plotter for Lift, drag, L/D 
 #    creates modified yasim configs for different yasim versions
 #    offers slider control of various key yasim elements and re-plots interactively
@@ -9,7 +9,7 @@
 #    aCfg.. Auto    yasim config xml generated with eg modified varied elements
 #    vCfg.. Version yasim config xml modified elements plus specific VERSION string
 #   ..-LvsD.txt     yasim generated Lift / Drag tables  
-#   ..-mias.txt     yasim generated IAS for 0vSpd vs AoA  
+#   ..-mias.txt     yasim generated IAS for 0VSpd vs AoA  
 #   ..-soln.txt     yasim generated solution values     
 #
 #
@@ -63,17 +63,13 @@ def presets():
   procPref = "ysimi"
   # yasim config xml file read input 
   yCfgFid   = procPref + '-yasim.xml'
-  yCfgName   = yCfgFid.find('.xml')
-  yCfgName   = yCfgFid[0:yCfgName]
-  # AutoCFig are output yasim config files with element(s) modified 
-  aCfgFid   = procPref + '-ACfg.xml'
-  #
+  yCfgName  = yCfgFid.find('.xml')
+  yCfgName  = yCfgFid[0:yCfgName]
   ##   
+  # AutoCFig is output yasim config files with element(s) modified 
+  aCfgFid   = procPref + '-yasim-mods.xml'
+  #vCfgFid   = procPref + '-vCfg-vCurr.xml'
   # Tabulated yasim -g data using Tix Menu modified elements for GNU Plot 
-  # AutoCFig are output yasim config files with element(s) modified 
-  aCfgFid   = procPref + '-ACfg.xml'
-  #
-  vCfgFid   = procPref + '-vCfg-vCurr.xml'
   lvsdFid   = procPref + '-LvsD-vCurr.txt'
   miasFid   = procPref + '-mias-vCurr.txt'
   solndFid  = procPref + '-soln-vCurr.txt'

@@ -67,11 +67,11 @@ def presets():
   #
   ##   
   # output yasim config files with element(s) modified  acfg obsolete ?
-  aCfgFid   = procPref + '-ACfg.xml'
-  vCfgFid   = procPref + '-vCfg.xml'
+  aCfgFid  = procPref + '-ACfg.xml'
+  vCfgFid  = procPref + '-vCfg.xml'
   #
-  lvsdFid   = procPref + '-LvsD.txt'
-  miasFid   = procPref + '-mias.txt'
+  lvsdFid  = procPref + '-LvsD.txt'
+  miasFid  = procPref + '-mias.txt'
   solnFid  = procPref + '-soln.txt'
   #
   # Versions in Yasim configuration strings, OrderedDict
