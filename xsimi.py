@@ -735,13 +735,13 @@ solnCols = [TableColumn( field="dNames", title="Solution Item" ),
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
 #
 # Set up plots
-liftPlot  = figure(plot_height=200, plot_width=256, title="Lift G vs AoA",
+liftPlot  = figure(plot_height=200, plot_width=256, title="Lift n100 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-dragPlot  = figure(plot_height=200, plot_width=256, title="Drag G vs AoA",
+dragPlot  = figure(plot_height=200, plot_width=256, title="Drag  n10 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-lvsdPlot  = figure(plot_height=200, plot_width=256, title="L / D  vs AoA",
+lvsdPlot  = figure(plot_height=200, plot_width=256, title="  L / D   vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 miasPlot  = figure(plot_height=200, plot_width=256, title="Vs0 IAS, %Lift vs AoA",
