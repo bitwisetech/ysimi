@@ -1,24 +1,36 @@
 #!/usr/bin/env python
 #
-## yasimian.py: Yasim Interactively Adjust Numbers: a pandas / bokeh testbench for yasim
-#    takes a given yasim config file, offers a web based plotter for Lift, drag, L/D 
-#    creates modified yasim configs for different yasim versions
-#    offers slider control of various key yasim elements and re-plots interactively
+##    xsimi.py: YASim Interactively Adjust Numbers: a pandas / bokeh testbench for YASim
+#    takes a given YASim config file, offers a web based plotter for Lift, drag, L/D 
+#    creates modified YASim configs for different YASim versions
+#    offers slider control of various key YASim elements and re-plots interactively
 #
 #    yCfg.. Input   yasim config xml Original 
-#    aCfg.. Auto    yasim config xml generated with eg modified varied elements
-#    vCfg.. Version yasim config xml modified elements plus specific VERSION string
-#   ..-LvsD.txt     yasim generated Lift / Drag tables  
-#   ..-mias.txt     yasim generated IAS for 0vSpd vs AoA  
-#   ..-soln.txt     yasim generated solution values     
-#
+#    outp.. Auto    yasim config xml generated with eg modified varied elements
+#   ..-LvsD.txt     yasim generated Lift / Drag tables    ( version specific )
+#   ..-mias.txt     yasim generated IAS for 0vSpd vs AoA  ( version specific )
+#   ..-soln.txt     yasim generated solution values       ( version specific )
 #
 #  install python3-bokeh, python3-pandas, numpy ( plus others ?? ) 
 #  To run a local server: bokeh serve xsimi.py and then
 #    browse to: http://localhost:5006/xsimi 
 #
-#   developed from bokeh example: bokehSliders.py
+#  Suggested workflow ( various files are created / written ) 
+#    Create a model-specific folder beneath this executable's folder:
+#      mkdir [myModel]; cd [myModel]
+#    Link to YASim configuration in Flightgear's Aircraft folder:
+#      ln -s [fgaddon/Aircraft/[myModel] xsimi-yasim.xml
+#      ( the executable's input YASim configuration file has a specific fileID )
+#    Start bokeh server with this executable: 
+#      bokeh serve [ --port 5006 ] ../xsimi.py
+#    Browse to the interactive panel:   
+#      http://localhost:5006/xsimi
 #
+#    If desired, copy this executable to a new name: ?simi.py with a differnt input 
+#      and open on a different port: bokeh serve [ --port 5007 ] ../?simi.py
+#      so that two models may be compared in side-by-side browser tabs
+#    
+#   developed from bokeh example: bokehSliders.py: 
 #   https://www.pluralsight.com/guides/
 #     importing-data-from-tab-delimited-files-with-python
 #   https://pandas.pydata.org/docs/getting_started/intro_tutorials/
@@ -27,22 +39,21 @@
 ##
 ##
 import os, shlex, subprocess, sys
-##
 import csv, numpy as np, pandas as pd
-
+#
 from bokeh.io import curdoc      
-from bokeh.layouts import column, row
-from bokeh.models import ColumnDataSource, Slider
-from bokeh.models import   TextInput, DataTable, TableColumn
+from bokeh.layouts  import column, row
+from bokeh.models   import ColumnDataSource, Slider, Dropdown
+from bokeh.models   import TextInput, DataTable, TableColumn
 from bokeh.plotting import figure
+from collections    import OrderedDict 
 ##
 #  Python Version
 global pythVers
 pythVers = sys.version_info[0]
 #print('pythVers:', pythVers)
-from collections import OrderedDict 
 ##
-global yCfgName, yCfgFid, aCfgFid, atptFid, tpltFid, versDict
+global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
 global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 ## These vbles correspond to the elements in the config file: 
 global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
@@ -54,39 +65,37 @@ global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
 global Mb, Xb, Yb, Zb                                # Ballast
 global Hy, Vy                                        # Solver
 
-#  Set Defaults and parse cammand args 
+#  Set Defaults
 def presets():
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  global procPref, lvsdFid, miasFid, solnFid
+  global Hy, Vy                                      # Solver    parms
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   #print( 'Entr presets')
   ## Default File IDs 
-  ##   FileID's for each yasim Version are defined in spinVersions(), spinYasim()
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   procPref = "xsimi"
   # yasim config xml file read input 
-  yCfgFid   = procPref + '-yasim.xml'
-  yCfgName   = yCfgFid.find('.xml')
-  yCfgName   = yCfgFid[0:yCfgName]
-  # AutoCFig are output yasim config files with element(s) modified 
-  aCfgFid   = procPref + '-ACfg.xml'
-  #
+  yCfgFid  = procPref + '-yasim.xml'
+  yCfgName = yCfgFid.find('.xml')
+  yCfgName = yCfgFid[0:yCfgName]
   ##   
-  # Tabulated yasim -g data using Tix Menu modified elements for GNU Plot 
-  # AutoCFig are output yasim config files with element(s) modified 
-  aCfgFid   = procPref + '-ACfg.xml'
-  #
-  vCfgFid   = procPref + '-vCfg-vCurr.xml'
-  lvsdFid   = procPref + '-LvsD-vCurr.txt'
-  miasFid   = procPref + '-mias-vCurr.txt'
-  solndFid  = procPref + '-soln-vCurr.txt'
-  #
-  # Versions in Yasim configuration strings, OrderedDict
-  # single plot 
-  versDict =             OrderedDict([ ('YASIM_VERSION_CURRENT',  '-vCurr'), ])
+  # Versions in YASim configuration strings, OrderedDict
   # all versions 
-  ##versDict =             OrderedDict([ ('YASIM_VERSION_ORIGINAL', '-vOrig'), \
-  ##                                     ('YASIM_VERSION_32',       '-v32'),   \
-  ##                                     ('YASIM_VERSION_CURRENT',  '-vCurr'), \
-  ##                                     ('2017.2',                 '-v2017-2') ])
-  ## 
+  versDict =  OrderedDict([ ('-vOrig',   'YASIM_VERSION_ORIGINAL'), \
+                            ('-v2017-2', '2017.2'),   \
+                            ('-v32',     'YASIM_VERSION_32',), \
+                            ('-vCurr',   'YASIM_VERSION_CURRENT',  )])
+  versToDo = '-vCurr'
+  versKywd = versDict[versToDo]
+  #print('presets versKywd:', versKywd)
+  #
+  # aCFig is output yasim config files with element(s) modified 
+  aCfgFid  = procPref + '-outp-yasim.xml'
+  #
+  lvsdFid  = procPref + versToDo + '-LvsD.txt'
+  miasFid  = procPref + versToDo + '-mias.txt'
+  solnFid  = procPref + versToDo + '-soln.txt'
+  #
   #print( 'Exit presets')
 ##
 
@@ -97,7 +106,6 @@ def tuplValu( tName, tText ):
   begnValu = tText.find( tName) + len(tName) + 2 
   endsValu = begnValu + (tText[begnValu:]).find('"')
   return( float( tText[(begnValu) : (endsValu) ] ))
-
 ##
 #  Return given text with given value substituted at name="value" in config file
 #
@@ -107,13 +115,14 @@ def tuplSubs( tName, tText, tValu ):
   endsValu = begnValu + (tText[begnValu:]).find('"')
   resp = tText[ : begnValu] + str(tValu) + tText[endsValu :]
   return(resp)
-
 ##
-# Scan original Yyasim config and extract numeric elements, save for tix menu
+
+# Scan original YASim config and extract numeric elements, save for tix menu
 #
 def vblsFromTplt():
   #print( 'Entr vblsFromTplt')
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid
+  global versDict, versToDo, versKywd
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
@@ -132,7 +141,7 @@ def vblsFromTplt():
   vstabFlag  = 0
   ballFlag   = 0
   propFlag   = 0
-# # Yasim 'Solve At' values for Speed and Altitude 
+  # YASim 'Solve At' values for Speed and Altitude 
   Vy = 130
   Hy = 4000
   # 
@@ -145,10 +154,8 @@ def vblsFromTplt():
   Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0
   # in case ballast element is missing, fake with tiny value
   Mb = Xb = Yb = Zb = 0.001
-#
-  ## # open Yasim config file
-  ## aCfgHndl  = open(aCfgFid, 'w', 0)
-  # Phase 1 open base yasim config file and parse elements
+  #
+  # open base yasim config file and parse elements
   #print(yCfgFid)
   with open(yCfgFid, 'r') as yCfgHndl:
   # step each line in template yasim config file
@@ -404,9 +411,9 @@ def vblsFromTplt():
         ###  
   #close and sync file
   yCfgHndl.close
-  #print( 'Entr vblsFromTplt')
+  #print( 'Exit vblsFromTplt')
 ##
-# After tix menu changes, copy input yasim config file to output with new elements
+
 #
 def cfigFromVbls( tFID):
   #print( 'Entr cfigFromVbls')
@@ -418,7 +425,8 @@ def cfigFromVbls( tFID):
   global Mp, Rp, Ap, Np, Xp, Ip, Op, Vp, Cp, Tp        # Prop
   global Mb, Xb, Yb, Zb                                # Ballast
   global Hy, Vy                                        # Solver
-#
+  global versKywd
+  #
   apprFlag   = 0
   cruzFlag   = 0
   wingFlag   = 0
@@ -431,7 +439,7 @@ def cfigFromVbls( tFID):
     aCfgHndl  = open(aCfgFid, 'w', 0)
   else :
     aCfgHndl  = open(aCfgFid, 'w')
-  # Phase 3 write auto file via yconfig template and subsVbls from Tix
+  # write auto file via yconfig template and subsVbls from Tix
   with open(yCfgFid, 'r') as yCfgHndl:
   # step each line in template yasim config file
     for line in yCfgHndl:
@@ -539,8 +547,8 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'lift',   line, Lr ) 
           line = tuplSubs( 'drag',   line, Dr ) 
         # 
-      ###
-      #ballast
+      #
+      ## ballast ( Ensure input config does not enclose ballast in comments )
       if (ballFlag == 1):
         ## ballast section one line for all elements if present
         if ('mass' in line):
@@ -558,8 +566,8 @@ def cfigFromVbls( tFID):
         if ('/>' in line):
           ballFlag =  0
         #
-      ###
-      #prop 
+      #
+      ## prop 
       if (propFlag == 1):
         ## prop section parse elements if present
         if ('mass' in line):
@@ -593,6 +601,33 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'takeoff-rpm', line, Tp ) 
         #
         #
+      ## Version string   
+      # look for <airplane mass="6175" to insert keyword for selected version
+      if '<airplane mass="' in line:
+        #print('airplane kywd:', versKywd, '  todo: ', versToDo)
+        # make an index list of double quotes in the line
+        sepsList = []
+        sepsChar = '"'
+        lastIndx = 0
+        while (lastIndx > -1):
+          sepsIndx = line.find( sepsChar, (lastIndx +1))
+          if (sepsIndx > 0) :
+            sepsList.append(sepsIndx)
+          lastIndx = sepsIndx
+        #
+        if ('version=' in line ):
+          linePart = line[:line.find('version=')]  
+          sepsIndx = line.find('version=')
+          sepsIndx = line.find('"', (sepsIndx+1))
+          sepsIndx = line.find('"', (sepsIndx+1))
+          linePart = linePart + 'version="' + versKywd
+          linePart = linePart + line[sepsIndx:]
+          line = linePart
+        else :  
+          # Use index list to split line into text and numbers
+          lineMass = line[0:(sepsList[1]+1)]
+          line = lineMass + 'version="' + versKywd + '">'
+        #
       # Write unchanged/modified line into auto.xml
       aCfgHndl.write(line)
   #close and sync files
@@ -601,132 +636,60 @@ def cfigFromVbls( tFID):
   aCfgHndl.close
   yCfgHndl.close
   #print( 'Exit cfigFromVbls')
-##
-# Create individual Yasim config file for testing each desired Yasim version 
-#   Files contain 'YASIM_VERSION_XXX string to trigger various execution paths in yasim
-# Call Yasim as external process to create console output and data tables 
-# Call Yasim as external process to generate Lift, Drag ( LvsD ? ) data tables 
 ## 
-def spinVersions(tFid):
-  #print( 'Entr spinVersions')
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
-#
-  ## Iterate through each version in dictionary
-  for versKywd in versDict.keys():
-    versSfix = versDict[versKywd]
-    vCfgFid  = yCfgName + versSfix + '.xml'
-    lvsdFid  = procPref + '-LvsD' + versSfix + '.txt'
-    miasFid  = procPref + '-mias' + versSfix + '.txt'
-    solnFid  = procPref + '-soln' + versSfix + '.txt'
-    ##
-    ## # open version - yasim config file, apply version string 
-    if (pythVers < 3):
-      vCfgHndl  = open(vCfgFid, 'w', 0)
-    else :
-      vCfgHndl  = open(vCfgFid, 'w')
-    #  write modified elements and version string file via yconfig template
-    with open(tFid, 'r') as aCfgHndl:
-    # step each line in template yasim config file
-      for line in aCfgHndl:
-        # look for eg <airplane mass="6175" version="YASIM_VERSION_CURRENT" mtow-lbs="7500">  
-        if '<airplane mass="' in line:
-          # make an index list of double quotes in the line
-          sepsList = []
-          sepsChar = '"'
-          lastIndx = 0
-          while (lastIndx > -1):
-            sepsIndx = line.find( sepsChar, (lastIndx +1))
-            if (sepsIndx > 0) :
-              sepsList.append(sepsIndx)
-            lastIndx = sepsIndx
-          #
-          if ('version=' in line ):
-            linePart = line[:line.find('version=')]  
-            sepsIndx = line.find('version=')
-            sepsIndx = line.find('"', (sepsIndx+1))
-            sepsIndx = line.find('"', (sepsIndx+1))
-            linePart = linePart + 'version="' + versKywd
-            linePart = linePart + line[sepsIndx:]
-            line = linePart
-          else :  
-            # Use index list to split line into text and numbers
-            lineMass = line[0:(sepsList[1]+1)]
-            line = lineMass + 'version="' + versKywd + '">'
-        # Write unchanged/modified line into versioned xml 
-        vCfgHndl.write(line)
-    #close and sync files
-    vCfgHndl.flush
-    os.fsync(vCfgHndl.fileno())
-    vCfgHndl.close
-    #os.sync()
-    aCfgHndl.close
-    ## busy work, without this yasim executes too soon and throws error 
-    lc = 0   
-    with open(vCfgFid, 'r') as vCfgHndl:
-    # step each line in template yasim config file
-      for line in vCfgHndl:
-        lc += 1
-    vCfgHndl.close
-    #
-    ##
-  #end step through version dictionary
-  #print( 'Exit spinVersions')
-#
-## 
+
+# Make up command line and execuute external process call to YASim   
 def spinYasim(tFid):
   #print( 'Entr spinYasim')
   global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   global Hy, Vy                                                # Solver    parms
-#
-  ## Iterate through each version in dictionary
-  for versKywd in versDict.keys():
-    versSfix = versDict[versKywd]
-    vCfgFid  = yCfgName + versSfix + '.xml'
-    lvsdFid  = procPref + '-LvsD' + versSfix + '.txt'
-    miasFid  = procPref + '-mias' + versSfix + '.txt'
-    solnFid  = procPref + '-soln' + versSfix + '.txt'
-    ##
-    ##
-    # run yasim external process to generate LvsD data table saved dataset file
-    vDatHndl = open(lvsdFid, 'w')
-    command_line = 'yasim ' + vCfgFid + ' -g -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
-    #    print(command_line)
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-    DEVNULL.close()
-    vDatHndl.close
-    os.sync()
-    #p.wait()
-    ##
-    # run yasim external process to generate min IAS data table saved dataset file
-    vDatHndl = open(miasFid, 'w')
-    command_line = 'yasim ' + vCfgFid + ' --min-speed -a '+ str(Hy/3.3)
-    #    print(command_line)
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-    DEVNULL.close()
-    vDatHndl.close
-    os.sync()
-    #p.wait()
-    ##
-    # run yasim external process to create console output of solution
-    vDatHndl = open(solnFid, 'w')
-    command_line = 'yasim ' + vCfgFid
-    #    print(command_line)
-    args = shlex.split(command_line)
-    DEVNULL = open(os.devnull, 'wb')
-    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-    DEVNULL.close()
-    vDatHndl.close
-    os.sync()
-    #p.wait()
-    ##
-  #end step through version dictionary
+  #
+  ## update fileIDs with version selected from dropdown
+  lvsdFid  = procPref + versToDo + '-LvsD.txt'
+  miasFid  = procPref + versToDo + '-mias.txt'
+  solnFid  = procPref + versToDo + '-soln.txt'
+  #print('spinYasim tFid: ', tFid)
+  ##
+  # run yasim external process to generate LvsD data table saved dataset file
+  vDatHndl = open(lvsdFid, 'w')
+  command_line = 'yasim ' + tFid + ' -g -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
+  #    print(command_line)
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+  DEVNULL.close()
+  vDatHndl.close
+  os.sync()
+  #p.wait()
+  ##
+  # run yasim external process to generate min IAS data table saved dataset file
+  vDatHndl = open(miasFid, 'w')
+  command_line = 'yasim ' + tFid + ' --min-speed -a '+ str(Hy/3.3)
+  #    print(command_line)
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+  DEVNULL.close()
+  vDatHndl.close
+  os.sync()
+  #p.wait()
+  ##
+  # run yasim external process to create console output of solution
+  vDatHndl = open(solnFid, 'w')
+  command_line = 'yasim ' + tFid
+  #    print(command_line)
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+  DEVNULL.close()
+  vDatHndl.close
+  os.sync()
+  #p.wait()
+  ##
   #print( 'Exit spinYasim')
 #
 
+# scan YASim solution file for console printout of elevator, CofG values
 def scanSoln( tFid, tText) :
   #print( 'Entr scanSoln')
   with open(tFid, 'r') as solnHndl:
@@ -739,26 +702,30 @@ def scanSoln( tFid, tText) :
         return ( tLine[ tPosn + 1 : ].strip('\n'))
 
   #print( 'Exit scanSoln')
-# #
-#
+##
+
+#  main section: Run the calls to YASim ready for bokeh interface to browser 
 presets()
 vblsFromTplt()
 cfigFromVbls( aCfgFid)
-spinVersions( aCfgFid )
 spinYasim( aCfgFid )
 
-# sources for bokeh dataframe and readout data 
+# use pandas to read sources and create bokeh dataframes
 lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
-
+#
 miasDfrm  = pd.read_csv(miasFid, delimiter='\t')
 miasDsrc  = ColumnDataSource(miasDfrm)
-
+#
+# Dropdown for selecting which YASim version to run 
+versDrop = Dropdown(label='Select YASim VERSION to Run', \
+menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
+#
 # Pull key values from yasim solution console output
 solnIter = scanSoln( solnFid, 'Iterations')
 solnElev = scanSoln( solnFid, 'Approach Elevator')
 solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
-# Try a data table to live update soln values
+# Did not work: Try a data table to live update soln values
 solnDict = dict( 
             dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
             dValues = [  solnIter,     solnElev,            solnCofG      ])
@@ -766,7 +733,7 @@ solnCDS  = ColumnDataSource ( solnDict)
 solnCols = [TableColumn( field="dNames", title="Solution Item" ),
             TableColumn( field="dValues", title="Value" ), ]
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
-
+#
 # Set up plots
 liftPlot  = figure(plot_height=200, plot_width=256, title="Lift G vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
@@ -780,13 +747,13 @@ lvsdPlot  = figure(plot_height=200, plot_width=256, title="L / D  vs AoA",
 miasPlot  = figure(plot_height=200, plot_width=256, title="Vs0 IAS, %Lift vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-#7 #plot_i.line(x='x', 'y', source=source, line_width=3, line_alpha=0.6)
+##
 liftPlot.line( x='aoa', y='Lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
 dragPlot.line( x='aoa', y='Drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
 lvsdPlot.line( x='aoa', y='LvsD',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
 miasPlot.line( x='aoa', y='knots', source=miasDsrc, line_width=3, line_alpha=0.6)
 miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6)
-
+#
 # Set up widgets, balance range / step size each affects re-calc
 #  Approach group
 varyVa = Slider(title="Appr   IAS       Va", value=Va, start=(40.0 ), end=(160 ), step=(2.0 ))
@@ -796,7 +763,7 @@ varyRa = Slider(title="Appr   Fuel      Ra", value=Ra, start=(0.0  ), end=(1.0 )
 varyFa = Slider(title="Appr   Flaps     Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.1 ))
 #  Cruise
 varyVc = Slider(title="Cruise IAS Kt    Vc", value=Vc, start=(40   ), end=(240 ), step=(2.0 ))
-varyHc = Slider(title="Cruise Alt Ft    Hc", value=Hc, start=(1000 ), end=(40000),step=(500 ))
+varyHc = Slider(title="Cruise Alt Ft    Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
 varyKc = Slider(title="Cruise Throttle  Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
 varyRc = Slider(title="Cruise Fuel      Rc", value=Rc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
 #  Wing
@@ -806,30 +773,34 @@ varyCw = Slider(title="Wing Camber      Cw", value=Cw, start=(0.00 ), end=(0.50)
 varyAw = Slider(title="Wing Stall Aoa   Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyPw = Slider(title="Wing Stall Peak  Pw", value=Pw, start=(0.2  ), end=(20.0), step=(0.2 ))
 varyWw = Slider(title="Wing Stall Width Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
-#
+#  Horiz Stab 
 varyLh = Slider(title="Hstb Lift        Lh", value=Lh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDh = Slider(title="Hstb Drag        Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyCh = Slider(title="Hstb Camber      Ch", value=Ch, start=(0.00 ), end=(0.50), step=(0.01))
 varyAh = Slider(title="Hstb Stall Aoa   Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyPh = Slider(title="Hstb Stall Peak  Ph", value=Ph, start=(0.2  ), end=(20.0), step=(0.2 ))
 varyWh = Slider(title="Hstb Stall Width Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-#
+#  Vert Stab 
 varyLv = Slider(title="Vstb Lift        Lv", value=Lv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDv = Slider(title="Vstb Drag        Dv", value=Dv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyCv = Slider(title="Vstb Camber      Cv", value=Cv, start=(0.00 ), end=(0.50), step=(0.01))
 varyAv = Slider(title="Vstb Stall Aoa   Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyPv = Slider(title="Vstb Stall Peak  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
 varyWv = Slider(title="Vstb Stall Width Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-#
+#  Rudder
 varyLr = Slider(title="Rudder Lift      Lr", value=Lr, start=(0.10  ), end=(2.0), step=(0.10))
 varyDr = Slider(title="Rudder Drag      Dr", value=Dr, start=( 0.1  ), end=(4.0), step=(0.1 ))
-#
+#  Ballast Mass, X Location 
 varyMb = Slider(title="Ballast Mass     Mb", value=Mb, start=(-4000 ), end=(4000),step=(50  ))
 varyXb = Slider(title="Ballast Posn     Xb", value=Xb, start=(-200  ), end=(200 ),step=(0.5 ))
+#  Solver Altitude, Speed
+varyHy = Slider(title="Solve for Alt ft Hy", value=Hy, start=(   0  ), end=(40000),step=(100))
+varyVy = Slider(title="Solve for IAS kt Vc", value=Vy, start=(40    ), end=(400 ),step=(20  ))
 #
+# called whenever a value is changed on browser interface
 def update_elem(attrname, old, new):
   #print( 'Entr update_elem')
-## These vbles correspond to the elements in the config file: 
+  ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
   global Cw,     Dw, Iw, Aw, Pw, Ww, Lf, Df, La, Da    # Wing, Flap, Ailr
@@ -879,14 +850,16 @@ def update_elem(attrname, old, new):
   Mb =  varyMb.value
   Xb =  varyXb.value
   #
+  Hy =  varyHy.value
+  Vy =  varyVy.value
+  #
   cfigFromVbls( aCfgFid )
-  spinVersions( aCfgFid )
   spinYasim( aCfgFid )
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
   miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
   miasDsrc.data  = miasDfrm
-
+  #
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
@@ -903,39 +876,75 @@ def update_elem(attrname, old, new):
   solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
   solnCDS.update()
   solnDT.update()
-
 #
+
+# called if Version string is changed, duplicates actions cf above 
+def dropHdlr(event) :
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  global procPref, lvsdFid, miasFid, solnFid
+  # On dropdown action, record YASim version selected
+  versToDo = event.item
+  versKywd = versDict[versToDo]
+  #print('dropHdlr versToDo:',  versToDo, '  versKywd: ', versKywd)
+  # cf update_elem
+  cfigFromVbls( aCfgFid )
+  spinYasim( aCfgFid )
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDsrc.data  = lvsdDfrm
+  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
+  miasDsrc.data  = miasDfrm
+
+  # Pull key values from yasim solution console output
+  solnIter = scanSoln( solnFid, 'Iterations')
+  solnElev = scanSoln( solnFid, 'Approach Elevator')
+  solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
+  # dunno how to update text input boxes so output to console 
+  print( versToDo, ' : Iterations: ', solnIter, \
+         '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCofG )
+  solnDict = dict( 
+              dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
+              dValues = [  solnIter,     solnElev,            solnCofG      ])
+  solnCDS  = ColumnDataSource ( solnDict)
+  solnCols = [TableColumn( field="dNames", title="Solved" ),
+              TableColumn( field="dValues", title="Value" ), ]
+  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
+  solnCDS.update()
+  solnDT.update()
+#
+  
+# listeners for interface changes 
 for v in [varyVa, varyAa, varyRa, varyKa, varyFa, \
           varyVc, varyHc, varyKc, varyRc, \
           varyIw, varyDw, varyCw, varyAw, varyPw, varyWw, \
           varyLh, varyDh, varyCh, varyAh, varyPh, varyWh, \
           varyLv, varyDv, varyCv, varyAv, varyPv, varyWv, \
-          varyLr, varyDr, varyMb, varyXb]:
+          varyLr, varyDr, varyMb, varyXb, varyHy, varyVy]:
   v.on_change('value', update_elem)
 
+versDrop.on_click( dropHdlr)
 
-# Set up layouts and add to document
+# Set up layouts for slider groups
 varyAppr = column(varyVa, varyAa, varyRa, varyKa, varyFa)
 varyCrze = column(varyVc, varyHc, varyKc, varyRc)
 varyWHC1 = column(varyIw, varyCw, varyPw, varyLh, varyCh)
 varyWHC2 = column(varyDw, varyAw, varyWw, varyDh, varyAh)
 varyVstb = column(varyLv, varyCv, varyPv, varyLr)
 varyRudd = column(varyDv, varyAv, varyWv, varyDr)
-varyMass = column(varyMb)
-varyMpos = column(varyXb)
+varyMisc = column(varyMb, varyXb, varyHy, varyVy)
 
 ##
 presets()
 vblsFromTplt()
 cfigFromVbls(aCfgFid )
-#spinVersions(aCfgFid)
 spinYasim(aCfgFid)
 #
+# plan overall interface layout 
 curdoc().title = yCfgName
 curdoc().add_root(row(varyAppr, liftPlot, varyCrze, width=480))
 curdoc().add_root(row(varyWHC1, dragPlot, varyWHC2, width=480))
 curdoc().add_root(row(varyVstb, lvsdPlot, varyRudd, width=480))
-curdoc().add_root(row(varyMass, miasPlot, varyMpos, width=480))
+curdoc().add_root(row(varyMisc, miasPlot, versDrop, width=480))
+# Cannot get table of YASim output values to update, ergo console printout
 #curdoc().add_root(row(solnDT, width=480))
-
-## yasimian ends
+#
+## xsimi ends
