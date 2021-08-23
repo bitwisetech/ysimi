@@ -919,10 +919,8 @@ def update_elem(attrname, old, new):
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text boxes so output to console
-  print( 'Iter: {:s} Appr Elev: {:s}  CG: {:s} MAC, Wing Inc {:2.1f}deg  Stall AoA {:.1f}deg  Margin {:.1f}% ' \
+  print( 'Iter:{:s}  Appr Elev:{:s}   CG:{:s} MAC   Wing Inc {:2.1f}deg   Stall AoA {:.1f}deg   Margin {:.1f}% ' \
           .format( solnIter, solnElev, solnCofG, totlInci, Aw, (100 * ( 1 - fracInci))))
-  #print( 'Iterations: ', solnIter, '  Approach Elevator:', \
-  #                       solnElev, '  CG-x rel. MAC', solnCofG )
   solnDict = dict( 
               dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
               dValues = [  solnIter,     solnElev,            solnCofG      ])
