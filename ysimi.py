@@ -291,10 +291,10 @@ def vblsFromTplt():
         if ('flap1' in line):
           # find element names, save values to post in Tix gui
           if ( 'lift' in line):
-            Lf = tuplValu('lift', line)
+            La = tuplValu('lift', line)
           #
           if ( 'drag' in line):
-            Df = tuplValu('drag', line)
+            Da = tuplValu('drag', line)
           #
         #print ('Lr: ', Lr, ' Dr: ', Dr)  
       ### hstab section parse camber, idrag, stall and flap0 elements
@@ -521,8 +521,8 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'drag',   line, Df ) 
         #  
         if ('flap1' in line):
-          line = tuplSubs( 'lift',   line, Lf ) 
-          line = tuplSubs( 'drag',   line, Df )
+          line = tuplSubs( 'lift',   line, La ) 
+          line = tuplSubs( 'drag',   line, Da )
         #
       ## HStab     
       if (hstabFlag == 1):
