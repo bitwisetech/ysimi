@@ -19,14 +19,18 @@
 #    Create a model-specific folder beneath this executable's folder:
 #      mkdir [myModel]; cd [myModel]
 #    Link or copy YASim configuration in Flightgear's Aircraft folder:
-#      ln -s [fgaddon/Aircraft/[myModel] ysimi-yasim.xml
+#      ln -s [fgaddon/Aircraft/[myModel-config.xml] ysimi-yasim.xml
 #      ( the executable's input YASim configuration file has a specific fileID )
 #    Start bokeh server with this executable: 
 #      bokeh serve [ --port 5006 ] ../ysimi.py
 #    Browse to the interactive panel:   
 #      http://localhost:5006/ysimi
+#    In Flightgear's Aircraft folder use the modified output as YASim config: 
+#      mv [fgaddon/Aircraft/[myModel-config.xml] [fgaddon/Aircraft/[myModel-config.xml-orig]
+#      ln ysim-yasim-outp.xml [fgaddon/Aircraft/myModel-config.xml]
+#      ( This way you can continually flight test adhustments yo the FDM configuration ) 
 #
-#    If desired, copy this executable to a new name: ?simi.py with a differnt input 
+#    If desired, copy this executable to a new name: ?simi.py with a differnt input.xml 
 #      and open on a different port: bokeh serve [ --port 5007 ] ../?simi.py
 #      so that two models may be compared in side-by-side browser tabs
 #    

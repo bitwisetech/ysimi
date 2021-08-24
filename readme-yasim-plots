@@ -1,3 +1,5 @@
+Older utilities: Preferably use ysimi.py 
+
 <!-- autoPlot.py  -->
  2021Jl17 Obs: Now is yasiVers/multiPlot.py
  This program makes repeated automatic runs of yasim to create gnuplots of Lift, Drag, L/D.

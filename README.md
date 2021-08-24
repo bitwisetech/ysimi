@@ -11,6 +11,7 @@ the yasim conguration file to real-time generate Lift / Drag LvsD plots.
 
   inciMarg.py takes a named yasim configuration file and, using the landing gear's heights 
 to figure the wing's inclination while on the ground and compares this with wing's stall angle.
+This function is also contained in ysimi.py with interactive console logging
 
   aoaStatic.py command line utility for incidence, stall margin with console output. 
   
