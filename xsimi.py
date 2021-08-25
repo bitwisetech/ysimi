@@ -65,8 +65,8 @@ else :
 global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
 global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 ## These vbles correspond to the elements in the config file: 
-global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
-global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
 global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
 global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
@@ -132,8 +132,8 @@ def vblsFromTplt():
   global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid
   global versDict, versToDo, versKywd
   ## These vbles correspond to the elements in the config file: 
-  global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
-  global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
@@ -152,9 +152,8 @@ def vblsFromTplt():
   Vy = 130
   Hy = 4000
   # 
-  Va = Aa = Ka = Ra = Fa = Vc = Hc = Kc = Rc = 0
-  Iw = Aw = Ah = Cv = Av = Wv = Pv = 0
-  Cw = Ch = 0.00
+  Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = 0.00
+  Iw = Aw = Ah = Cv = Av = Wv = Pv = Cw = Ch = 0.00
   Eh = Ev = Lh = Lv = Lr = Dw = Dh = Dh = Dr = 1.00
   Pw = Ph = 1.50
   Ww = Wh = 2.00
@@ -221,13 +220,13 @@ def vblsFromTplt():
         #print ('Va: ', Va, ' Aa: ', Aa, ' Ka: ', Ka)  
         if ('throttle' in line):
           if ( 'value' in line):
-            Ra = tuplValu('value', line)
+            Ta = tuplValu('value', line)
           #
         if ('flaps' in line):
           if ( 'value' in line):
             Fa = tuplValu('value', line)
           #
-        #print ('Ra: ', Ra, ' Fa: ', Fa,)  
+        #print ('Ta: ', Ta, ' Fa: ', Fa,)  
       ### cruise section parse cruise speed element
       if (cruzFlag == 1):
           # find element names, save values to post in Tix gui
@@ -243,7 +242,7 @@ def vblsFromTplt():
           #print ('Vc: ', Vc, ' Hc: ', Hc, ' Kc: ', Kc)  
           if ('throttle' in line):
             if ( 'value' in line):
-              Rc = tuplValu('value', line)
+              Tc = tuplValu('value', line)
           #
         ###
       ### wing section parse camber and induced drag elements
@@ -430,8 +429,8 @@ def vblsFromTplt():
 #
 def cfigFromVbls( tFID):
   #print( 'Entr cfigFromVbls')
-  global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
-  global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
@@ -493,7 +492,7 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'fuel',    line, Ka ) 
           #print('subsLine: ', line)
         if ('throttle' in line):
-          line   = tuplSubs( 'value', line, Ra ) 
+          line   = tuplSubs( 'value', line, Ta ) 
         if ('flaps' in line):
           line   = tuplSubs( 'value', line, Fa ) 
       ## cruise
@@ -503,7 +502,7 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'alt',     line, Hc ) 
           line = tuplSubs( 'fuel',    line, Kc ) 
         if ('throttle' in line):
-          line   = tuplSubs( 'value', line, Rc )
+          line = tuplSubs( 'value',   line, Tc )
       ## wing
       if (wingFlag == 1):
         if ('camber' in line):
@@ -511,8 +510,8 @@ def cfigFromVbls( tFID):
         if ('idrag' in line):
           line = tuplSubs( 'idrag',   line, Dw )
         if ('incidence' in line):
-          #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
           line = tuplSubs( 'incidence', line, Iw )
+          #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
         #   
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,  line, Aw )
@@ -532,7 +531,7 @@ def cfigFromVbls( tFID):
         if ('camber' in line):
           line = tuplSubs( 'camber', line, Ch ) 
         if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Dh )
+          line = tuplSubs( 'idrag',  line, Dh )
         if ('effectiveness' in line):
           line = tuplSubs( 'effectiveness',  line, Eh )
         #
@@ -548,11 +547,11 @@ def cfigFromVbls( tFID):
       ## Vstab   
       if (vstabFlag == 1):
         if ('camber' in line):
-          line = tuplSubs( 'camber',   line, Cv ) 
+          line = tuplSubs( 'camber', line, Cv ) 
         if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Dv )
+          line = tuplSubs( 'idrag',  line, Dv )
         if ('effectiveness' in line):
-          line = tuplSubs( 'effectiveness',   line, Ev )
+          line = tuplSubs( 'effectiveness', line, Ev )
         #
         #
         if ('stall' in line):
@@ -717,7 +716,6 @@ def scanSoln( tFid, tText) :
         tPosn = tLine.find( tText )
         tPosn = tLine.find( ':', (tPosn + 1))
         return ( tLine[ tPosn + 1 : ].strip('\n'))
-
   #print( 'Exit scanSoln')
 ##
 
@@ -732,7 +730,7 @@ def bodyInci( Mx, Mz, Tx, Tz ) :
   return(inci)
 ##
 
-# Given fileID figure wing incidence and stall margin
+# Given fileID figure wing + body incidence and stall margin
 def wingInci( tFid) :
   global totlInci, fracInci
   tree = ET.parse(tFid)
@@ -763,10 +761,7 @@ def wingInci( tFid) :
   totlInci = clinInci + wingInci
   fracInci = totlInci / wingAoaS
 ##  
-  
-
-
-
+##  
 
 #  main section: Run the calls to YASim ready for bokeh interface to browser 
 presets()
@@ -822,14 +817,14 @@ miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6
 # TopLeft
 varyVa = Slider(title="Appr   IAS         Va", value=Va, start=(40.0 ), end=(160 ), step=(2.0 ))
 varyAa = Slider(title="Appr   AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.2 ))
-varyKa = Slider(title="Appr   Throttle    Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.1 ))
-varyRa = Slider(title="Appr   Fuel        Ra", value=Ra, start=(0.0  ), end=(1.0 ), step=(0.1 ))
+varyTa = Slider(title="Appr   Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.1 ))
+varyKa = Slider(title="Appr   Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.1 ))
 varyFa = Slider(title="Appr   Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.1 ))
 # TopRight
 varyVc = Slider(title="Cruise IAS Kt      Vc", value=Vc, start=(40   ), end=(240 ), step=(2.0 ))
 varyHc = Slider(title="Cruise Alt Ft      Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
-varyKc = Slider(title="Cruise Throttle    Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
-varyRc = Slider(title="Cruise Fuel        Rc", value=Rc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
+varyTc = Slider(title="Cruise Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
+varyKc = Slider(title="Cruise Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
 # UprLeft
 varyIw = Slider(title="Wing Icidence      Iw", value=Iw, start=(-4.0 ), end=(4   ), step=(0.1 ))
 varyAw = Slider(title="Wing Stall Aoa     Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
@@ -871,8 +866,8 @@ varyVy = Slider(title="Solve for IAS kt   Vy", value=Vy, start=(40    ), end=(40
 def update_elem(attrname, old, new):
   #print( 'Entr update_elem')
   ## These vbles correspond to the elements in the config file: 
-  global Va, Aa, Ka, Ra, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
-  global Vc, Hc, Kc, Rc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
@@ -880,17 +875,18 @@ def update_elem(attrname, old, new):
   global Yb, Zb                                        # Ballast, Solver
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
   global totlInci, fracInci
-  # Get the current slider values
+  #
+  # Put current slider values into global configuration values
   Va =  varyVa.value
   Aa =  varyAa.value
-  Ra =  varyRa.value
+  Ta =  varyTa.value
   Ka =  varyKa.value
   Fa =  varyFa.value
   #
   Vc =  varyVc.value
   Hc =  varyHc.value
+  Tc =  varyTc.value
   Kc =  varyKc.value
-  Rc =  varyRc.value
   #
   Iw =  varyIw.value
   Aw =  varyAw.value
@@ -990,8 +986,8 @@ def dropHdlr(event) :
   
 # listeners for interface changes 
 for v in [\
-          varyVa, varyAa, varyRa, varyKa, varyFa, \
-          varyVc, varyHc, varyKc, varyRc, \
+          varyVa, varyAa, varyTa, varyKa, varyFa, \
+          varyVc, varyHc, varyTc, varyKc, \
           varyIw, varyAw, varyCw, varyLf, varyLa, \
           varyDw, varyWw, varyPw, varyDf, varyDa, \
           varyCh, varyAh, varyEh, varyLe, varyCv, \
@@ -1003,8 +999,8 @@ for v in [\
 versDrop.on_click( dropHdlr)
 
 # Set up layouts for slider groups
-TopLRack = column(varyVa, varyAa, varyKa, varyRa, varyFa)
-TopRRack = column(varyVc, varyHc, varyKc, varyRc)
+TopLRack = column(varyVa, varyAa, varyTa, varyKa, varyFa)
+TopRRack = column(varyVc, varyHc, varyTc, varyKc)
 UprLRack = column(varyIw, varyAw, varyCw, varyLf, varyLa)
 UprRRack = column(varyDw, varyWw, varyPw, varyDf, varyDa)
 LwrLRack = column(varyCh, varyAh, varyEh, varyLe, varyCv)
