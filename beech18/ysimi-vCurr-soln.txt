@@ -1,6 +1,7 @@
 ==========================
 = YASim solution results =
 ==========================
+<<<<<<< HEAD
 Iterations        : 2014
 Drag Coefficient  : 5.208
 Lift Ratio        : 407.858
@@ -9,6 +10,16 @@ Tail Incidence    : -1.57 deg
 Approach Elevator : -0.587
 
 CG                : x:2.206, y:0.000, z:-0.290
+=======
+Iterations        : 2077
+Drag Coefficient  : 6.260
+Lift Ratio        : 340.685
+Cruise AoA        : 1.81 deg
+Tail Incidence    : -1.96 deg
+Approach Elevator : -0.570
+
+CG                : x:2.229, y:0.000, z:-0.291
+>>>>>>> e2ee7cbae253d007cd7e50820bcf97f98abf790c
 Wing MAC          : (x:2.80, y:2.96), length:2.3 
 hard limit CG-x   : 2.921 m
 soft limit CG-x   : 2.234 m
