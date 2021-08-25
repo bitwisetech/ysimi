@@ -922,7 +922,7 @@ def update_elem(attrname, old, new):
   Mb =  varyMb.value
   Hy =  varyHy.value
   #
-  Wv =  varyWw.value
+  Wv =  varyWv.value
   Pv =  varyPh.value
   Dr =  varyDw.value
   Xb =  varyXb.value
