@@ -1,24 +1,24 @@
 ==========================
 = YASim solution results =
 ==========================
-Iterations        : 1384
-Drag Coefficient  : 13.845
-Lift Ratio        : 113.638
-Cruise AoA        : 0.22 deg
-Tail Incidence    : -0.39 deg
-Approach Elevator : -0.808
+Iterations        : 991
+Drag Coefficient  : 28.274
+Lift Ratio        : 114.208
+Cruise AoA        : 1.35 deg
+Tail Incidence    : 0.05 deg
+Approach Elevator : -0.805
 
-CG                : x:2.008, y:0.000, z:-0.220
+CG                : x:1.198, y:0.000, z:-0.226
 Wing MAC          : (x:2.48, y:2.79), length:1.9 
 hard limit CG-x   : 2.298 m
 soft limit CG-x   : 1.999 m
-CG-x              : 2.008 m
-CG-x rel. MAC     :  25%
+CG-x              : 1.198 m
+CG-x rel. MAC     :  67%
 soft limit CG-x   : 1.903 m
 hard limit CG-x   : -3.390 m
 
-wing lever        : -0.009 m
-tail lever        : -4.800 m
+wing lever        : 0.801 m
+tail lever        : -3.990 m
 
 max thrust        : 3.63 kN
 thrust/empty      : 0.20
@@ -39,6 +39,6 @@ Section 1 base point: x="1.616" y="1.407" z="-0.646" chord="2.285" incidence="2.
 
 Inertia tensor [kg*m^2], origo at CG:
 
-     9569,      -0,     380
-       -0,   33940,       0
-      380,       0,   42975
+     9846,      -0,     762
+       -0,    8372,       0
+      762,       0,   17673
