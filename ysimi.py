@@ -852,17 +852,17 @@ varyCv = Slider(title="Vstb Camber        Cv", value=Cv, start=(0.00 ), end=(0.5
 varyDh = Slider(title="Hstab IDrag Reduce Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyWh = Slider(title="Hstab Stall Width  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
 varyPh = Slider(title="Hstab Stall Peak   Ph", value=Ph, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyDe = Slider(title="Elev Drag          De", value=Dv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyDe = Slider(title="Elev Drag          De", value=De, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDv = Slider(title="Vstab IDrag Reduce Dv", value=Dv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 # Bot L
-varyAv = Slider(title="Vstb Stall Aoa     Av", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEv = Slider(title="Vstab Effect       Ev", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyAv = Slider(title="Vstb Stall Aoa     Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyEv = Slider(title="Vstab Effect       Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyLr = Slider(title="Rudder Lift        Lr", value=Lr, start=(0.10  ), end=(2.0), step=(0.10))
 varyMb = Slider(title="Ballast Mass       Mb", value=Mb, start=(-4000 ), end=(4000),step=(50  ))
 varyHy = Slider(title="Solve for Alt ft   Hy", value=Hy, start=(   0  ), end=(40000),step=(100))
 # Bot R
 varyWv = Slider(title="Vstb Stall Width   Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(title="VHstab Stall Peak  Pv", value=Pw, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyPv = Slider(title="VHstab Stall Peak  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
 varyDr = Slider(title="Rudder Drag        Dr", value=Dr, start=( 0.1  ), end=(4.0), step=(0.1 ))
 varyXb = Slider(title="Ballast Posn       Xb", value=Xb, start=(-200  ), end=(200 ),step=(0.5 ))
 varyVy = Slider(title="Solve for IAS kt   Vy", value=Vy, start=(40    ), end=(400 ),step=(20  ))
@@ -923,8 +923,8 @@ def update_elem(attrname, old, new):
   Hy =  varyHy.value
   #
   Wv =  varyWv.value
-  Pv =  varyPh.value
-  Dr =  varyDw.value
+  Pv =  varyPv.value
+  Dr =  varyDr.value
   Xb =  varyXb.value
   Vy =  varyVy.value
   #
