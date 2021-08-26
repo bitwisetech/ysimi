@@ -47,6 +47,12 @@ trigger a yasim re-run and re-plot of the three curves while on the console a br
 reports key results: Elevator on Approach  and  Center of Gravity relative to Wing's MAC. 
 
 
+
+
+
+
+
+
 VVV Older Utilities /  Versions may not be pyhon3 ready   !!!    VVV
 
 yasiVers.py  is a utility to automatically create gnuplot displays from FlightGear Yasim

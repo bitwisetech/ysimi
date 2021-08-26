@@ -815,52 +815,52 @@ miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6
 #
 # Set up widgets, balance range / step size each affects re-calc
 # TopLeft
-varyVa = Slider(title="Appr   IAS         Va", value=Va, start=(40.0 ), end=(160 ), step=(2.0 ))
-varyAa = Slider(title="Appr   AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.2 ))
-varyTa = Slider(title="Appr   Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.1 ))
-varyKa = Slider(title="Appr   Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.1 ))
-varyFa = Slider(title="Appr   Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.1 ))
+varyVa = Slider(title="Appr   IAS         Va", value=Va, start=(40.0 ), end=(180 ), step=(5.0 ))
+varyAa = Slider(title="Appr   AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
+varyTa = Slider(title="Appr   Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKa = Slider(title="Appr   Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyFa = Slider(title="Appr   Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
 # TopRight
-varyVc = Slider(title="Cruise IAS Kt      Vc", value=Vc, start=(40   ), end=(240 ), step=(2.0 ))
+varyVc = Slider(title="Cruise IAS Kt      Vc", value=Vc, start=(40   ), end=(240 ), step=(5.0 ))
 varyHc = Slider(title="Cruise Alt Ft      Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
-varyTc = Slider(title="Cruise Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
-varyKc = Slider(title="Cruise Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.1 ))
+varyTc = Slider(title="Cruise Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKc = Slider(title="Cruise Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
 # UprLeft
-varyIw = Slider(title="Wing Icidence      Iw", value=Iw, start=(-4.0 ), end=(4   ), step=(0.1 ))
+varyIw = Slider(title="Wing Icidence      Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyAw = Slider(title="Wing Stall Aoa     Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyCw = Slider(title="Wing Camber        Cw", value=Cw, start=(0.00 ), end=(0.50), step=(0.01))
-varyLf = Slider(title="Flap Lift          Lf", value=Lf, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLa = Slider(title="Ailr Lift          La", value=La, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCw = Slider(title="Wing Camber        Cw", value=Cw, start=(0.00 ), end=(1.00), step=(0.01))
+varyLf = Slider(title="Flap Lift          Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLa = Slider(title="Ailr Lift          La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
 varyDw = Slider(title="Wing IDrag Reduce  Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyWw = Slider(title="Wing Stall Width   Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
-varyPw = Slider(title="Wing Stall Peak    Pw", value=Pw, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyDf = Slider(title="Flap Drag          Df", value=Df, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyDa = Slider(title="Ailr Drag          Da", value=Da, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyPw = Slider(title="Wing Stall Peak    Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyDf = Slider(title="Flap Drag          Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.01))
+varyDa = Slider(title="Ailr Drag          Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.01))
 #Low Lft
-varyCh = Slider(title="Hstab Camber       Ch", value=Ch, start=(0.00 ), end=(0.50), step=(0.01))
+varyCh = Slider(title="Hstab Camber       Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
 varyAh = Slider(title="Hstab Stall Aoa    Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyEh = Slider(title="Hstab Effect       Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyLe = Slider(title="Elev Lift          Le", value=Le, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCv = Slider(title="Vstb Camber        Cv", value=Cv, start=(0.00 ), end=(0.50), step=(0.01))
+varyCv = Slider(title="Vstb Camber        Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
 varyDh = Slider(title="Hstab IDrag Reduce Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyWh = Slider(title="Hstab Stall Width  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-varyPh = Slider(title="Hstab Stall Peak   Ph", value=Ph, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyDe = Slider(title="Elev Drag          De", value=De, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyDv = Slider(title="Vstab IDrag Reduce Dv", value=Dv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyPh = Slider(title="Hstab Stall Peak   Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyDe = Slider(title="Elev Drag          De", value=De, start=(0.01 ), end=(8.0 ), step=(0.01))
+varyDv = Slider(title="Vstab IDrag Reduce Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.01))
 # Bot L
 varyAv = Slider(title="Vstb Stall Aoa     Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyEv = Slider(title="Vstab Effect       Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLr = Slider(title="Rudder Lift        Lr", value=Lr, start=(0.10  ), end=(2.0), step=(0.10))
-varyMb = Slider(title="Ballast Mass       Mb", value=Mb, start=(-4000 ), end=(4000),step=(50  ))
-varyHy = Slider(title="Solve for Alt ft   Hy", value=Hy, start=(   0  ), end=(40000),step=(100))
+varyLr = Slider(title="Rudder Lift        Lr", value=Lr, start=(0.10 ), end=(2.0), step=(0.10))
+varyMb = Slider(title="Ballast Mass       Mb", value=Mb, start=(-4000), end=(4000),step=(50  ))
+varyHy = Slider(title="Solve for Alt ft   Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
 varyWv = Slider(title="Vstb Stall Width   Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
 varyPv = Slider(title="VHstab Stall Peak  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyDr = Slider(title="Rudder Drag        Dr", value=Dr, start=( 0.1  ), end=(4.0), step=(0.1 ))
-varyXb = Slider(title="Ballast Posn       Xb", value=Xb, start=(-200  ), end=(200 ),step=(0.5 ))
-varyVy = Slider(title="Solve for IAS kt   Vy", value=Vy, start=(40    ), end=(400 ),step=(20  ))
+varyDr = Slider(title="Rudder Drag        Dr", value=Dr, start=( 0.0 ), end=(8.0), step=(0.05))
+varyXb = Slider(title="Ballast Posn       Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
+varyVy = Slider(title="Solve for IAS kt   Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
 #
 # called whenever a value is changed on browser interface
 def update_elem(attrname, old, new):
@@ -999,14 +999,14 @@ for v in [\
 versDrop.on_click( dropHdlr)
 
 # Set up layouts for slider groups
-TopLRack = column(varyVa, varyAa, varyTa, varyKa, varyFa)
-TopRRack = column(varyVc, varyHc, varyTc, varyKc)
-UprLRack = column(varyIw, varyAw, varyCw, varyLf, varyLa)
-UprRRack = column(varyDw, varyWw, varyPw, varyDf, varyDa)
-LwrLRack = column(varyCh, varyAh, varyEh, varyLe, varyCv)
-LwrRRack = column(varyDh, varyWh, varyPh, varyDe, varyDv)
-BotLRack = column(varyAv, varyEv, varyLr, varyMb, varyHy)
-BotRRack = column(varyWv, varyPv, varyDr, varyXb, varyVy)
+TopLRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
+TopRRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
+UprLRack = column(varyIw,   varyAw, varyCw, varyLf, varyLa)
+UprRRack = column(varyDw,   varyWw, varyPw, varyDf, varyDa)
+LwrLRack = column(varyCh,   varyAh, varyEh, varyLe, varyCv)
+LwrRRack = column(varyDh,   varyWh, varyPh, varyDe, varyDv)
+BotLRack = column(varyAv,   varyEv, varyLr, varyMb, varyHy)
+BotRRack = column(varyWv,   varyPv, varyDr, varyXb, varyVy)
 
 ##
 presets()
@@ -1016,7 +1016,7 @@ spinYasim(aCfgFid)
 #
 # plan overall interface layout 
 curdoc().title = yCfgName
-curdoc().add_root(row(TopLRack, liftPlot, TopRRack, versDrop, width=480))
+curdoc().add_root(row(TopLRack, liftPlot, TopRRack, width=480))
 curdoc().add_root(row(UprLRack, dragPlot, UprRRack, width=480))
 curdoc().add_root(row(LwrLRack, lvsdPlot, LwrRRack, width=480))
 curdoc().add_root(row(BotLRack, miasPlot, BotRRack,  width=480))

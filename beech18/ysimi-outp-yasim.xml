@@ -144,7 +144,7 @@
          chord="1.361"
          length="1.582"
          sweep="5"
-         camber="0.0"
+         camber="0.1"
          effectiveness="1.0"
          idrag="1.0"
          taper="0.5">
@@ -161,7 +161,7 @@
          chord="1.361"
          length="1.582"
          sweep="5"
-         camber="0.0"
+         camber="0.1"
          effectiveness="1.0"
          idrag="1.0"
          taper="0.5">
