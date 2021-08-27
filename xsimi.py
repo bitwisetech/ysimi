@@ -154,7 +154,7 @@ def vblsFromTplt():
   # 
   Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = 0.00
   Iw = Aw = Ah = Cv = Av = Wv = Pv = Cw = Ch = 0.00
-  Eh = Ev = Lh = Lv = Lr = Dw = Dh = Dh = Dr = 1.00
+  Eh = Ev = Lh = Lv = Lr = Dw = Dh = Dv = Dr = 1.00
   Pw = Ph = 1.50
   Ww = Wh = 2.00
   Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0

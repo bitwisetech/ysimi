@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-##    ysimi.py: YASim Interactively Adjust Numbers: a pandas / bokeh testbench for YASim
+##    zsimi.py: YASim Interactively Adjust Numbers: a pandas / bokeh testbench for YASim
 #    takes a given YASim config file, offers a web based plotter for Lift, drag, L/D 
 #    creates modified YASim configs for different YASim versions
 #    offers slider control of various key YASim elements and re-plots interactively
@@ -12,19 +12,19 @@
 #   ..-soln.txt     yasim generated solution values       ( version specific )
 #
 #  install python3-bokeh, python3-pandas, numpy ( plus others ?? ) 
-#  To run a local server: bokeh serve ysimi.py and then
-#    browse to: http://localhost:5006/ysimi 
+#  To run a local server: bokeh serve zsimi.py and then
+#    browse to: http://localhost:5006/zsimi 
 #
 #  Suggested workflow ( various files are created / written ) 
 #    Create a model-specific folder beneath this executable's folder:
 #      mkdir [myModel]; cd [myModel]
 #    Link or copy YASim configuration in Flightgear's Aircraft folder:
-#      ln -s [fgaddon/Aircraft/[myModel-config.xml] ysimi-yasim.xml
+#      ln -s [fgaddon/Aircraft/[myModel-config.xml] zsimi-yasim.xml
 #      ( the executable's input YASim configuration file has a specific fileID )
 #    Start bokeh server with this executable: 
-#      bokeh serve [ --port 5006 ] ../ysimi.py
+#      bokeh serve [ --port 5006 ] ../zsimi.py
 #    Browse to the interactive panel:   
-#      http://localhost:5006/ysimi
+#      http://localhost:5006/zsimi
 #    In Flightgear's Aircraft folder use the modified output as YASim config: 
 #      mv [fgaddon/Aircraft/[myModel-config.xml] [fgaddon/Aircraft/[myModel-config.xml-orig]
 #      ln ysim-yasim-outp.xml [fgaddon/Aircraft/myModel-config.xml]
@@ -81,7 +81,7 @@ def presets():
   global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   #print( 'Entr presets')
   ## Default File IDs 
-  procPref = "ysimi"
+  procPref = "zsimi"
   # yasim config xml file read input 
   yCfgFid  = procPref + '-yasim.xml'
   yCfgName = yCfgFid.find('.xml')
@@ -1023,4 +1023,4 @@ curdoc().add_root(row(BotLRack, miasPlot, BotRRack,  width=480))
 # Cannot get table of YASim output values to update, ergo console printout
 #curdoc().add_root(row(solnDT, width=480))
 #
-## ysimi ends
+## zsimi ends
