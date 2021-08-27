@@ -80,8 +80,15 @@ def presets():
   global Hy, Vy                                      # Solver    parms
   global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
   #print( 'Entr presets')
+  wdir = os.getcwd()
+  wdirTail = wdir.rfind( '/' )
+  if ( wdirTail == -1 ) :
+    procPref = 'ysimi' 
+  else :   
+    procPref =  wdir[ ( wdirTail + 1 ):]
+  #print(procPref)  
+  #procPref = "ysimi"
   ## Default File IDs 
-  procPref = "ysimi"
   # yasim config xml file read input 
   yCfgFid  = procPref + '-yasim.xml'
   yCfgName = yCfgFid.find('.xml')
