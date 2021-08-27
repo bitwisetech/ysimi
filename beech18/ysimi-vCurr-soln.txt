@@ -1,9 +1,9 @@
 ==========================
 = YASim solution results =
 ==========================
-Iterations        : 1679
+Iterations        : 1672
 Drag Coefficient  : 4.816
-Lift Ratio        : 402.389
+Lift Ratio        : 400.807
 Cruise AoA        : 1.57 deg
 Tail Incidence    : -0.83 deg
 Approach Elevator : -0.221
