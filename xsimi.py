@@ -98,7 +98,7 @@ def presets():
   #print('presets versKywd:', versKywd)
   #
   # aCFig is output yasim config files with element(s) modified 
-  aCfgFid  = procPref + '-outp-yasim.xml'
+  aCfgFid  = procPref + '-yasim-outp.xml'
   #
   lvsdFid  = procPref + versToDo + '-LvsD.txt'
   miasFid  = procPref + versToDo + '-mias.txt'
