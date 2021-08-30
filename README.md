@@ -1,4 +1,4 @@
-YASIPLOT  Diagnostic tools for FlightGear's YASIM Flight Dynamics Model yasimi.py, inciMarg.py
+YSIMI  Diagnostic tools for FlightGear's YASIM Flight Dynamics Model yasimi.py, inciMarg.py
 
   Yasim FDM uses a configuration file to creatre its FDM and can supply tabulated
 Lift, Drag Tables and a solution summary text. The python tools from here automatically
