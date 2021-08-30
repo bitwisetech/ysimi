@@ -1,4 +1,4 @@
-YASIPLOT  Diagnostic tools for FlightGear's YASIM Flight Dynamics Model
+YASIPLOT  Diagnostic tools for FlightGear's YASIM Flight Dynamics Model yasimi.py, inciMarg.py
 
   Yasim FDM uses a configuration file to creatre its FDM and can supply tabulated
 Lift, Drag Tables and a solution summary text. The python tools from here automatically
@@ -7,6 +7,7 @@ files are manually altered.
 
   YASim Simulator Interactive  ysimi.py is the fullest function latest 
 
+## ysimi.py 
   ysimi.py uses python's bokeh package, it serves a live control / plotting
 interface shown on a web browser.  Key elements in a YASim configuration file may 
 be altered by sliders in the web app while Lift / Drag curves are updated with live plots. 
@@ -46,3 +47,12 @@ reports key results: Elevator on Approach  and  Center of Gravity relative to Wi
 
   A new YASim configuration is created as adjustments are made at the browser,  the new file 
 is named: ysimi-yasim-outp.xml.   
+
+
+## inciMarg.py 
+  A command line logout of Wing Incidence, derived from wheel / cenreline geometry, compared to 
+wing stall AoA values read from a named YASim configuration file: 
+  
+> inciMarg.py -f t6/t6-yasim.xml
+ t6-yasim.xml   CL incidence: 11.294  Wing incidence: 2.000  Total Incidence : 13.294    Wing AoaStall: 15.000   % Margin: 11.374
+
