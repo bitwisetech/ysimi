@@ -6,7 +6,7 @@
 #    offers slider control of various key YASim elements and re-plots interactively
 #
 #    yCfg.. Input   yasim config xml Original 
-#    outp.. Auto    yasim config xml generated with eg modified varied elements
+#    test.. Auto    yasim config xml generated with eg modified varied elements
 #   ..-LvsD.txt     yasim generated Lift / Drag tables    ( version specific )
 #   ..-mias.txt     yasim generated IAS for 0vSpd vs AoA  ( version specific )
 #   ..-soln.txt     yasim generated solution values       ( version specific )
@@ -161,7 +161,7 @@ def vblsFromTplt():
   # 
   Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = 0.00
   Iw = Aw = Ah = Cv = Av = Wv = Pv = Cw = Ch = 0.00
-  Eh = Ev = La = Lh = Lv = Lr = Da = Dw = Dh = Dv = Dr = 1.00
+  Eh = Ev = La = Lf = Lh = Lv = Lr = Da = Df = Dh = Dr = Dw = Dv = 1.00
   Pw = Ph = 1.50
   Ww = Wh = 2.00
   Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0
@@ -789,6 +789,7 @@ menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 #
 # Pull key values from yasim solution console output
 solnIter = scanSoln( solnFid, 'Iterations')
+solnHstb = scanSoln( solnFid, 'Tail Incidence')
 solnElev = scanSoln( solnFid, 'Approach Elevator')
 solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
 # Did not work: Try a data table to live update soln values
@@ -814,28 +815,35 @@ miasPlot  = figure(plot_height=200, plot_width=256, title="Vs0 IAS, %Lift vs AoA
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 ##
-liftPlot.line( x='aoa', y='Lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-dragPlot.line( x='aoa', y='Drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-lvsdPlot.line( x='aoa', y='LvsD',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+if (0) :
+# Enable for patched yasim-test else no LvsD column exists
+  liftPlot.line( x='aoa', y='Lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  dragPlot.line( x='aoa', y='Drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  lvsdPlot.line( x='aoa', y='LvsD',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+else : 
+  liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+# 
 miasPlot.line( x='aoa', y='knots', source=miasDsrc, line_width=3, line_alpha=0.6)
 miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6)
 #
 # Set up widgets, balance range / step size each affects re-calc
+#   A smaller step size affects YASim spins: bigger step <==> faster response 
 # TopLeft
-varyVa = Slider(title="Appr   IAS         Va", value=Va, start=(40.0 ), end=(180 ), step=(5.0 ))
+varyVa = Slider(title="Appr   IAS         Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
 varyAa = Slider(title="Appr   AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
 varyTa = Slider(title="Appr   Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
 varyKa = Slider(title="Appr   Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
 varyFa = Slider(title="Appr   Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
 # TopRight
-varyVc = Slider(title="Cruise IAS Kt      Vc", value=Vc, start=(40   ), end=(240 ), step=(5.0 ))
+varyVc = Slider(title="Cruise IAS Kt      Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
 varyHc = Slider(title="Cruise Alt Ft      Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
 varyTc = Slider(title="Cruise Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
 varyKc = Slider(title="Cruise Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
 # UprLeft
 varyIw = Slider(title="Wing Icidence      Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyAw = Slider(title="Wing Stall Aoa     Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyCw = Slider(title="Wing Camber        Cw", value=Cw, start=(0.00 ), end=(1.00), step=(0.01))
+varyCw = Slider(title="Wing Camber        Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
 varyLf = Slider(title="Flap Lift          Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyLa = Slider(title="Ailr Lift          La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
@@ -860,7 +868,7 @@ varyDv = Slider(title="Vstab IDrag Reduce Dv", value=Dv, start=(0.01 ), end=(8.0
 varyAv = Slider(title="Vstb Stall Aoa     Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyEv = Slider(title="Vstab Effect       Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyLr = Slider(title="Rudder Lift        Lr", value=Lr, start=(0.10 ), end=(2.0), step=(0.10))
-varyMb = Slider(title="Ballast Mass       Mb", value=Mb, start=(-4000), end=(4000),step=(50  ))
+varyMb = Slider(title="Ballast Mass       Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
 varyHy = Slider(title="Solve for Alt ft   Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
 varyWv = Slider(title="Vstb Stall Width   Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
@@ -942,10 +950,11 @@ def update_elem(attrname, old, new):
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
+  solnTail = scanSoln( solnFid, 'Tail Incidence')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text boxes so output to console
-  print( 'Iter:{:s}  Appr Elev:{:s}   CG:{:s} MAC   Wing Inc {:2.1f}deg   Stall AoA {:.1f}deg   Margin {:.1f}% ' \
-          .format( solnIter, solnElev, solnCofG, totlInci, Aw, (100 * ( 1 - fracInci))))
+  print( 'Run{:s}  HStb:{:s}  Apr Elv:{:s}  CG @{:s} MAC  Wing Inc:{:2.1f}d {:.1f}% St AoA:{:.1f}d   ' \
+          .format( solnIter, solnTail, solnElev, solnCofG, totlInci, (100 * fracInci), Aw))
   solnDict = dict( 
               dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
               dValues = [  solnIter,     solnElev,            solnCofG      ])
@@ -991,7 +1000,7 @@ def dropHdlr(event) :
   solnDT.update()
 #
   
-# listeners for interface changes 
+# listeners for interface slider changes 
 for v in [\
           varyVa, varyAa, varyTa, varyKa, varyFa, \
           varyVc, varyHc, varyTc, varyKc, \
@@ -999,8 +1008,8 @@ for v in [\
           varyDw, varyWw, varyPw, varyDf, varyDa, \
           varyCh, varyAh, varyEh, varyLe, varyCv, \
           varyDh, varyWh, varyPh, varyDe, varyDv, \
-          varyAv, varyEv, varyLr, varyMb, \
-          varyWv, varyDr, varyVy, varyXb  ]:
+          varyAv, varyEv, varyLr, varyMb, varyHy, \
+          varyWv, varyPv, varyDr, varyXb, varyVy  ]:
   v.on_change('value', update_elem)
 
 versDrop.on_click( dropHdlr)
