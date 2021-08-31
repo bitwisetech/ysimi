@@ -82,7 +82,7 @@
         taper="1.0"
         camber="0.001"
         incidence="2.0">
-        <stall   aoa="16.0" width="8.0" peak="1.5"/>
+        <stall   aoa="13.0" width="8.0" peak="1.5"/>
         <flap0 start="0"    end="1" lift="1.8" drag="1.5"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
@@ -100,7 +100,7 @@
         sweep="3.5"
         dihedral="4.6"
         incidence="2.0">
-        <stall   aoa="16.0" width="8.0"    peak="1.5"/>
+        <stall   aoa="13.0" width="8.0"    peak="1.5"/>
         <flap0 start="0.00" end="0.46" lift="1.8" drag="1.5"/>
         <flap1 start="0.46" end="1.00" lift="1.4" drag="1.2"/>
 
