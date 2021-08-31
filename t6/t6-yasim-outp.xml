@@ -236,6 +236,6 @@
   <tank x="1.4" y="-2.7" z="-0.530" capacity="560"/>
 
   <!-- Mass distribution  -->
-  <ballast x="10.5" y="0.0" z="0.0" mass="300.0"/>
+  <ballast x="12.5" y="0.0" z="0.0" mass="300.0"/>
 
 </airplane>
