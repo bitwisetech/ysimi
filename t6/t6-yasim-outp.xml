@@ -42,8 +42,8 @@
 -->
 <airplane mass="4158" version="YASIM_VERSION_CURRENT" mtow-lbs="5617">
 
-  <approach speed="80.0" aoa="5" fuel="0.2">
-    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.35"/>
+  <approach speed="80.0" aoa="2.0" fuel="0.2">
+    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.2"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="1"/>
     <control-setting axis="/controls/flight/flaps"                      value="0.67"/>
@@ -102,7 +102,7 @@
         incidence="2.0">
         <stall   aoa="13.0" width="8.0"    peak="1.5"/>
         <flap0 start="0.00" end="0.46" lift="1.8" drag="1.5"/>
-        <flap1 start="0.46" end="1.00" lift="2.01" drag="1.51"/>
+        <flap1 start="0.46" end="1.00" lift="1.4" drag="1.2"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
         <control-input  control="FLAP1" axis="/controls/flight/aileron"      split="true"/>

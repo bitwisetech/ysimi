@@ -42,7 +42,7 @@
 -->
 <airplane mass="4158" version="YASIM_VERSION_CURRENT" mtow-lbs="5617">
 
-  <approach speed="90.0" aoa="2.0" fuel="0.2">
+  <approach speed="80.0" aoa="2.0" fuel="0.2">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.35"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="1"/>
@@ -82,8 +82,8 @@
         taper="1.0"
         camber="0.001"
         incidence="2.0">
-        <stall   aoa="13.0" width="8.0" peak="1.5"/>
-        <flap0 start="0"    end="1" lift="1.75" drag="1.5"/>
+        <stall   aoa="12.4" width="9.0" peak="2.8"/>
+        <flap0 start="0"    end="1" lift="1.80" drag="1.5"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
 
@@ -100,8 +100,8 @@
         sweep="3.5"
         dihedral="4.6"
         incidence="2.0">
-        <stall   aoa="14.0" width="8.0"    peak="1.5"/>
-        <flap0 start="0.00" end="0.46" lift="1.75" drag="1.5"/>
+        <stall   aoa="13.5" width="9.0" peak="2.8"/>
+        <flap0 start="0.00" end="0.46" lift="1.80" drag="1.5"/>
         <flap1 start="0.46" end="1.00" lift="1.40" drag="1.2"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/flaps"/>
@@ -124,7 +124,7 @@
          idrag="1.0"
          sweep="10">
          <stall   aoa="20.0" width="8.0" peak="1.5"/>
-         <flap0 start="0"    end="1" lift="1.5" drag="1.1"/>
+         <flap0 start="0"    end="1" lift="1.75" drag="1.1"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/elevator"/>
          <control-input  control="FLAP0" axis="/controls/flight/elevator-trim"/>
@@ -141,7 +141,7 @@
          idrag="1.0"
          sweep="10">
          <stall   aoa="20.0" width="8.0" peak="1.5"/>
-         <flap0 start="0"    end="1" lift="1.4" drag="1.2"/>
+         <flap0 start="0"    end="1" lift="1.75" drag="1.2"/>
 
          <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>
          <control-input  control="FLAP0" axis="/controls/flight/rudder-trim" invert="true"/>
