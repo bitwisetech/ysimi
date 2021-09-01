@@ -68,6 +68,7 @@ global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
 global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
 global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
+global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
 global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
 global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -142,6 +143,7 @@ def vblsFromTplt():
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wing, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -151,6 +153,7 @@ def vblsFromTplt():
   apprFlag   = 0
   cruzFlag   = 0
   wingFlag   = 0
+  wng1Flag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
   ballFlag   = 0
@@ -160,10 +163,10 @@ def vblsFromTplt():
   Hy = 4000
   # 
   Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = 0.00
-  Iw = Aw = Ah = Cv = Av = Wv = Pv = Cw = Ch = 0.00
-  Eh = Ev = La = Lf = Lh = Lv = Lr = Da = Df = Dh = Dr = Dw = Dv = 1.00
-  Pw = Ph = 1.50
-  Ww = Wh = 2.00
+  Iw = Aw = Ix = Ax = Ah = Cv = Av = Wv = Pv = Cw = Cx = Ch = 0.00
+  Eh = Ev = La = Lf = Lg = Lt = Lh = Lv = Lr = Da = Df = Dg = Dt = Dh = Dr = Dw = Dx = Dv = 1.00
+  Pw = Px = Ph = 1.50
+  Ww = Wx = Wh = 2.00
   Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0
   # in case ballast element is missing, fake with tiny value
   Mb = Xb = Yb = Zb = 0.001
@@ -189,6 +192,7 @@ def vblsFromTplt():
         wingFlag = 1
       if '</wing' in line:
         wingFlag = 0
+        wng1Flag = 0
       # flag on hstab section
       if '<hstab' in line:
         hstabFlag = 1
@@ -213,7 +217,7 @@ def vblsFromTplt():
       if (apprFlag == 1):
         ##
         #in appr section, find elements
-        if ('approach speed' in line):
+        if ('approach' in line):
           # find element names, save values to post in Tix gui
           if ( 'speed' in line):
             Va = tuplValu('speed', line)
@@ -228,12 +232,13 @@ def vblsFromTplt():
         if ('throttle' in line):
           if ( 'value' in line):
             Ta = tuplValu('value', line)
+            # print ('Ta: ', Ta)  
           #
         if ('flaps' in line):
           if ( 'value' in line):
             Fa = tuplValu('value', line)
+          # print (' Fa: ', Fa,)  
           #
-        #print ('Ta: ', Ta, ' Fa: ', Fa,)  
       ### cruise section parse cruise speed element
       if (cruzFlag == 1):
           # find element names, save values to post in Tix gui
@@ -254,53 +259,106 @@ def vblsFromTplt():
         ###
       ### wing section parse camber and induced drag elements
       if (wingFlag == 1):
-        # find element names, save values to post in Tix gui
-        if ( 'camber' in line):
-          Cw =  tuplValu('camber', line)
+        if ( 'append=\"1\"' in line) :
+          wng1Flag = 1
         #
-        if ('idrag' in line):
-          Dw = tuplValu('idrag', line)
-        #  
-        if ( 'incidence' in line):
-          Iw = tuplValu('incidence', line)
-        #
-        #print ('Read Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
-        ##
-        #in wing section, find stall element values
-        if ('stall' in line):
-          # find element names, save values to post in Tix gui
-          if ( 'aoa' in line):
-            Aw = tuplValu('aoa', line)
+        if ( wng1Flag != 1 ) :
+          if ( 'camber' in line):
+            Cw =  tuplValu('camber', line)
           #
-          if ( 'peak' in line):
-            Pw = tuplValu('peak', line)
+          if ('idrag' in line):
+            Dw = tuplValu('idrag', line)
+          #  
+          if ( 'incidence' in line):
+            Iw = tuplValu('incidence', line)
           #
-          if ( 'width' in line):
-            Ww = tuplValu('width', line)
+          #print ('Read Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
+          ##
+          #in wing section, find stall element values
+          if ('stall' in line):
+            # find element names, save values to post in Tix gui
+            if ( 'aoa' in line):
+              Aw = tuplValu('aoa', line)
+            #
+            if ( 'peak' in line):
+              Pw = tuplValu('peak', line)
+            #
+            if ( 'width' in line):
+              Ww = tuplValu('width', line)
+            #
+          #print ('Aw: ', Aw, ' Ww: ', Ww, ' Pw: ', Pw)  
+          ##
+          #in wing section, find flap0 element values 
+          if ('flap0' in line):
+            # find element names, save values to post in Tix gui
+            if ( 'lift' in line):
+              Lf = tuplValu('lift', line)
+            #
+            if ( 'drag' in line):
+              Df = tuplValu('drag', line)
+            #
+          #print ('Lf: ', Lf, ' Df: ', Df)  
+          ##
+          #in wing section, find flap1 element values 
+          if ('flap1' in line):
+            # find element names, save values to post in Tix gui
+            if ( 'lift' in line):
+              La = tuplValu('lift', line)
+            #
+            if ( 'drag' in line):
+              Da = tuplValu('drag', line)
+            #
+          #print ('La: ', La, ' Da: ', Da)
+          ## end wing 
+        else :
+          ## wing append 1  print('wng1')
+          if ( 'camber' in line):
+            Cw =  tuplValu('camber', line)
           #
-        #print ('Aw: ', Aw, ' Ww: ', Ww, ' Pw: ', Pw)  
-        ##
-        #in wing section, find flap0 element values 
-        if ('flap0' in line):
-          # find element names, save values to post in Tix gui
-          if ( 'lift' in line):
-            Lf = tuplValu('lift', line)
+          if ('idrag' in line):
+            Dx = tuplValu('idrag', line)
+          #  
+          if ( 'incidence' in line):
+            Ix = tuplValu('incidence', line)
           #
-          if ( 'drag' in line):
-            Df = tuplValu('drag', line)
-          #
-        #print ('Lf: ', Lf, ' Df: ', Df)  
-        ##
-        #in wing section, find flap1 element values 
-        if ('flap1' in line):
-          # find element names, save values to post in Tix gui
-          if ( 'lift' in line):
-            La = tuplValu('lift', line)
-          #
-          if ( 'drag' in line):
-            Da = tuplValu('drag', line)
-          #
-        #print ('Lr: ', Lr, ' Dr: ', Dr)  
+          #print ('Read Cx: ', Cx, 'Dx: ', Dx, ' Ix: ', Ix)  
+          ##
+          #in wing section, find stall element values
+          if ('stall' in line):
+            # find element names, save values to post in Tix gui
+            if ( 'aoa' in line):
+              Ax = tuplValu('aoa', line)
+            #
+            if ( 'peak' in line):
+              Px = tuplValu('peak', line)
+            #
+            if ( 'width' in line):
+              Wx = tuplValu('width', line)
+            #
+          #print ('Ax: ', Ax, ' Wx: ', Wx, ' Px: ', Px)  
+          ##
+          #in wing section, find flap0 element values 
+          if ('flap0' in line):
+            # find element names, save values to post in Tix gui
+            if ( 'lift' in line):
+              Lg = tuplValu('lift', line)
+            #
+            if ( 'drag' in line):
+              Dg = tuplValu('drag', line)
+            #
+          #print ('Lg: ', Lg, ' Dg: ', Dg)  
+          ##
+          #in wing section, find flap1 element values 
+          if ('flap1' in line):
+            # find element names, save values to post in Tix gui
+            if ( 'lift' in line):
+              Lt = tuplValu('lift', line)
+            #
+            if ( 'drag' in line):
+              Dt = tuplValu('drag', line)
+            #
+          #print ('Lt: ', Lt, ' Dt: ', Dt)
+          ## end wng1 
       ### hstab section parse camber, drag, stall and flap0 elements
       if (hstabFlag == 1):
         ## hstab section parse camber and induced drag elements if present
@@ -439,6 +497,7 @@ def cfigFromVbls( tFID):
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wing, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -448,6 +507,7 @@ def cfigFromVbls( tFID):
   apprFlag   = 0
   cruzFlag   = 0
   wingFlag   = 0
+  wng1Flag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
   ballFlag   = 0
@@ -474,6 +534,7 @@ def cfigFromVbls( tFID):
         wingFlag = 1
       if '</wing'     in line:
         wingFlag = 0
+        wng1Flag = 0
       if '<hstab'     in line:
         hstabFlag = 1
       if '</hstab'    in line:
@@ -493,7 +554,7 @@ def cfigFromVbls( tFID):
       ### in each section substitute updated element values
       ## approach
       if (apprFlag == 1):
-        if ('approach speed' in line):
+        if ('speed' in line):
           line = tuplSubs( 'speed',   line, Va ) 
           line = tuplSubs( 'aoa',     line, Aa ) 
           line = tuplSubs( 'fuel',    line, Ka ) 
@@ -512,27 +573,52 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'value',   line, Tc )
       ## wing
       if (wingFlag == 1):
-        if ('camber' in line):
-          line = tuplSubs( 'camber',  line, Cw ) 
-        if ('idrag' in line):
-          line = tuplSubs( 'idrag',   line, Dw )
-        if ('incidence' in line):
-          line = tuplSubs( 'incidence', line, Iw )
-          #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
-        #   
-        if ('stall' in line):
-          line = tuplSubs( 'aoa'  ,  line, Aw )
-          line = tuplSubs( 'peak' ,  line, Pw ) 
-          line = tuplSubs( 'width',  line, Ww ) 
-        #  
-        if ('flap0' in line):
-          line = tuplSubs( 'lift',   line, Lf ) 
-          line = tuplSubs( 'drag',   line, Df ) 
-        #  
-        if ('flap1' in line):
-          line = tuplSubs( 'lift',   line, La ) 
-          line = tuplSubs( 'drag',   line, Da )
-        #
+        if ('append=\"1\"' in line):
+          wng1Flag = 1
+        if ( wng1Flag != 1 ) :          
+          if ('camber' in line):
+            line = tuplSubs( 'camber',  line, Cw ) 
+          if ('idrag' in line):
+            line = tuplSubs( 'idrag',   line, Dw )
+          if ('incidence' in line):
+            line = tuplSubs( 'incidence', line, Iw )
+            #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
+          #   
+          if ('stall' in line):
+            line = tuplSubs( 'aoa'  ,  line, Aw )
+            line = tuplSubs( 'peak' ,  line, Pw ) 
+            line = tuplSubs( 'width',  line, Ww ) 
+          #  
+          if ('flap0' in line):
+            line = tuplSubs( 'lift',   line, Lf ) 
+            line = tuplSubs( 'drag',   line, Df ) 
+          #  
+          if ('flap1' in line):
+            line = tuplSubs( 'lift',   line, La ) 
+            line = tuplSubs( 'drag',   line, Da )
+          # end wing 
+        else :   
+          if ('camber' in line):
+            line = tuplSubs( 'camber',  line, Cx ) 
+          if ('idrag' in line):
+            line = tuplSubs( 'idrag',   line, Dx )
+          if ('incidence' in line):
+            line = tuplSubs( 'incidence', line, Ix )
+            #print ('Wrt  Cx: ', Cx, 'Dx: ', Dx, ' Ix: ', Ix)  
+          #   
+          if ('stall' in line):
+            line = tuplSubs( 'aoa'  ,  line, Ax )
+            line = tuplSubs( 'peak' ,  line, Px ) 
+            line = tuplSubs( 'width',  line, Wx ) 
+          #  
+          if ('flap0' in line):
+            line = tuplSubs( 'lift',   line, Lg ) 
+            line = tuplSubs( 'drag',   line, Dg ) 
+          #  
+          if ('flap1' in line):
+            line = tuplSubs( 'lift',   line, Lt ) 
+            line = tuplSubs( 'drag',   line, Dt )
+          # end wng1
       ## HStab     
       if (hstabFlag == 1):
         if ('camber' in line):
@@ -777,14 +863,14 @@ cfigFromVbls( aCfgFid)
 spinYasim( aCfgFid )
 
 # use pandas to read sources and create bokeh dataframes
-lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
+lvsdDfrm  = pd.read_csv(lvsdFid, delimiter=', ')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
 #
-miasDfrm  = pd.read_csv(miasFid, delimiter='\t')
+miasDfrm  = pd.read_csv(miasFid, delimiter=', ')
 miasDsrc  = ColumnDataSource(miasDfrm)
 #
 # Dropdown for selecting which YASim version to run 
-versDrop = Dropdown(label='Select YASim VERSION to Run', \
+versDrop = Dropdown(width=64, label='YASim VERSION', \
 menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 #
 # Pull key values from yasim solution console output
@@ -802,16 +888,16 @@ solnCols = [TableColumn( field="dNames", title="Solution Item" ),
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
 #
 # Set up plots
-liftPlot  = figure(plot_height=200, plot_width=256, title="Lift n100 vs AoA",
+liftPlot  = figure(plot_height=200, plot_width=320, title="Lift n100 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-dragPlot  = figure(plot_height=200, plot_width=256, title="Drag  n10 vs AoA",
+dragPlot  = figure(plot_height=200, plot_width=320, title="Drag  n10 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-lvsdPlot  = figure(plot_height=200, plot_width=256, title="  L / D   vs AoA",
+lvsdPlot  = figure(plot_height=200, plot_width=320, title="  L / D   vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-miasPlot  = figure(plot_height=200, plot_width=256, title="Vs0 IAS, %Lift vs AoA",
+miasPlot  = figure(plot_height=200, plot_width=320, title="Vs0 IAS, %Lift vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 ##
@@ -830,60 +916,73 @@ miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6
 # Set up widgets, balance range / step size each affects re-calc
 #   A smaller step size affects YASim spins: bigger step <==> faster response 
 # TopLeft
-varyVa = Slider(title="Appr   IAS         Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
-varyAa = Slider(title="Appr   AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
-varyTa = Slider(title="Appr   Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKa = Slider(title="Appr   Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyFa = Slider(title="Appr   Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyVa = Slider(width=144, title="Appr IAS         Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
+varyAa = Slider(width=144, title="Appr AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
+varyTa = Slider(width=144, title="Appr Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKa = Slider(width=144, title="Appr Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyFa = Slider(width=144, title="Appr Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
 # TopRight
-varyVc = Slider(title="Cruise IAS Kt      Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
-varyHc = Slider(title="Cruise Alt Ft      Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
-varyTc = Slider(title="Cruise Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKc = Slider(title="Cruise Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyVc = Slider(width=144, title="Crse IAS Kt      Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
+varyHc = Slider(width=144, title="Crse Alt Ft      Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
+varyTc = Slider(width=144, title="Crse Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKc = Slider(width=144, title="Crse Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
 # UprLeft
-varyIw = Slider(title="Wing Icidence      Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyAw = Slider(title="Wing Stall Aoa     Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyCw = Slider(title="Wing Camber        Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
-varyLf = Slider(title="Flap Lift          Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLa = Slider(title="Ailr Lift          La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyAw = Slider(width=144, title="Wing Stall Aoa   Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyIw = Slider(width=144, title="Wing Icidence    Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyDw = Slider(width=144, title="Wing IDrag Less  Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyLf = Slider(width=144, title="Flap Lift        f", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLa = Slider(width=144, title="Ailr Lift        La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
-varyDw = Slider(title="Wing IDrag Reduce  Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyWw = Slider(title="Wing Stall Width   Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
-varyPw = Slider(title="Wing Stall Peak    Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyDf = Slider(title="Flap Drag          Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDa = Slider(title="Ailr Drag          Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
+varyWw = Slider(width=144, title="Wing Stall Wdth  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
+varyPw = Slider(width=144, title="Wing Stall Peak  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyCw = Slider(width=144, title="Wing Camber      Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
+varyDf = Slider(width=144, title="Flap Drag        Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDa = Slider(width=144, title="Ailr Drag        Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
+# MidLeft
+varyAx = Slider(width=144, title="Wng1 Stall Aoa   Ax", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyIx = Slider(width=144, title="Wng1 Icidence    Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyDx = Slider(width=144, title="Wng1 IDrag--     Dx", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyLg = Slider(width=144, title="Flp1 Lift        Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLt = Slider(width=144, title="Ail1 Lift        Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
+# MidRight
+varyWx = Slider(width=144, title="Wng1 Stall Wdth  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
+varyPx = Slider(width=144, title="Wng1 Stall Peak  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyCx = Slider(width=144, title="Wing Camber      Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
+varyDg = Slider(width=144, title="Flp1 Drag        Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDt = Slider(width=144, title="Ai11 Drag        Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
 #Low Lft
-varyCh = Slider(title="Hstab Camber       Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
-varyAh = Slider(title="Hstab Stall Aoa    Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEh = Slider(title="Hstab Effect       Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLe = Slider(title="Elev Lift          Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
-varyCv = Slider(title="Vstb Camber        Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
+varyCh = Slider(width=144, title="Hstab Camber     Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
+varyAh = Slider(width=144, title="Hstab Stall Aoa  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyEh = Slider(width=144, title="Hstab Effect     Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyLe = Slider(width=144, title="Elev  Lift       Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
+varyCv = Slider(width=144, title="Vstab Camber     Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
-varyDh = Slider(title="Hstab IDrag Reduce Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyWh = Slider(title="Hstab Stall Width  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-varyPh = Slider(title="Hstab Stall Peak   Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyDe = Slider(title="Elev Drag          De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
-varyDv = Slider(title="Vstab IDrag Reduce Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
+varyDh = Slider(width=144, title="Hstab IDrag--   Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyWh = Slider(width=144, title="Hstab St wd     Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
+varyPh = Slider(width=144, title="Hstab St Pk     Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyDe = Slider(width=144, title="Elev Drag       De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
+varyDv = Slider(width=144, title="Vstab IDrag--   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
 # Bot L
-varyAv = Slider(title="Vstb Stall Aoa     Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEv = Slider(title="Vstab Effect       Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLr = Slider(title="Rudder Lift        Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
-varyMb = Slider(title="Ballast Mass       Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
-varyHy = Slider(title="Solve for Alt ft   Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
+varyAv = Slider(width=144, title="Vstab Stall Aoa Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyEv = Slider(width=144, title="Vstab Effect    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyLr = Slider(width=144, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
+varyMb = Slider(width=144, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
+varyHy = Slider(width=144, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
-varyWv = Slider(title="Vstb Stall Width   Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(title="VHstab Stall Peak  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyDr = Slider(title="Rudder Drag        Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
-varyXb = Slider(title="Ballast Posn       Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
-varyVy = Slider(title="Solve for IAS kt   Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
+varyWv = Slider(width=144, title="Vstab Stall Wd  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
+varyPv = Slider(width=144, title="Vstab Stall Pk  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyDr = Slider(width=144, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
+varyXb = Slider(width=144, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
+varyVy = Slider(width=144, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
 #
 # called whenever a value is changed on browser interface
 def update_elem(attrname, old, new):
-  #print( 'Entr update_elem')
+  #  print( 'Entr update_elem')
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wing, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -915,6 +1014,18 @@ def update_elem(attrname, old, new):
   Df =  varyDf.value
   Da =  varyDa.value
   #
+  Ix =  varyIx.value
+  Ax =  varyAx.value
+  Cx =  varyCx.value
+  Lg =  varyLg.value
+  Lt =  varyLt.value
+  #
+  Dx =  varyDx.value
+  Wx =  varyWx.value
+  Px =  varyPx.value
+  Dg =  varyDg.value
+  Dt =  varyDt.value
+  #
   Ch =  varyCh.value
   Ah =  varyAh.value
   Eh =  varyEh.value
@@ -941,9 +1052,9 @@ def update_elem(attrname, old, new):
   #
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
   lvsdDsrc.data  = lvsdDfrm
-  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
+  miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
   miasDsrc.data  = miasDfrm
   # Here: figure wing incidence vs stall angle
   wingInci( aCfgFid)
@@ -977,9 +1088,9 @@ def dropHdlr(event) :
   # cf update_elem
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
   lvsdDsrc.data  = lvsdDfrm
-  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
+  miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
   miasDsrc.data  = miasDfrm
 
   # Pull key values from yasim solution console output
@@ -1006,6 +1117,8 @@ for v in [\
           varyVc, varyHc, varyTc, varyKc, \
           varyIw, varyAw, varyCw, varyLf, varyLa, \
           varyDw, varyWw, varyPw, varyDf, varyDa, \
+          varyIx, varyAx, varyCx, varyLg, varyLt, \
+          varyDx, varyWx, varyPx, varyDg, varyDt, \
           varyCh, varyAh, varyEh, varyLe, varyCv, \
           varyDh, varyWh, varyPh, varyDe, varyDv, \
           varyAv, varyEv, varyLr, varyMb, varyHy, \
@@ -1015,15 +1128,20 @@ for v in [\
 versDrop.on_click( dropHdlr)
 
 # Set up layouts for slider groups
-TopLRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
-TopRRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
-UprLRack = column(varyIw,   varyAw, varyCw, varyLf, varyLa)
-UprRRack = column(varyDw,   varyWw, varyPw, varyDf, varyDa)
-LwrLRack = column(varyCh,   varyAh, varyEh, varyLe, varyCv)
-LwrRRack = column(varyDh,   varyWh, varyPh, varyDe, varyDv)
-BotLRack = column(varyAv,   varyEv, varyLr, varyMb, varyHy)
-BotRRack = column(varyWv,   varyPv, varyDr, varyXb, varyVy)
-
+ApprRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
+CrzeRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
+#
+W0AwRack = column(varyAw,    varyWw, varyDw, varyPw, varyCw)
+W0WwRack = column(varyIw,    varyLf, varyLa, varyDf, varyDa)
+#
+W1AxRack = column(varyAx,    varyWx, varyDx, varyPx, varyCx)
+W1WxRack = column(varyIx,    varyLg, varyLt, varyDg, varyDt)
+#
+HsAhRack = column(varyAh,   varyEh, varyDh, varyLe, varyCv)
+HsWhRack = column(varyWh,   varyPh, varyCh, varyDe, varyDv)
+#
+VsAvRack = column(varyAv,   varyEv, varyLr, varyMb, varyHy)
+VsWvRack = column(varyWv,   varyPv, varyDr, varyXb, varyVy)
 ##
 presets()
 vblsFromTplt()
@@ -1032,11 +1150,10 @@ spinYasim(aCfgFid)
 #
 # plan overall interface layout 
 curdoc().title = yCfgName
-curdoc().add_root(row(TopLRack, liftPlot, TopRRack, width=480))
-curdoc().add_root(row(UprLRack, dragPlot, UprRRack, width=480))
-curdoc().add_root(row(LwrLRack, lvsdPlot, LwrRRack, width=480))
-curdoc().add_root(row(BotLRack, miasPlot, BotRRack,  width=480))
+curdoc().add_root(row(ApprRack, W0AwRack, liftPlot, W1AxRack, width=400))
+curdoc().add_root(row(CrzeRack, W0WwRack, dragPlot, W1WxRack, width=400))
+curdoc().add_root(row(HsAhRack, HsWhRack, miasPlot, VsAvRack, VsWvRack, width=400))
 # Cannot get table of YASim output values to update, ergo console printout
-#curdoc().add_root(row(solnDT, width=480))
+#curdoc().add_root(row(solnDT, width=360))
 #
 ## ysimi ends
