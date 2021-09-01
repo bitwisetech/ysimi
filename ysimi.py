@@ -863,10 +863,12 @@ cfigFromVbls( aCfgFid)
 spinYasim( aCfgFid )
 
 # use pandas to read sources and create bokeh dataframes
-lvsdDfrm  = pd.read_csv(lvsdFid, delimiter=', ')
+#lvsdDfrm  = pd.read_csv(lvsdFid, delimiter=', ')
+lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
 #
-miasDfrm  = pd.read_csv(miasFid, delimiter=', ')
+#miasDfrm  = pd.read_csv(miasFid, delimiter=', ')
+miasDfrm  = pd.read_csv(miasFid, delimiter='\t')
 miasDsrc  = ColumnDataSource(miasDfrm)
 #
 # Dropdown for selecting which YASim version to run 
@@ -930,7 +932,7 @@ varyKc = Slider(width=144, title="Crse Fuel        Kc", value=Kc, start=(0.0  ),
 varyAw = Slider(width=144, title="Wing Stall Aoa   Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyIw = Slider(width=144, title="Wing Icidence    Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyDw = Slider(width=144, title="Wing IDrag Less  Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLf = Slider(width=144, title="Flap Lift        f", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLf = Slider(width=144, title="Flap Lift        Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyLa = Slider(width=144, title="Ailr Lift        La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
 varyWw = Slider(width=144, title="Wing Stall Wdth  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
@@ -1052,9 +1054,11 @@ def update_elem(attrname, old, new):
   #
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
+  #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
-  miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
+  #miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
+  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
   miasDsrc.data  = miasDfrm
   # Here: figure wing incidence vs stall angle
   wingInci( aCfgFid)
@@ -1088,9 +1092,11 @@ def dropHdlr(event) :
   # cf update_elem
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
+  #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
-  miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
+  #miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
+  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
   miasDsrc.data  = miasDfrm
 
   # Pull key values from yasim solution console output
