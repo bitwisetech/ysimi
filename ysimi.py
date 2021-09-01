@@ -1143,11 +1143,11 @@ W0WwRack = column(varyIw,    varyLf, varyLa, varyDf, varyDa)
 W1AxRack = column(varyAx,    varyWx, varyDx, varyPx, varyCx)
 W1WxRack = column(varyIx,    varyLg, varyLt, varyDg, varyDt)
 #
-HsAhRack = column(varyAh,   varyEh, varyDh, varyLe, varyCv)
-HsWhRack = column(varyWh,   varyPh, varyCh, varyDe, varyDv)
+HsAhRack = column(varyAh,   varyEh, varyDh, varyLe, varyMb)
+HsWhRack = column(varyWh,   varyPh, varyCh, varyDe, varyXb)
 #
-VsAvRack = column(varyAv,   varyEv, varyLr, varyMb, varyHy)
-VsWvRack = column(varyWv,   varyPv, varyDr, varyXb, varyVy)
+VsAvRack = column(varyAv,   varyEv, varyCv, varyLr, varyHy)
+VsWvRack = column(varyWv,   varyPv, varyDv, varyDr, varyVy)
 ##
 presets()
 vblsFromTplt()
