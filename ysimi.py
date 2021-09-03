@@ -7,8 +7,8 @@
 #
 #    yCfg.. Input   yasim config xml Original 
 #    test.. Auto    yasim config xml generated with eg modified varied elements
-#   ..-LvsD.txt     yasim generated Lift / Drag tables    ( version specific )
-#   ..-mias.txt     yasim generated IAS for 0vSpd vs AoA  ( version specific )
+#   ..-lvsd.txt     yasim generated Lift / Drag tables    ( version specific )
+#   ..-mia?.txt     yasim generated IAS for 0vSpd vs AoA  ( version specific )
 #   ..-soln.txt     yasim generated solution values       ( version specific )
 #
 #  install python3-bokeh, python3-pandas, numpy ( plus others ?? ) 
@@ -77,9 +77,9 @@ global Yb, Zb                                        # Ballast, Solver
 #  Set Defaults
 def presets():
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
-  global procPref, lvsdFid, miasFid, solnFid
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global Hy, Vy                                      # Solver    parms
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict
   #print( 'Entr presets')
   wdir = os.getcwd()
   wdirTail = wdir.rfind( '/' )
@@ -108,8 +108,10 @@ def presets():
   # aCFig is output yasim config files with element(s) modified 
   aCfgFid  = procPref + '-yasim-outp.xml'
   #
-  lvsdFid  = procPref + versToDo + '-LvsD.txt'
-  miasFid  = procPref + versToDo + '-mias.txt'
+  lvsdFid  = procPref + versToDo + '-lvsd.txt'
+  drgaFid  = procPref + versToDo + '-drga.txt'
+  iasaFid  = procPref + versToDo + '-iasa.txt'
+  iascFid  = procPref + versToDo + '-iasc.txt'
   solnFid  = procPref + versToDo + '-soln.txt'
   #
   #print( 'Exit presets')
@@ -137,7 +139,7 @@ def tuplSubs( tName, tText, tValu ):
 #
 def vblsFromTplt():
   #print( 'Entr vblsFromTplt')
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, drgaFif, iasaFid, iascFid
   global versDict, versToDo, versKywd
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
@@ -750,18 +752,20 @@ def cfigFromVbls( tFID):
 # Make up command line and execuute external process call to YASim   
 def spinYasim(tFid):
   #print( 'Entr spinYasim')
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, miasFid, solnFid, versDict
+  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, drgaFid, iasaFid, iascFid, solnFid, versDict
   global Hy, Vy                                                # Solver    parms
   #
   ## update fileIDs with version selected from dropdown
-  lvsdFid  = procPref + versToDo + '-LvsD.txt'
-  miasFid  = procPref + versToDo + '-mias.txt'
+  lvsdFid  = procPref + versToDo + '-lvsd.txt'
+  drgaFid  = procPref + versToDo + '-drga.txt'
+  iasaFid  = procPref + versToDo + '-iasa.txt'
+  iascFid  = procPref + versToDo + '-iasc.txt'
   solnFid  = procPref + versToDo + '-soln.txt'
   #print('spinYasim tFid: ', tFid)
   ##
   # run yasim external process to generate LvsD data table saved dataset file
   vDatHndl = open(lvsdFid, 'w')
-  command_line = 'yasim ' + tFid + ' -g -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
+  command_line = 'yasim ' + tFid + ' --detail-lvsd -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
   #    print(command_line)
   args = shlex.split(command_line)
   DEVNULL = open(os.devnull, 'wb')
@@ -772,8 +776,32 @@ def spinYasim(tFid):
   #p.wait()
   ##
   # run yasim external process to generate min IAS data table saved dataset file
-  vDatHndl = open(miasFid, 'w')
-  command_line = 'yasim ' + tFid + ' --min-speed -a '+ str(Hy/3.3)
+  vDatHndl = open(drgaFid, 'w')
+  command_line = 'yasim ' + tFid + ' --detail-drag -approach '
+  #    print(command_line)
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+  DEVNULL.close()
+  vDatHndl.close
+  os.sync()
+  #p.wait()
+  ##
+  # run yasim external process to generate min IAS data table saved dataset file
+  vDatHndl = open(iasaFid, 'w')
+  command_line = 'yasim ' + tFid + ' --detail-min-speed -approach '
+  #    print(command_line)
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+  DEVNULL.close()
+  vDatHndl.close
+  os.sync()
+  #p.wait()
+  ##
+  # run yasim external process to generate min IAS data table saved dataset file
+  vDatHndl = open(iascFid, 'w')
+  command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
   #    print(command_line)
   args = shlex.split(command_line)
   DEVNULL = open(os.devnull, 'wb')
@@ -867,9 +895,14 @@ spinYasim( aCfgFid )
 lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
 #
-#miasDfrm  = pd.read_csv(miasFid, delimiter=', ')
-miasDfrm  = pd.read_csv(miasFid, delimiter='\t')
-miasDsrc  = ColumnDataSource(miasDfrm)
+drgaDfrm  = pd.read_csv(drgaFid, delimiter='\t')
+drgaDsrc  = ColumnDataSource(drgaDfrm)
+#
+iasaDfrm  = pd.read_csv(iasaFid, delimiter='\t')
+iasaDsrc  = ColumnDataSource(iasaDfrm)
+#
+iascDfrm  = pd.read_csv(iascFid, delimiter='\t')
+iascDsrc  = ColumnDataSource(iascDfrm)
 #
 # Dropdown for selecting which YASim version to run 
 versDrop = Dropdown(width=64, label='YASim VERSION', \
@@ -890,30 +923,42 @@ solnCols = [TableColumn( field="dNames", title="Solution Item" ),
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
 #
 # Set up plots
-liftPlot  = figure(plot_height=200, plot_width=320, title="Lift n100 vs AoA",
+liftPlot  = figure(plot_height=200, plot_width=264, title="Lift n100 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-dragPlot  = figure(plot_height=200, plot_width=320, title="Drag  n10 vs AoA",
+dragPlot  = figure(plot_height=200, plot_width=264, title="Drag  n10 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-lvsdPlot  = figure(plot_height=200, plot_width=320, title="  L / D   vs AoA",
+lvsdPlot  = figure(plot_height=200, plot_width=264, title="  L / D   vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-miasPlot  = figure(plot_height=200, plot_width=320, title="Vs0 IAS, %Lift vs AoA",
+drgaPlot  = figure(plot_height=200, plot_width=264, title="Drag vs Kias @ apprch ",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+iasaPlot  = figure(plot_height=200, plot_width=264, title="Vs0, %Lift vs AoA @ apprch",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+iascPlot  = figure(plot_height=200, plot_width=264, title="Vs0, %Lift vs AoA @ cruise",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 ##
-if (0) :
+#if (0) :
+if (1) :
 # Enable for patched yasim-test else no LvsD column exists
-  liftPlot.line( x='aoa', y='Lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-  dragPlot.line( x='aoa', y='Drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-  lvsdPlot.line( x='aoa', y='LvsD',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  lvsdPlot.line( x='aoa', y='lvsd',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
 else : 
   liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
   dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
 # 
-miasPlot.line( x='aoa', y='knots', source=miasDsrc, line_width=3, line_alpha=0.6)
-miasPlot.line( x='aoa', y='lift',  source=miasDsrc, line_width=3, line_alpha=0.6)
+drgaPlot.line( x='knots', y='drag',  source=drgaDsrc, line_width=3, line_alpha=0.6)
+#
+iasaPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
+iasaPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)
+#
+iascPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
+iascPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)
 #
 # Set up widgets, balance range / step size each affects re-calc
 #   A smaller step size affects YASim spins: bigger step <==> faster response 
@@ -1057,9 +1102,12 @@ def update_elem(attrname, old, new):
   #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
-  #miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
-  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
-  miasDsrc.data  = miasDfrm
+  #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
+  iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
+  iasaDsrc.data  = iasaDfrm
+  #
+  iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+  iascDsrc.data  = iascDfrm
   # Here: figure wing incidence vs stall angle
   wingInci( aCfgFid)
   # Pull key values from yasim solution console output
@@ -1084,7 +1132,7 @@ def update_elem(attrname, old, new):
 # called if Version string is changed, duplicates actions cf above 
 def dropHdlr(event) :
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
-  global procPref, lvsdFid, miasFid, solnFid
+  global procPref, lvsdFid, iasaFid, iascFid, solnFid
   # On dropdown action, record YASim version selected
   versToDo = event.item
   versKywd = versDict[versToDo]
@@ -1095,10 +1143,13 @@ def dropHdlr(event) :
   #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
-  #miasDfrm  = pd.read_csv( miasFid, delimiter=', ')
-  miasDfrm  = pd.read_csv( miasFid, delimiter='\t')
-  miasDsrc.data  = miasDfrm
-
+  #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
+  iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
+  iasaDsrc.data  = iasaDfrm
+  #
+  iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+  iascDsrc.data  = iascDfrm
+  #
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
@@ -1156,9 +1207,9 @@ spinYasim(aCfgFid)
 #
 # plan overall interface layout 
 curdoc().title = yCfgName
-curdoc().add_root(row(ApprRack, W0AwRack, liftPlot, W1AxRack, width=400))
-curdoc().add_root(row(CrzeRack, W0WwRack, dragPlot, W1WxRack, width=400))
-curdoc().add_root(row(HsAhRack, HsWhRack, miasPlot, VsAvRack, VsWvRack, width=400))
+curdoc().add_root(row(ApprRack, W0AwRack, liftPlot, dragPlot, W1AxRack, width=400))
+curdoc().add_root(row(CrzeRack, W0WwRack, iasaPlot, lvsdPlot, W1WxRack, width=400))
+curdoc().add_root(row(HsAhRack, HsWhRack, drgaPlot, VsAvRack, VsWvRack, width=400))
 # Cannot get table of YASim output values to update, ergo console printout
 #curdoc().add_root(row(solnDT, width=360))
 #

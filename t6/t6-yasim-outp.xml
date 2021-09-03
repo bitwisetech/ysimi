@@ -92,14 +92,12 @@
         <control-speed  control="FLAP0" transition-time="3"/>
   </wing>
 
-  <wing x="1.616" y="1.406" z="-0.646"
+  <wing
         append="1"
-        chord="2.285"
         length="4.938"
         taper="0.5"
         sweep="3.5"
-        dihedral="4.6"
-        incidence="2.0">
+        dihedral="4.6">
         <stall   aoa="13.5" width="9.0" peak="2.8"/>
         <flap0 start="0.00" end="0.46" lift="1.8" drag="1.5"/>
         <flap1 start="0.46" end="1.00" lift="1.4" drag="1.2"/>
