@@ -80,14 +80,17 @@ def scanYCfg():
 ##
 
 def wingAoa( Mx, Mz, Tx, Tz ) :  
- import math, numpy
- #
- Gx = Mx - Tx
- Ex = (Tz * Gx) / (Mz - Tz) 
- Aoa = -1 * numpy.arctan ( Mz / ( Ex + Gx ) )
- Aoa = math.degrees ( Aoa ) 
- #
- return(Aoa)
+  import math, numpy
+  #
+  Gx = Mx - Tx
+  Gz = Mz - Tz
+  # fiddle if wheels same distance on CL
+  if ( Gz == 0 ) : Gz += 0.000001
+  Ex = (Tz * Gx) / Gz
+  Aoa = -1 * numpy.arctan ( Mz / ( Ex + Gx ) )
+  Aoa = math.degrees ( Aoa ) 
+  #
+  return(Aoa)
   
 def xetrYCfg():
   global yCfgFID, yCfgName, yCfgUrl, todo
@@ -98,19 +101,30 @@ def xetrYCfg():
     resp = requests.get(yCfgUrl)
     tree = ET.parse(resp.content)
   root = tree.getroot()
-  x1 = z1 = x2 = z2 = 0 
+  x1 = y1 = z1 = x2 = y2 = z2 = 0
+  # one of the wheels is both the same 
   for gearElem in root.iter('gear') :
     xVal = float(gearElem.get('x'))
+    yVal = float(gearElem.get('y'))
     zVal = float(gearElem.get('z'))
     if (( x1 == 0 ) & ( z1 == 0 )) :
+      #print('0 xv: ', xVal, ' yv: ', yVal, 'zv: ', zVal )
+      # found first wheel element
       x1 = xVal
+      y1 = yVal
       z1 = zVal
+      #print('1 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
     else :
-      if (( xVal != x1 ) & ( zVal != z1 )) :
+      x2 = xVal
+      y2 = yVal
+      z2 = zVal
+      # next wheel 
+      if (( x2 != x1 ) & ( y2 != y1 )) :
         if (( x2 == 0 ) & ( z2 == 0 )) :
           x2 = xVal
+          y2 = yVal
           z2 = zVal
-  #print('x1: ', x1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
+  #  print('2 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, ' y2: ', y2, ' z2: ', z2 )
   if  ( z1 <= z2 ) :
     clinInci = wingAoa(x1, z1, x2, z2 )
   else:   

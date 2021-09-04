@@ -799,30 +799,33 @@ def spinYasim(tFid):
   os.sync()
   #p.wait()
   ##
-  # run yasim external process to generate min IAS data table saved dataset file
-  vDatHndl = open(iascFid, 'w')
-  command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
-  #    print(command_line)
-  args = shlex.split(command_line)
-  DEVNULL = open(os.devnull, 'wb')
-  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-  DEVNULL.close()
-  vDatHndl.close
-  os.sync()
-  #p.wait()
-  ##
-  # run yasim external process to create console output of solution
-  vDatHndl = open(solnFid, 'w')
-  command_line = 'yasim ' + tFid
-  #    print(command_line)
-  args = shlex.split(command_line)
-  DEVNULL = open(os.devnull, 'wb')
-  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-  DEVNULL.close()
-  vDatHndl.close
-  os.sync()
-  #p.wait()
-  ##
+  ##  Perforamnce
+  if (0) :
+    # run yasim external process to generate min IAS data table saved dataset file
+    vDatHndl = open(iascFid, 'w')
+    command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
+    #    print(command_line)
+    args = shlex.split(command_line)
+    DEVNULL = open(os.devnull, 'wb')
+    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+    DEVNULL.close()
+    vDatHndl.close
+    os.sync()
+    #p.wait()
+    ##
+    # run yasim external process to create console output of solution
+    vDatHndl = open(solnFid, 'w')
+    command_line = 'yasim ' + tFid
+    #    print(command_line)
+    args = shlex.split(command_line)
+    DEVNULL = open(os.devnull, 'wb')
+    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+    DEVNULL.close()
+    vDatHndl.close
+    os.sync()
+    #p.wait()
+    ##
+  ##  
   #print( 'Exit spinYasim')
 #
 
@@ -844,7 +847,10 @@ def scanSoln( tFid, tText) :
 def bodyInci( Mx, Mz, Tx, Tz ) :  
   #
   Gx = Mx - Tx
-  Ex = (Tz * Gx) / (Mz - Tz) 
+  Gz = Mz - Tz
+  # fiddle if wheels same distance on CL
+  if ( Gz == 0 ) : Gz += 0.000001
+  Ex = (Tz * Gx) / Gz
   inci = -1 * np.arctan ( Mz / ( Ex + Gx ) )
   inci = math.degrees ( inci ) 
   #
@@ -856,19 +862,30 @@ def wingInci( tFid) :
   global totlInci, fracInci
   tree = ET.parse(tFid)
   root = tree.getroot()
-  x1 = z1 = x2 = z2 = 0 
+  x1 = y1 = z1 = x2 = y2 = z2 = 0
+  # one of the wheels is both the same 
   for gearElem in root.iter('gear') :
     xVal = float(gearElem.get('x'))
+    yVal = float(gearElem.get('y'))
     zVal = float(gearElem.get('z'))
     if (( x1 == 0 ) & ( z1 == 0 )) :
+      #print('0 xv: ', xVal, ' yv: ', yVal, 'zv: ', zVal )
+      # found first wheel element
       x1 = xVal
+      y1 = yVal
       z1 = zVal
+      #print('1 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
     else :
-      if (( xVal != x1 ) & ( zVal != z1 )) :
+      x2 = xVal
+      y2 = yVal
+      z2 = zVal
+      # next wheel 
+      if (( x2 != x1 ) & ( y2 != y1 )) :
         if (( x2 == 0 ) & ( z2 == 0 )) :
           x2 = xVal
+          y2 = yVal
           z2 = zVal
-  #print('x1: ', x1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
+  #  print('2 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, ' y2: ', y2, ' z2: ', z2 )
   if  ( z1 <= z2 ) :
     clinInci = bodyInci(x1, z1, x2, z2 )
   else:   
@@ -923,22 +940,22 @@ solnCols = [TableColumn( field="dNames", title="Solution Item" ),
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
 #
 # Set up plots
-liftPlot  = figure(plot_height=200, plot_width=264, title="Lift n100 vs AoA",
+liftPlot  = figure(plot_height=200, plot_width=208, title="Lift n100 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-dragPlot  = figure(plot_height=200, plot_width=264, title="Drag  n10 vs AoA",
+dragPlot  = figure(plot_height=200, plot_width=208, title="Drag  n10 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-lvsdPlot  = figure(plot_height=200, plot_width=264, title="  L / D   vs AoA",
+lvsdPlot  = figure(plot_height=200, plot_width=208, title="  L / D   vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-drgaPlot  = figure(plot_height=200, plot_width=264, title="Drag vs Kias @ apprch ",
+drgaPlot  = figure(plot_height=200, plot_width=208, title="Drag vs Kias @ apprch ",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-iasaPlot  = figure(plot_height=200, plot_width=264, title="Vs0, %Lift vs AoA @ apprch",
+iasaPlot  = figure(plot_height=200, plot_width=208, title="Vs0, %Lift vs AoA @ apprch",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-iascPlot  = figure(plot_height=200, plot_width=264, title="Vs0, %Lift vs AoA @ cruise",
+iascPlot  = figure(plot_height=200, plot_width=208, title="Vs0, %Lift vs AoA @ cruise",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 ##
@@ -952,49 +969,53 @@ else :
   liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
   dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
 # 
-drgaPlot.line( x='knots', y='drag',  source=drgaDsrc, line_width=3, line_alpha=0.6)
-#
 iasaPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
 iasaPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)
 #
-iascPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
-iascPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)
+  ##
+  ##  Perforamnce
+if (0) :
+  drgaPlot.line( x='knots', y='drag',  source=drgaDsrc, line_width=3, line_alpha=0.6)
+  #
+  iascPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
+  iascPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)  
+##
 #
 # Set up widgets, balance range / step size each affects re-calc
 #   A smaller step size affects YASim spins: bigger step <==> faster response 
 # TopLeft
-varyVa = Slider(width=144, title="Appr IAS         Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
-varyAa = Slider(width=144, title="Appr AoA         Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
-varyTa = Slider(width=144, title="Appr Throttle    Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKa = Slider(width=144, title="Appr Fuel        Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyFa = Slider(width=144, title="Appr Flaps       Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyVa = Slider(width=144, title="Appr IAS      Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
+varyAa = Slider(width=144, title="Appr AoA      Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
+varyTa = Slider(width=144, title="Appr Throttle Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKa = Slider(width=144, title="Appr Fuel     Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyFa = Slider(width=144, title="Appr Flaps    Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
 # TopRight
-varyVc = Slider(width=144, title="Crse IAS Kt      Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
-varyHc = Slider(width=144, title="Crse Alt Ft      Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
-varyTc = Slider(width=144, title="Crse Throttle    Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKc = Slider(width=144, title="Crse Fuel        Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyVc = Slider(width=144, title="Crse IAS Kt   Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
+varyHc = Slider(width=144, title="Crse Alt Ft   Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
+varyTc = Slider(width=144, title="Crse Throttle Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKc = Slider(width=144, title="Crse Fuel     Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
 # UprLeft
-varyAw = Slider(width=144, title="Wing Stall Aoa   Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyIw = Slider(width=144, title="Wing Icidence    Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDw = Slider(width=144, title="Wing IDrag Less  Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLf = Slider(width=144, title="Flap Lift        Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLa = Slider(width=144, title="Ailr Lift        La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyAw = Slider(width=144, title="AoA Wg0 St    Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDw = Slider(width=144, title="iDrag--       Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCw = Slider(width=144, title="Camber Wgs    Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
+varyLf = Slider(width=144, title="Flap Lift     Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLa = Slider(width=144, title="Ailr Lift     La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
-varyWw = Slider(width=144, title="Wing Stall Wdth  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
-varyPw = Slider(width=144, title="Wing Stall Peak  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyCw = Slider(width=144, title="Wing Camber      Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
+varyWw = Slider(width=144, title="Width St  Wg0  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
+varyPw = Slider(width=144, title="Peak  St  Wg0  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyIw = Slider(width=144, title="Incidence Wgs  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyDf = Slider(width=144, title="Flap Drag        Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
 varyDa = Slider(width=144, title="Ailr Drag        Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
 # MidLeft
 varyAx = Slider(width=144, title="Wng1 Stall Aoa   Ax", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyIx = Slider(width=144, title="Wng1 Icidence    Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyDx = Slider(width=144, title="Wng1 IDrag--     Dx", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCx = Slider(width=144, title="[Camber]  Wg1    Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
 varyLg = Slider(width=144, title="Flp1 Lift        Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyLt = Slider(width=144, title="Ail1 Lift        Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # MidRight
-varyWx = Slider(width=144, title="Wng1 Stall Wdth  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
-varyPx = Slider(width=144, title="Wng1 Stall Peak  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyCx = Slider(width=144, title="Wing Camber      Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
+varyWx = Slider(width=144, title="Width St  Wg1  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
+varyPx = Slider(width=144, title="Peak  St  Wg1  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyIx = Slider(width=144, title="[Incid]   Wg1  Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyDg = Slider(width=144, title="Flp1 Drag        Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
 varyDt = Slider(width=144, title="Ai11 Drag        Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
 #Low Lft
@@ -1209,7 +1230,7 @@ spinYasim(aCfgFid)
 curdoc().title = yCfgName
 curdoc().add_root(row(ApprRack, W0AwRack, liftPlot, dragPlot, W1AxRack, width=400))
 curdoc().add_root(row(CrzeRack, W0WwRack, iasaPlot, lvsdPlot, W1WxRack, width=400))
-curdoc().add_root(row(HsAhRack, HsWhRack, drgaPlot, VsAvRack, VsWvRack, width=400))
+curdoc().add_root(row(HsAhRack, HsWhRack, VsAvRack, VsWvRack, width=400))
 # Cannot get table of YASim output values to update, ergo console printout
 #curdoc().add_root(row(solnDT, width=360))
 #
