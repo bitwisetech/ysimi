@@ -351,7 +351,8 @@ int usage()
     fprintf(stderr, "  yasim <aircraft.xml> [-m] [-h] [--min-speed]\n");
     fprintf(stderr, "  yasim <aircraft.xml> [-test] [-a meters] [-s kts] [-approach | -cruise] ]\n");
     fprintf(stderr, "  yasim <aircraft.xml> [--detail-graph] [--detail-drag]\n");
-    fprintf(stderr, "  yasim <aircraft.xml> [--detail-lvsd] [--detail-min-speed]\n");
+    fprintf(stderr, "  yasim <aircraft.xml> [--detail-lvsd] [--detail-min-speed -approach]\n");
+    fprintf(stderr, "  yasim <aircraft.xml> [--detail-min-speed -cruise]\n");
     fprintf(stderr, "                       -g print lift/drag table: aoa, lift, drag, lift/drag \n");
     fprintf(stderr, "                       -d print drag over TAS: kts, drag\n");
     fprintf(stderr, "                       -a set altitude in meters!\n");

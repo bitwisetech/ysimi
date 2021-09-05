@@ -27,7 +27,7 @@
 #      http://localhost:5006/ysimi
 #    In Flightgear's Aircraft folder use the modified output as YASim config: 
 #      mv [fgaddon/Aircraft/[myModel-config.xml] [fgaddon/Aircraft/[myModel-config.xml-orig]
-#      ln ysim-yasim-outp.xml [fgaddon/Aircraft/myModel-config.xml]
+#      ln ysim-ysimi-outp.xml [fgaddon/Aircraft/myModel-config.xml]
 #      ( This way you can continually flight test adhustments yo the FDM configuration ) 
 #
 #    If desired, copy this executable to a new name: ?simi.py with a differnt input.xml 
@@ -776,18 +776,6 @@ def spinYasim(tFid):
   #p.wait()
   ##
   # run yasim external process to generate min IAS data table saved dataset file
-  vDatHndl = open(drgaFid, 'w')
-  command_line = 'yasim ' + tFid + ' --detail-drag -approach '
-  #    print(command_line)
-  args = shlex.split(command_line)
-  DEVNULL = open(os.devnull, 'wb')
-  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-  DEVNULL.close()
-  vDatHndl.close
-  os.sync()
-  #p.wait()
-  ##
-  # run yasim external process to generate min IAS data table saved dataset file
   vDatHndl = open(iasaFid, 'w')
   command_line = 'yasim ' + tFid + ' --detail-min-speed -approach '
   #    print(command_line)
@@ -813,9 +801,9 @@ def spinYasim(tFid):
     os.sync()
     #p.wait()
     ##
-    # run yasim external process to create console output of solution
-    vDatHndl = open(solnFid, 'w')
-    command_line = 'yasim ' + tFid
+    # run yasim external process to generate min IAS data table saved dataset file
+    vDatHndl = open(drgaFid, 'w')
+    command_line = 'yasim ' + tFid + ' --detail-drag -approach '
     #    print(command_line)
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -825,6 +813,18 @@ def spinYasim(tFid):
     os.sync()
     #p.wait()
     ##
+  # run yasim external process to create console output of solution
+  vDatHndl = open(solnFid, 'w')
+  command_line = 'yasim ' + tFid
+  #    print(command_line)
+  args = shlex.split(command_line)
+  DEVNULL = open(os.devnull, 'wb')
+  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+  DEVNULL.close()
+  vDatHndl.close
+  os.sync()
+  #p.wait()
+  ##
   ##  
   #print( 'Exit spinYasim')
 #
@@ -912,15 +912,17 @@ spinYasim( aCfgFid )
 lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
 #
-drgaDfrm  = pd.read_csv(drgaFid, delimiter='\t')
-drgaDsrc  = ColumnDataSource(drgaDfrm)
-#
 iasaDfrm  = pd.read_csv(iasaFid, delimiter='\t')
 iasaDsrc  = ColumnDataSource(iasaDfrm)
-#
-iascDfrm  = pd.read_csv(iascFid, delimiter='\t')
-iascDsrc  = ColumnDataSource(iascDfrm)
-#
+## 
+if (0) :
+  drgaDfrm  = pd.read_csv(drgaFid, delimiter='\t')
+  drgaDsrc  = ColumnDataSource(drgaDfrm)
+  #
+  #
+  iascDfrm  = pd.read_csv(iascFid, delimiter='\t')
+  iascDsrc  = ColumnDataSource(iascDfrm)
+  #
 # Dropdown for selecting which YASim version to run 
 versDrop = Dropdown(width=64, label='YASim VERSION', \
 menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
@@ -949,13 +951,13 @@ dragPlot  = figure(plot_height=200, plot_width=208, title="Drag  n10 vs AoA",
 lvsdPlot  = figure(plot_height=200, plot_width=208, title="  L / D   vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-drgaPlot  = figure(plot_height=200, plot_width=208, title="Drag vs Kias @ apprch ",
+drgaPlot  = figure(plot_height=200, plot_width=208, title="Drag vs Kias @ appr ",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-iasaPlot  = figure(plot_height=200, plot_width=208, title="Vs0, %Lift vs AoA @ apprch",
+iasaPlot  = figure(plot_height=200, plot_width=208, title="Vs0, %Lift vs AoA @ appr",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-iascPlot  = figure(plot_height=200, plot_width=208, title="Vs0, %Lift vs AoA @ cruise",
+iascPlot  = figure(plot_height=200, plot_width=208, title="Vs0, %Lift vs AoA @ crse",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 ##
@@ -995,50 +997,50 @@ varyHc = Slider(width=144, title="Crse Alt Ft   Hc", value=Hc, start=(1000 ), en
 varyTc = Slider(width=144, title="Crse Throttle Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
 varyKc = Slider(width=144, title="Crse Fuel     Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
 # UprLeft
-varyAw = Slider(width=144, title="AoA Wg0 St    Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDw = Slider(width=144, title="iDrag--       Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCw = Slider(width=144, title="Camber Wgs    Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
+varyAw = Slider(width=144, title="AoA St    Wg0 Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDw = Slider(width=144, title="iDrag--   Wg0 Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCw = Slider(width=144, title="Camber    Wgs Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
 varyLf = Slider(width=144, title="Flap Lift     Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyLa = Slider(width=144, title="Ailr Lift     La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
 varyWw = Slider(width=144, title="Width St  Wg0  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
 varyPw = Slider(width=144, title="Peak  St  Wg0  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
 varyIw = Slider(width=144, title="Incidence Wgs  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDf = Slider(width=144, title="Flap Drag        Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDa = Slider(width=144, title="Ailr Drag        Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDf = Slider(width=144, title="Flap Drag Wg0  Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDa = Slider(width=144, title="Ailr Drag Wg0  Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
 # MidLeft
-varyAx = Slider(width=144, title="Wng1 Stall Aoa   Ax", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDx = Slider(width=144, title="Wng1 IDrag--     Dx", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCx = Slider(width=144, title="[Camber]  Wg1    Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
-varyLg = Slider(width=144, title="Flp1 Lift        Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLt = Slider(width=144, title="Ail1 Lift        Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyAx = Slider(width=144, title="AoA St    Wg1  Aw", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDx = Slider(width=144, title="iDrag--   Wg1  Dw", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCx = Slider(width=144, title="[Camber]         Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
+varyLg = Slider(width=144, title="Flp1 Lift Wg1    Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLt = Slider(width=144, title="Ail1 Lift Wg1    Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # MidRight
 varyWx = Slider(width=144, title="Width St  Wg1  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
 varyPx = Slider(width=144, title="Peak  St  Wg1  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyIx = Slider(width=144, title="[Incid]   Wg1  Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDg = Slider(width=144, title="Flp1 Drag        Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDt = Slider(width=144, title="Ai11 Drag        Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
+varyIx = Slider(width=144, title="[Incid]        Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyDg = Slider(width=144, title="Flp1 Drag Wg1  Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDt = Slider(width=144, title="Ai11 Drag Wg1  Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
 #Low Lft
-varyCh = Slider(width=144, title="Hstab Camber     Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
-varyAh = Slider(width=144, title="Hstab Stall Aoa  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEh = Slider(width=144, title="Hstab Effect     Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLe = Slider(width=144, title="Elev  Lift       Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
-varyCv = Slider(width=144, title="Vstab Camber     Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
+varyAh = Slider(width=144, title="Aoa St  Hstab  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDh = Slider(width=144, title="IDrag-- Hstab  Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCh = Slider(width=144, title="Camber  Hstab  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
+varyLe = Slider(width=144, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
+varyCv = Slider(width=144, title="Vstab Camber   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
-varyDh = Slider(width=144, title="Hstab IDrag--   Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyWh = Slider(width=144, title="Hstab St wd     Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-varyPh = Slider(width=144, title="Hstab St Pk     Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyWh = Slider(width=144, title="Width St Hstab  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
+varyPh = Slider(width=144, title="Peak  St Hstab  Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyEh = Slider(width=144, title="Effect   Hstab  Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDe = Slider(width=144, title="Elev Drag       De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
 varyDv = Slider(width=144, title="Vstab IDrag--   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
 # Bot L
-varyAv = Slider(width=144, title="Vstab Stall Aoa Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEv = Slider(width=144, title="Vstab Effect    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyAv = Slider(width=144, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyEv = Slider(width=144, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyLr = Slider(width=144, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
 varyMb = Slider(width=144, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
 varyHy = Slider(width=144, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
-varyWv = Slider(width=144, title="Vstab Stall Wd  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(width=144, title="Vstab Stall Pk  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyWv = Slider(width=144, title="Width St Vstab  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
+varyPv = Slider(width=144, title="Peak  St Vstab  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
 varyDr = Slider(width=144, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
 varyXb = Slider(width=144, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
 varyVy = Slider(width=144, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
@@ -1127,8 +1129,10 @@ def update_elem(attrname, old, new):
   iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
   iasaDsrc.data  = iasaDfrm
   #
-  iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
-  iascDsrc.data  = iascDfrm
+  ## performance
+  if (0) :
+    iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+    iascDsrc.data  = iascDfrm
   # Here: figure wing incidence vs stall angle
   wingInci( aCfgFid)
   # Pull key values from yasim solution console output
