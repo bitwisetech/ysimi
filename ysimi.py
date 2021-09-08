@@ -46,6 +46,7 @@ import os, shlex, subprocess, sys, math
 import csv, numpy as np, pandas as pd
 #
 from bokeh.io import curdoc      
+from bokeh.models.callbacks import CustomJS
 from bokeh.layouts  import column, row
 from bokeh.models   import ColumnDataSource, Slider, Dropdown
 from bokeh.models   import TextInput, DataTable, TableColumn
@@ -62,8 +63,10 @@ else :
   import xml.etree.ElementTree as ET
 #
 ##
-global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
 global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+#
 ## These vbles correspond to the elements in the config file: 
 global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
@@ -72,14 +75,14 @@ global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
 global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
 global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-global Yb, Zb                                        # Ballast, Solver
+global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+##
 
 #  Set Defaults
 def presets():
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   global Hy, Vy                                      # Solver    parms
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict
   #print( 'Entr presets')
   wdir = os.getcwd()
   wdirTail = wdir.rfind( '/' )
@@ -139,18 +142,20 @@ def tuplSubs( tName, tText, tValu ):
 #
 def vblsFromTplt():
   #print( 'Entr vblsFromTplt')
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, drgaFif, iasaFid, iascFid
-  global versDict, versToDo, versKywd
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  #
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Yb, Zb                                        # Ballast, Solver
-#
+  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  ##
   # These flags indicate parsing has detected various sections of yasim config 
   apprFlag   = 0
   cruzFlag   = 0
@@ -496,16 +501,20 @@ def vblsFromTplt():
 #
 def cfigFromVbls( tFID):
   #print( 'Entr cfigFromVbls')
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  #
+  ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Yb, Zb                                        # Ballast, Solver
-  global versKywd
-  #
+  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  ##
   apprFlag   = 0
   cruzFlag   = 0
   wingFlag   = 0
@@ -752,8 +761,12 @@ def cfigFromVbls( tFID):
 # Make up command line and execuute external process call to YASim   
 def spinYasim(tFid):
   #print( 'Entr spinYasim')
-  global procPref, yCfgName, yCfgFid, aCfgFid, vCfgFid, lvsdFid, drgaFid, iasaFid, iascFid, solnFid, versDict
-  global Hy, Vy                                                # Solver    parms
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  #
+  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  ##
   #
   ## update fileIDs with version selected from dropdown
   lvsdFid  = procPref + versToDo + '-lvsd.txt'
@@ -927,19 +940,20 @@ if (0) :
 versDrop = Dropdown(width=64, label='YASim VERSION', \
 menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 #
+wingInci( aCfgFid)
 # Pull key values from yasim solution console output
 solnIter = scanSoln( solnFid, 'Iterations')
-solnHstb = scanSoln( solnFid, 'Tail Incidence')
+solnTail = scanSoln( solnFid, 'Tail Incidence')
 solnElev = scanSoln( solnFid, 'Approach Elevator')
 solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
 # Did not work: Try a data table to live update soln values
 solnDict = dict( 
-            dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
-            dValues = [  solnIter,     solnElev,            solnCofG      ])
+              dNames  = [ 'Run', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
 solnCDS  = ColumnDataSource ( solnDict)
-solnCols = [TableColumn( field="dNames", title="Solution Item" ),
+solnCols = [TableColumn( field="dNames", title="Slvr Main " ),
             TableColumn( field="dValues", title="Value" ), ]
-solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
+solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
 #
 # Set up plots
 liftPlot  = figure(plot_height=200, plot_width=208, title="Lift n100 vs AoA",
@@ -979,86 +993,91 @@ iasaPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6
 if (0) :
   drgaPlot.line( x='knots', y='drag',  source=drgaDsrc, line_width=3, line_alpha=0.6)
   #
-  iascPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
-  iascPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)  
+  iascPlot.line( x='aoa', y='knots', source=iascDsrc, line_width=3, line_alpha=0.6)
+  iascPlot.line( x='aoa', y='lift',  source=iascDsrc, line_width=3, line_alpha=0.6)  
 ##
 #
 # Set up widgets, balance range / step size each affects re-calc
 #   A smaller step size affects YASim spins: bigger step <==> faster response 
 # TopLeft
-varyVa = Slider(width=144, title="Appr IAS      Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
-varyAa = Slider(width=144, title="Appr AoA      Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
-varyTa = Slider(width=144, title="Appr Throttle Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKa = Slider(width=144, title="Appr Fuel     Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyFa = Slider(width=144, title="Appr Flaps    Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyVa = Slider(width=132, title="Appr IAS      Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
+varyAa = Slider(width=132, title="Appr AoA      Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
+varyTa = Slider(width=132, title="Appr Throttle Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKa = Slider(width=132, title="Appr Fuel     Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyFa = Slider(width=132, title="Appr Flaps    Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
 # TopRight
-varyVc = Slider(width=144, title="Crse IAS Kt   Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
-varyHc = Slider(width=144, title="Crse Alt Ft   Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
-varyTc = Slider(width=144, title="Crse Throttle Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKc = Slider(width=144, title="Crse Fuel     Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyVc = Slider(width=132, title="Crse IAS Kt   Vc", value=Vc, start=(50   ), end=(500 ), step=(10.0 ))
+varyHc = Slider(width=132, title="Crse Alt Ft   Hc", value=Hc, start=(1000 ), end=(40000),step=(200 ))
+varyTc = Slider(width=132, title="Crse Throttle Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKc = Slider(width=132, title="Crse Fuel     Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
 # UprLeft
-varyAw = Slider(width=144, title="AoA St    Wg0 Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDw = Slider(width=144, title="iDrag--   Wg0 Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCw = Slider(width=144, title="Camber    Wgs Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
-varyLf = Slider(width=144, title="Flap Lift     Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLa = Slider(width=144, title="Ailr Lift     La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyAw = Slider(width=132, title="AoA St    Wg0 Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDw = Slider(width=132, title="iDrag--   Wg0 Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCw = Slider(width=132, title="Camber    Wgs Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
+varyLf = Slider(width=132, title="Flap Lift     Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLa = Slider(width=132, title="Ailr Lift     La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # UprRight
-varyWw = Slider(width=144, title="Width St  Wg0  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
-varyPw = Slider(width=144, title="Peak  St  Wg0  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyIw = Slider(width=144, title="Incidence Wgs  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDf = Slider(width=144, title="Flap Drag Wg0  Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDa = Slider(width=144, title="Ailr Drag Wg0  Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
+varyWw = Slider(width=132, title="Width St  Wg0  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
+varyPw = Slider(width=132, title="Peak  St  Wg0  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyIw = Slider(width=132, title="Incidence Wgs  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyDf = Slider(width=132, title="Flap Drag Wg0  Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDa = Slider(width=132, title="Ailr Drag Wg0  Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
 # MidLeft
-varyAx = Slider(width=144, title="AoA St    Wg1  Aw", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDx = Slider(width=144, title="iDrag--   Wg1  Dw", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCx = Slider(width=144, title="[Camber]         Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
-varyLg = Slider(width=144, title="Flp1 Lift Wg1    Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLt = Slider(width=144, title="Ail1 Lift Wg1    Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyAx = Slider(width=132, title="AoA St    Wg1  Aw", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDx = Slider(width=132, title="iDrag--   Wg1  Dw", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCx = Slider(width=132, title="[Camber]         Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
+varyLg = Slider(width=132, title="Flp1 Lift Wg1    Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLt = Slider(width=132, title="Ail1 Lift Wg1    Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # MidRight
-varyWx = Slider(width=144, title="Width St  Wg1  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
-varyPx = Slider(width=144, title="Peak  St  Wg1  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyIx = Slider(width=144, title="[Incid]        Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDg = Slider(width=144, title="Flp1 Drag Wg1  Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDt = Slider(width=144, title="Ai11 Drag Wg1  Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
+varyWx = Slider(width=132, title="Width St  Wg1  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
+varyPx = Slider(width=132, title="Peak  St  Wg1  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyIx = Slider(width=132, title="[Incid]        Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyDg = Slider(width=132, title="Flp1 Drag Wg1  Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDt = Slider(width=132, title="Ai11 Drag Wg1  Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
 #Low Lft
-varyAh = Slider(width=144, title="Aoa St  Hstab  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDh = Slider(width=144, title="IDrag-- Hstab  Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCh = Slider(width=144, title="Camber  Hstab  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
-varyLe = Slider(width=144, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
-varyCv = Slider(width=144, title="Vstab Camber   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
+varyAh = Slider(width=132, title="Aoa St  Hstab  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDh = Slider(width=132, title="IDrag-- Hstab  Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCh = Slider(width=132, title="Camber  Hstab  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
+varyLe = Slider(width=132, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
+varyCv = Slider(width=132, title="Vstab Camber   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
-varyWh = Slider(width=144, title="Width St Hstab  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-varyPh = Slider(width=144, title="Peak  St Hstab  Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyEh = Slider(width=144, title="Effect   Hstab  Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyDe = Slider(width=144, title="Elev Drag       De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
-varyDv = Slider(width=144, title="Vstab IDrag--   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
+varyWh = Slider(width=132, title="Width St Hstab  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
+varyPh = Slider(width=132, title="Peak  St Hstab  Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyEh = Slider(width=132, title="Effect   Hstab  Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyDe = Slider(width=132, title="Elev Drag       De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
+varyDv = Slider(width=132, title="Vstab IDrag--   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
 # Bot L
-varyAv = Slider(width=144, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEv = Slider(width=144, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyLr = Slider(width=144, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
-varyMb = Slider(width=144, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
-varyHy = Slider(width=144, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
+varyAv = Slider(width=132, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyEv = Slider(width=132, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
+varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
+varyHy = Slider(width=132, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
-varyWv = Slider(width=144, title="Width St Vstab  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(width=144, title="Peak  St Vstab  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyDr = Slider(width=144, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
-varyXb = Slider(width=144, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
-varyVy = Slider(width=144, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
+varyWv = Slider(width=132, title="Width St Vstab  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
+varyPv = Slider(width=132, title="Peak  St Vstab  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyDr = Slider(width=132, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
+varyXb = Slider(width=132, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
+varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
 #
+
 # called whenever a value is changed on browser interface
 def update_elem(attrname, old, new):
   #  print( 'Entr update_elem')
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  #
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Yb, Zb                                        # Ballast, Solver
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
-  global totlInci, fracInci
+  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  ##
+  global fracInci, totlInci
   #
   # Put current slider values into global configuration values
   Va =  varyVa.value
@@ -1122,10 +1141,8 @@ def update_elem(attrname, old, new):
   #
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
-  #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
-  #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
   iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
   iasaDsrc.data  = iasaDfrm
   #
@@ -1137,27 +1154,31 @@ def update_elem(attrname, old, new):
   wingInci( aCfgFid)
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
-  solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnTail = scanSoln( solnFid, 'Tail Incidence')
+  solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text boxes so output to console
   print( 'Run{:s}  HStb:{:s}  Apr Elv:{:s}  CG @{:s} MAC  Wing Inc:{:2.1f}d {:.1f}% St AoA:{:.1f}d   ' \
           .format( solnIter, solnTail, solnElev, solnCofG, totlInci, (100 * fracInci), Aw))
   solnDict = dict( 
-              dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
-              dValues = [  solnIter,     solnElev,            solnCofG      ])
+              dNames  = [ 'Run', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
-  solnCols = [TableColumn( field="dNames", title="Solved" ),
+  solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
               TableColumn( field="dValues", title="Value" ), ]
-  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
+  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
   solnCDS.update()
   solnDT.update()
 #
 
 # called if Version string is changed, duplicates actions cf above 
 def dropHdlr(event) :
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
-  global procPref, lvsdFid, iasaFid, iascFid, solnFid
+  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  global     Aw                                        # Wing, Flap, Ailr
+  ##
   # On dropdown action, record YASim version selected
   versToDo = event.item
   versKywd = versDict[versToDo]
@@ -1177,18 +1198,19 @@ def dropHdlr(event) :
   #
   # Pull key values from yasim solution console output
   solnIter = scanSoln( solnFid, 'Iterations')
+  solnTail = scanSoln( solnFid, 'Tail Incidence')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text input boxes so output to console 
   print( versToDo, ' : Iterations: ', solnIter, \
          '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCofG )
   solnDict = dict( 
-              dNames  = [ 'Iterations', 'Approach Elevator', 'CG-x rel. MAC'],
-              dValues = [  solnIter,     solnElev,            solnCofG      ])
+              dNames  = [ 'Run', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
-  solnCols = [TableColumn( field="dNames", title="Solved" ),
+  solnCols = [TableColumn( field="dNames", title="Slvr DpHd" ),
               TableColumn( field="dValues", title="Value" ), ]
-  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=120)
+  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
   solnCDS.update()
   solnDT.update()
 #
@@ -1206,9 +1228,14 @@ for v in [\
           varyAv, varyEv, varyLr, varyMb, varyHy, \
           varyWv, varyPv, varyDr, varyXb, varyVy  ]:
   v.on_change('value', update_elem)
-
+#
 versDrop.on_click( dropHdlr)
-
+#
+#solnDT_force_change = CustomJS(args=dict(source=solnDT), code="""
+#    source.change.emit()
+#""")
+#solnDT.js_on_change('data', solnDT_force_change)
+#
 # Set up layouts for slider groups
 ApprRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
 CrzeRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
@@ -1234,7 +1261,7 @@ spinYasim(aCfgFid)
 curdoc().title = yCfgName
 curdoc().add_root(row(ApprRack, W0AwRack, liftPlot, dragPlot, W1AxRack, width=400))
 curdoc().add_root(row(CrzeRack, W0WwRack, iasaPlot, lvsdPlot, W1WxRack, width=400))
-curdoc().add_root(row(HsAhRack, HsWhRack, VsAvRack, VsWvRack, width=400))
+curdoc().add_root(row(HsAhRack, HsWhRack, VsAvRack, VsWvRack, solnDT,   width=400))
 # Cannot get table of YASim output values to update, ergo console printout
 #curdoc().add_root(row(solnDT, width=360))
 #
