@@ -1231,10 +1231,13 @@ for v in [\
 #
 versDrop.on_click( dropHdlr)
 #
-#solnDT_force_change = CustomJS(args=dict(source=solnDT), code="""
-#    source.change.emit()
-#""")
-#solnDT.js_on_change('data', solnDT_force_change)
+#
+solnDT_callback = CustomJS(args=dict(source=solnDT), code="""
+    source.change.emit()
+""")
+#source.js_on_change('data', solnDT_force_change)
+#
+solnDT.js_on_change('source', solnDT_callback)
 #
 # Set up layouts for slider groups
 ApprRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
