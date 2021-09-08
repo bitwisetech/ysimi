@@ -974,11 +974,11 @@ solnElev = scanSoln( solnFid, 'Approach Elevator')
 solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
 # Did not work: Try a data table to live update soln values
 solnDict = dict( 
-              dNames  = [ 'Run', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
               dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
 solnCDS  = ColumnDataSource ( solnDict)
 solnCols = [TableColumn( field="dNames", title="Slvr Main " ),
-            TableColumn( field="dValues", title="Value" ), ]
+            TableColumn( field="dValues", title="Init" ), ]
 solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
 #
 # Set up plots
@@ -1075,16 +1075,16 @@ varyDv = Slider(width=132, title="IDrag-- Vstab   Dv", value=Dv, start=(0.01 ), 
 # Bot L
 varyAv = Slider(width=132, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyEv = Slider(width=132, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyIv = Slider(width=132, title="Incid  Vstab    Iv", value=Iv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyTv = Slider(width=132, title="Twist  Vstab    Tv", value=Tv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyIv = Slider(width=132, title="Incid  Vstab    Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyTv = Slider(width=132, title="Twist  Vstab    Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.1 ))
 varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
 varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
 varyHy = Slider(width=132, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
 varyWv = Slider(width=132, title="Wdth St Vs0     Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
 varyPv = Slider(width=132, title="Pk   St Vs0     Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyIu = Slider(width=132, title="Incid  ApVst    Iu", value=Iu, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyTu = Slider(width=132, title="Twist  ApVst    Tu", value=Tu, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyIu = Slider(width=132, title="Incid  ApVst    Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyTu = Slider(width=132, title="Twist  ApVst    Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyDr = Slider(width=132, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
 varyXb = Slider(width=132, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
 varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
@@ -1192,10 +1192,10 @@ def update_elem(attrname, old, new):
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
   # dunno how to update text boxes so output to console
-  print( 'Run{:s}  HStb:{:s}  Apr Elv:{:s}  CG @{:s} MAC  Wing Inc:{:2.1f}d {:.1f}% St AoA:{:.1f}d   ' \
+  print( 'Try{:s}  HStb:{:s}  Apr Elv:{:s}  CG @{:s} MAC  Wing Inc:{:2.1f}d {:.1f}% St AoA:{:.1f}d   ' \
           .format( solnIter, solnTail, solnElev, solnCofG, totlInci, (100 * fracInci), Aw))
   solnDict = dict( 
-              dNames  = [ 'Run', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
               dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
   solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
@@ -1239,7 +1239,7 @@ def dropHdlr(event) :
   print( versToDo, ' : Iterations: ', solnIter, \
          '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCofG )
   solnDict = dict( 
-              dNames  = [ 'Run', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
               dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
   solnCols = [TableColumn( field="dNames", title="Slvr DpHd" ),
@@ -1269,7 +1269,7 @@ versDrop.on_click( dropHdlr)
 solnDT_callback = CustomJS(args=dict(source=solnDT), code="""
     source.change.emit()
 """)
-#source.js_on_change('data', solnDT_force_change)
+#source.js_on_change('data', solnDT_callback)
 #
 solnDT.js_on_change('source', solnDT_callback)
 #
