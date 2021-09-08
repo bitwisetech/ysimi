@@ -73,9 +73,9 @@ global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fu
 global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
 global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
-global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
+global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
 global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
 ##
 
 #  Set Defaults
@@ -152,9 +152,23 @@ def vblsFromTplt():
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
   global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
-  global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
+  global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
   global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  ##
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
+  #
+  ## These vbles correspond to the elements in the config file: 
+  global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
+  global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
+  global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
+  global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
+  global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
+  global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
+  global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
   ##
   # These flags indicate parsing has detected various sections of yasim config 
   apprFlag   = 0
@@ -170,7 +184,7 @@ def vblsFromTplt():
   Hy = 4000
   # 
   Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = 0.00
-  Iw = Aw = Ix = Ax = Ah = Cv = Av = Wv = Pv = Cw = Cx = Ch = 0.00
+  Iw = Aw = Ix = Ax = Ah = Cv = Av = Wv = Pv = Iv = Tv = Iu = Tu = Cw = Cx = Ch = 0.00
   Eh = Ev = La = Lf = Lg = Lt = Lh = Lv = Lr = Da = Df = Dg = Dt = Dh = Dr = Dw = Dx = Dv = 1.00
   Pw = Px = Ph = 1.50
   Ww = Wx = Wh = 2.00
@@ -415,7 +429,13 @@ def vblsFromTplt():
           Ev = tuplValu('effectiveness', line)
         #  
         #print ('Cv: ', Cv, 'Dv: ', Dv, 'Ev: ', Ev)  
-        #print ('Cv: ', Cv)  
+        if ( 'incidence' in line):
+          Iv = tuplValu('incidence', line)
+        #
+        if ( 'twist' in line):
+          Tv = tuplValu('incidence', line)
+        #
+        #print ('Iv: ', Iv, 'Tv: ', Tv)  
         #in vstab section, find stall elements
         if ('stall' in line):
           # find element names, save values to post in Tix gui
@@ -511,9 +531,9 @@ def cfigFromVbls( tFID):
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
   global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
-  global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
+  global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
   ##
   apprFlag   = 0
   cruzFlag   = 0
@@ -657,6 +677,12 @@ def cfigFromVbls( tFID):
         if ('effectiveness' in line):
           line = tuplSubs( 'effectiveness', line, Ev )
         #
+        if ('incidence' in line):
+          line = tuplSubs( 'incidence', line, Iv )
+        if ('twist' in line):
+          line = tuplSubs( 'twist', line, Tv )
+          #print ('Wrt  Iv: ', Iv, 'Tv: ', Tv)  
+          #   
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,  line, Av ) 
@@ -1039,22 +1065,26 @@ varyAh = Slider(width=132, title="Aoa St  Hstab  Ah", value=Ah, start=(-2.0 ), e
 varyDh = Slider(width=132, title="IDrag-- Hstab  Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyCh = Slider(width=132, title="Camber  Hstab  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
 varyLe = Slider(width=132, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
-varyCv = Slider(width=132, title="Vstab Camber   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
+varyCv = Slider(width=132, title="Camber Vstab   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
-varyWh = Slider(width=132, title="Width St Hstab  Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-varyPh = Slider(width=132, title="Peak  St Hstab  Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyEh = Slider(width=132, title="Effect   Hstab  Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyWh = Slider(width=132, title="Wdth St Hstab   Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
+varyPh = Slider(width=132, title="Peak St Hstab   Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyEh = Slider(width=132, title="Effect  Hstab   Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDe = Slider(width=132, title="Elev Drag       De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
-varyDv = Slider(width=132, title="Vstab IDrag--   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
+varyDv = Slider(width=132, title="IDrag-- Vstab   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
 # Bot L
 varyAv = Slider(width=132, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyEv = Slider(width=132, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyIv = Slider(width=132, title="Incid  Vstab    Iv", value=Iv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyTv = Slider(width=132, title="Twist  Vstab    Tv", value=Tv, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
 varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
 varyHy = Slider(width=132, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
-varyWv = Slider(width=132, title="Width St Vstab  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(width=132, title="Peak  St Vstab  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyWv = Slider(width=132, title="Wdth St Vs0     Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
+varyPv = Slider(width=132, title="Pk   St Vs0     Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyIu = Slider(width=132, title="Incid  ApVst    Iu", value=Iu, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyTu = Slider(width=132, title="Twist  ApVst    Tu", value=Tu, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDr = Slider(width=132, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
 varyXb = Slider(width=132, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
 varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
@@ -1073,9 +1103,9 @@ def update_elem(attrname, old, new):
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
   global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
-  global Av, Ev, Lr, Mb, Hy,   Wv, Pv, Dr, Xb, Vy      # Vstab, Rudder
+  global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
   ##
   global fracInci, totlInci
   #
@@ -1135,6 +1165,10 @@ def update_elem(attrname, old, new):
   #
   Wv =  varyWv.value
   Pv =  varyPv.value
+  Iv =  varyIv.value
+  Tv =  varyTv.value
+  Iu =  varyIu.value
+  Tu =  varyTu.value
   Dr =  varyDr.value
   Xb =  varyXb.value
   Vy =  varyVy.value
@@ -1225,8 +1259,8 @@ for v in [\
           varyDx, varyWx, varyPx, varyDg, varyDt, \
           varyCh, varyAh, varyEh, varyLe, varyCv, \
           varyDh, varyWh, varyPh, varyDe, varyDv, \
-          varyAv, varyEv, varyLr, varyMb, varyHy, \
-          varyWv, varyPv, varyDr, varyXb, varyVy  ]:
+          varyAv, varyEv, varyIv, varyTv, varyLr, varyMb, varyHy, \
+          varyWv, varyPv, varyIu, varyTu, varyDr, varyXb, varyVy  ]:
   v.on_change('value', update_elem)
 #
 versDrop.on_click( dropHdlr)
@@ -1243,17 +1277,17 @@ solnDT.js_on_change('source', solnDT_callback)
 ApprRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
 CrzeRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
 #
-W0AwRack = column(varyAw,    varyWw, varyDw, varyPw, varyCw)
-W0WwRack = column(varyIw,    varyLf, varyLa, varyDf, varyDa)
+W0AwRack = column(varyAw,   varyWw, varyDw, varyPw, varyCw)
+W0WwRack = column(varyIw,   varyLf, varyLa, varyDf, varyDa)
 #
-W1AxRack = column(varyAx,    varyWx, varyDx, varyPx, varyCx)
-W1WxRack = column(varyIx,    varyLg, varyLt, varyDg, varyDt)
+W1AxRack = column(varyAx,   varyWx, varyDx, varyPx, varyCx)
+W1WxRack = column(varyIx,   varyLg, varyLt, varyDg, varyDt)
 #
-HsAhRack = column(varyAh,   varyEh, varyDh, varyLe, varyMb)
-HsWhRack = column(varyWh,   varyPh, varyCh, varyDe, varyXb)
+HsAhRack = column(varyAh,   varyEh,  varyDh, varyLe, varyMb)
+HsWhRack = column(varyWh,   varyPh,  varyCh, varyDe, varyXb)
 #
-VsAvRack = column(varyAv,   varyEv, varyCv, varyLr, varyHy)
-VsWvRack = column(varyWv,   varyPv, varyDv, varyDr, varyVy)
+VsAvRack = column(varyAv,   varyEv, varyIv, varyLr, varyHy)
+VsWvRack = column(varyWv,   varyPv, varyCv, varyDr, varyVy )
 ##
 presets()
 vblsFromTplt()
