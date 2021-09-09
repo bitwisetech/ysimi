@@ -134,7 +134,7 @@ def tuplSubs( tName, tText, tValu ):
   # opening quote is '="' chars beyond name 
   begnValu = tText.find( tName) + len(tName) + 2 
   endsValu = begnValu + (tText[begnValu:]).find('"')
-  resp = tText[ : begnValu] + str(tValu) + tText[endsValu :]
+  resp = tText[ : begnValu] + (str('{:.3f}'.format(tValu))) + tText[endsValu :]
   return(resp)
 ##
 
