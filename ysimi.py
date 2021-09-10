@@ -597,6 +597,7 @@ def cfigFromVbls( tFID):
       ## cruise
       if (cruzFlag == 1):
         if ('cruise speed' in line):
+          #print ('Vc: ', Vc, ' Hc: ', Hc, ' Kc: ', Kc)  
           line = tuplSubs( 'speed',   line, Vc ) 
           line = tuplSubs( 'alt',     line, Hc ) 
           line = tuplSubs( 'fuel',    line, Kc ) 
