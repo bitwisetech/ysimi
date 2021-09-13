@@ -168,9 +168,9 @@ def vblsFromTplt():
   propFlag   = 0
   # YASim 'Solve At' values for Speed and Altitude 
   Vy = 130
-  Hy = 4000
+  Hy = 1000
   # 
-  Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = Hy = Vy = Wx = Wb = Gx = 0.00
+  Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc =           Wx = Wb = Gx = 0.00
   Iw = Aw = Ix = Ax = Ah = Cv = Av = Wv = Pv = Iv = Tv = Iu = Tu = Cw = Cx = Ch = 0.00
   Eh = Ev = La = Lf = Lg = Lt = Lh = Lv = Lr = Da = Df = Dg = Dt = Dh = Dr = Dw = Dx = Dv = 1.00
   Pw = Px = Ph = 1.50
@@ -909,19 +909,20 @@ def spinYasim(tFid):
   os.sync()
   ##
   # Pull key values from yasim solution console output
+  wingInci( aCfgFid)
   solnIter = scanSoln( solnFid, 'Iterations')
   solnTail = scanSoln( solnFid, 'Tail Incidence')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
   cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
   if ( Wb != 0 ) :
-    solnCgWb = ( cofgXval - Wx ) / Wb
+    solnCgWB = ( cofgXval - Wx ) / Wb
   # dunno how to update text boxes so output to console
   print( '#{:s}  HS:{:s}  ApElv:{:s}  CG{:s} MC  {:.2f} WB  WngInc:{:2.1f}d {:.1f}% St @ {:.1f}d ' \
-          .format( solnIter, solnTail, solnElev, solnCgMC, solnCgWb, totlInci, (100 * fracInci), Aw))
+          .format( solnIter, solnTail, solnElev, solnCgMC, solnCgWB, totlInci, (100 * fracInci), Aw))
   solnDict = dict( 
               dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WB', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
+              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   '{:.2f}'.format(solnCgWB), '{:.1f}'.format(totlInci),  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
   solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
               TableColumn( field="dValues", title="Value" ), ]
@@ -1154,7 +1155,7 @@ varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), 
 def update_elem(attrname, old, new):
   #  print( 'Entr update_elem')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
   ## These vbles correspond to the elements in the config file: 
@@ -1252,7 +1253,7 @@ def update_elem(attrname, old, new):
 # called if Version string is changed, duplicates actions cf above 
 def dropHdlr(event) :
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
   global     Aw                                        # Wing, Flap, Ailr
