@@ -75,10 +75,9 @@ global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
 global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
 global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
 global fracInci, totlInci                            # Wing incidence and CoG 
 ##
-
 #  Set Defaults
 def presets():
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
@@ -144,7 +143,7 @@ def tuplSubs( tName, tText, tValu ):
 def vblsFromTplt():
   #print( 'Entr vblsFromTplt')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
   ## These vbles correspond to the elements in the config file: 
@@ -155,7 +154,7 @@ def vblsFromTplt():
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
   global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   # These flags indicate parsing has detected various sections of yasim config 
@@ -171,7 +170,7 @@ def vblsFromTplt():
   Vy = 130
   Hy = 4000
   # 
-  Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = 0.00
+  Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc = Hy = Vy = Wx = Wb = Gx = 0.00
   Iw = Aw = Ix = Ax = Ah = Cv = Av = Wv = Pv = Iv = Tv = Iu = Tu = Cw = Cx = Ch = 0.00
   Eh = Ev = La = Lf = Lg = Lt = Lh = Lv = Lr = Da = Df = Dg = Dt = Dh = Dr = Dw = Dx = Dv = 1.00
   Pw = Px = Ph = 1.50
@@ -510,7 +509,7 @@ def vblsFromTplt():
 def cfigFromVbls( tFID):
   #print( 'Entr cfigFromVbls')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
   ## These vbles correspond to the elements in the config file: 
@@ -521,7 +520,7 @@ def cfigFromVbls( tFID):
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
   global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   apprFlag   = 0
@@ -778,10 +777,10 @@ def cfigFromVbls( tFID):
 def spinYasim(tFid):
   #print( 'Entr spinYasim')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
-  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
   global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   #
@@ -908,8 +907,27 @@ def spinYasim(tFid):
   DEVNULL.close()
   vDatHndl.close
   os.sync()
-  #p.wait()
   ##
+  # Pull key values from yasim solution console output
+  solnIter = scanSoln( solnFid, 'Iterations')
+  solnTail = scanSoln( solnFid, 'Tail Incidence')
+  solnElev = scanSoln( solnFid, 'Approach Elevator')
+  solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
+  cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
+  if ( Wb != 0 ) :
+    solnCgWb = ( cofgXval - Wx ) / Wb
+  # dunno how to update text boxes so output to console
+  print( '#{:s}  HS:{:s}  ApElv:{:s}  CG{:s} MC  {:.2f} WB  WngInc:{:2.1f}d {:.1f}% St @ {:.1f}d ' \
+          .format( solnIter, solnTail, solnElev, solnCgMC, solnCgWb, totlInci, (100 * fracInci), Aw))
+  solnDict = dict( 
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WB', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
+  solnCDS  = ColumnDataSource ( solnDict)
+  solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
+              TableColumn( field="dValues", title="Value" ), ]
+  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
+  solnCDS.update()
+  solnDT.update()
   ##  
   #print( 'Exit spinYasim')
 #
@@ -944,7 +962,7 @@ def bodyInci( Mx, Mz, Tx, Tz ) :
 
 # Given fileID figure wing + body incidence and stall margin
 def wingInci( tFid) :
-  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
   global fracInci, totlInci                            # Wing incidence and CoG 
   tree = ET.parse(tFid)
   root = tree.getroot()
@@ -1003,7 +1021,6 @@ cfigFromVbls( aCfgFid)
 spinYasim( aCfgFid )
 
 # use pandas to read sources and create bokeh dataframes
-#lvsdDfrm  = pd.read_csv(lvsdFid, delimiter=', ')
 lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
 #
@@ -1023,22 +1040,6 @@ versDrop = Dropdown(width=64, label='YASim VERSION', \
 menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 #
 wingInci( aCfgFid)
-# Pull key values from yasim solution console output
-solnIter = scanSoln( solnFid, 'Iterations')
-solnTail = scanSoln( solnFid, 'Tail Incidence')
-solnElev = scanSoln( solnFid, 'Approach Elevator')
-solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
-cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
-if ( Wb != 0 ) :
-  solnCgWb = ( cofgXval - Wx ) / Wb
-# Did not work: Try a data table to live update soln values
-solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WBase', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
-solnCDS  = ColumnDataSource ( solnDict)
-solnCols = [TableColumn( field="dNames", title="Slvr Main " ),
-            TableColumn( field="dValues", title="Init" ), ]
-solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
 #
 # Set up plots
 liftPlot  = figure(plot_height=200, plot_width=208, title="Lift n100 vs AoA",
@@ -1246,26 +1247,6 @@ def update_elem(attrname, old, new):
     iascDsrc.data  = iascDfrm
   # Here: figure wing incidence vs stall angle
   wingInci( aCfgFid)
-  # Pull key values from yasim solution console output
-  solnIter = scanSoln( solnFid, 'Iterations')
-  solnTail = scanSoln( solnFid, 'Tail Incidence')
-  solnElev = scanSoln( solnFid, 'Approach Elevator')
-  solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
-  cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
-  if ( Wb != 0 ) :
-    solnCgWb = ( cofgXval - Wx ) / Wb
-  # dunno how to update text boxes so output to console
-  print( '#{:s}  HS:{:s}  ApElv:{:s}  CG{:s} MC  {:.2f} WB  WngInc:{:2.1f}d {:.1f}% St @ {:.1f}d ' \
-          .format( solnIter, solnTail, solnElev, solnCgMC, solnCgWb, totlInci, (100 * fracInci), Aw))
-  solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WB', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
-  solnCDS  = ColumnDataSource ( solnDict)
-  solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
-              TableColumn( field="dValues", title="Value" ), ]
-  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
-  solnCDS.update()
-  solnDT.update()
 #
 
 # called if Version string is changed, duplicates actions cf above 
@@ -1293,26 +1274,6 @@ def dropHdlr(event) :
   iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
   iascDsrc.data  = iascDfrm
   #
-  # Pull key values from yasim solution console output
-  solnIter = scanSoln( solnFid, 'Iterations')
-  solnTail = scanSoln( solnFid, 'Tail Incidence')
-  solnElev = scanSoln( solnFid, 'Approach Elevator')
-  solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
-  cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
-  if ( Wb != 0 ) :
-    solnCgWb = ( cofgXval - Wx ) / Wb
-  # dunno how to update text input boxes so output to console 
-  print( versToDo, ' : Iterations: ', solnIter, \
-         '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCgMC )
-  solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'CG on WB', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
-  solnCDS  = ColumnDataSource ( solnDict)
-  solnCols = [TableColumn( field="dNames", title="Slvr DpHd" ),
-              TableColumn( field="dValues", title="Value" ), ]
-  solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
-  solnCDS.update()
-  solnDT.update()
 #
   
 # listeners for interface slider changes 
