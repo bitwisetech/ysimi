@@ -64,7 +64,7 @@ else :
 #
 ##
 global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
 global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
 #
 ## These vbles correspond to the elements in the config file: 
@@ -75,7 +75,8 @@ global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
 global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
 global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
+global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+global fracInci, totlInci                            # Wing incidence and CoG 
 ##
 
 #  Set Defaults
@@ -134,7 +135,7 @@ def tuplSubs( tName, tText, tValu ):
   # opening quote is '="' chars beyond name 
   begnValu = tText.find( tName) + len(tName) + 2 
   endsValu = begnValu + (tText[begnValu:]).find('"')
-  resp = tText[ : begnValu] + (str('{:.3f}'.format(tValu))) + tText[endsValu :]
+  resp = tText[ : begnValu] + (('%f' % tValu).rstrip('0').rstrip('.')) + tText[endsValu :]
   return(resp)
 ##
 
@@ -143,7 +144,7 @@ def tuplSubs( tName, tText, tValu ):
 def vblsFromTplt():
   #print( 'Entr vblsFromTplt')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
   ## These vbles correspond to the elements in the config file: 
@@ -154,21 +155,8 @@ def vblsFromTplt():
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
-  ##
-  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
-  #
-  ## These vbles correspond to the elements in the config file: 
-  global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
-  global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
-  global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
-  global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
-  global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
-  global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   # These flags indicate parsing has detected various sections of yasim config 
   apprFlag   = 0
@@ -522,7 +510,7 @@ def vblsFromTplt():
 def cfigFromVbls( tFID):
   #print( 'Entr cfigFromVbls')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
   ## These vbles correspond to the elements in the config file: 
@@ -533,7 +521,8 @@ def cfigFromVbls( tFID):
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   apprFlag   = 0
   cruzFlag   = 0
@@ -789,10 +778,11 @@ def cfigFromVbls( tFID):
 def spinYasim(tFid):
   #print( 'Entr spinYasim')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
-  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   #
   ## update fileIDs with version selected from dropdown
@@ -803,35 +793,12 @@ def spinYasim(tFid):
   solnFid  = procPref + versToDo + '-soln.txt'
   #print('spinYasim tFid: ', tFid)
   ##
-  # run yasim external process to generate LvsD data table saved dataset file
-  vDatHndl = open(lvsdFid, 'w')
-  command_line = 'yasim ' + tFid + ' --detail-lvsd -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
-  #    print(command_line)
-  args = shlex.split(command_line)
-  DEVNULL = open(os.devnull, 'wb')
-  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-  DEVNULL.close()
-  vDatHndl.close
-  os.sync()
-  #p.wait()
-  ##
-  # run yasim external process to generate min IAS data table saved dataset file
-  vDatHndl = open(iasaFid, 'w')
-  command_line = 'yasim ' + tFid + ' --detail-min-speed -approach '
-  #    print(command_line)
-  args = shlex.split(command_line)
-  DEVNULL = open(os.devnull, 'wb')
-  p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
-  DEVNULL.close()
-  vDatHndl.close
-  os.sync()
-  #p.wait()
-  ##
-  ##  Perforamnce
-  if (0) :
-    # run yasim external process to generate min IAS data table saved dataset file
-    vDatHndl = open(iascFid, 'w')
-    command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
+  spinFast = 0
+  if ( spinFast < 1 ) :
+    # run yasim external process to generate LvsD data table saved dataset file
+    vDatHndl = open(lvsdFid, 'w')
+    command_line = 'yasim {:s} --detail-lvsd -a {:.2f} -s {:.2f}' \
+                    .format(tFid,                 (Hy/3.3), (Vy))
     #    print(command_line)
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -842,8 +809,9 @@ def spinYasim(tFid):
     #p.wait()
     ##
     # run yasim external process to generate min IAS data table saved dataset file
-    vDatHndl = open(drgaFid, 'w')
-    command_line = 'yasim ' + tFid + ' --detail-drag -approach '
+    vDatHndl = open(iasaFid, 'w')
+    command_line = 'yasim {:s} --detail-min-speed -a {:.2f}' \
+                    .format(tFid,                      (Hy/3.3))
     #    print(command_line)
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -853,6 +821,83 @@ def spinYasim(tFid):
     os.sync()
     #p.wait()
     ##
+    ##  Perforamnce
+    if (0) :
+      # run yasim external process to generate min IAS data table saved dataset file
+      vDatHndl = open(iascFid, 'w')
+      command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
+      #    print(command_line)
+      args = shlex.split(command_line)
+      DEVNULL = open(os.devnull, 'wb')
+      p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+      DEVNULL.close()
+      vDatHndl.close
+      os.sync()
+      #p.wait()
+      ##
+      # run yasim external process to generate min IAS data table saved dataset file
+      vDatHndl = open(drgaFid, 'w')
+      command_line = 'yasim ' + tFid + ' --detail-drag -approach '
+      #    print(command_line)
+      args = shlex.split(command_line)
+      DEVNULL = open(os.devnull, 'wb')
+      p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+      DEVNULL.close()
+      vDatHndl.close
+      os.sync()
+      #p.wait()
+      ##
+  else :  
+    # run yasim external process to generate LvsD data table saved dataset file
+    vDatHndl = open(lvsdFid, 'w')
+    command_line = 'yasim ' + tFid + ' -g            -a '+ str(Hy/3.3) + ' -s ' + str(Vy)
+    #    print(command_line)
+    args = shlex.split(command_line)
+    DEVNULL = open(os.devnull, 'wb')
+    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+    DEVNULL.close()
+    vDatHndl.close
+    os.sync()
+    #p.wait()
+    ##
+    # run yasim external process to generate min IAS data table saved dataset file
+    vDatHndl = open(iasaFid, 'w')
+    command_line = 'yasim ' + tFid + '        --min-speed -approach '
+    #    print(command_line)
+    args = shlex.split(command_line)
+    DEVNULL = open(os.devnull, 'wb')
+    p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+    DEVNULL.close()
+    vDatHndl.close
+    os.sync()
+    #p.wait()
+    ##
+    ##  Perforamnce
+    if (0) :
+      # run yasim external process to generate min IAS data table saved dataset file
+      vDatHndl = open(iascFid, 'w')
+      command_line = 'yasim ' + tFid + '        --min-speed -cruise '
+      #    print(command_line)
+      args = shlex.split(command_line)
+      DEVNULL = open(os.devnull, 'wb')
+      p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+      DEVNULL.close()
+      vDatHndl.close
+      os.sync()
+      #p.wait()
+      ##
+      # run yasim external process to generate min IAS data table saved dataset file
+      vDatHndl = open(drgaFid, 'w')
+      command_line = 'yasim ' + tFid + '         -drag -approach '
+      #    print(command_line)
+      args = shlex.split(command_line)
+      DEVNULL = open(os.devnull, 'wb')
+      p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
+      DEVNULL.close()
+      vDatHndl.close
+      os.sync()
+      #p.wait()
+      ##
   # run yasim external process to create console output of solution
   vDatHndl = open(solnFid, 'w')
   command_line = 'yasim ' + tFid
@@ -899,7 +944,8 @@ def bodyInci( Mx, Mz, Tx, Tz ) :
 
 # Given fileID figure wing + body incidence and stall margin
 def wingInci( tFid) :
-  global totlInci, fracInci
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global fracInci, totlInci                            # Wing incidence and CoG 
   tree = ET.parse(tFid)
   root = tree.getroot()
   x1 = y1 = z1 = x2 = y2 = z2 = 0
@@ -908,23 +954,32 @@ def wingInci( tFid) :
     xVal = float(gearElem.get('x'))
     yVal = float(gearElem.get('y'))
     zVal = float(gearElem.get('z'))
-    if (( x1 == 0 ) & ( z1 == 0 )) :
-      #print('0 xv: ', xVal, ' yv: ', yVal, 'zv: ', zVal )
+    if (( x1 == 0 ) & ( y1 == 0 ) & ( z1 == 0 )) :
       # found first wheel element
       x1 = xVal
       y1 = yVal
       z1 = zVal
-      #print('1 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
+      #  print('1 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, 'z2: ', z2 )
     else :
-      x2 = xVal
-      y2 = yVal
-      z2 = zVal
-      # next wheel 
-      if (( x2 != x1 ) & ( y2 != y1 )) :
-        if (( x2 == 0 ) & ( z2 == 0 )) :
+      # not a new wheel1: then a non match is wheel2 
+      if (( x1 != xVal ) ) :
+        if (( x2 == xVal ) &                  ( z2 == zVal )) :
+          # If newv == stored then swap mains into w1
+          x2 = x1
+          y2 = y1
+          z2 = z1
+          x1 = xVal
+          y1 = yVal
+          z1 = zVal
+        else:
+          #print('S xVal: ', xVal, ' yVal: ', yVal, 'zVal: ', zVal)
           x2 = xVal
           y2 = yVal
           z2 = zVal
+    ## mains in x1, y1, z1, wheelbase for CoG 
+    Wx = x1
+    Wb = (x2 - x1)
+    #    print('Wx: ', Wx, ' Wb: ', Wb)
   #  print('2 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, ' y2: ', y2, ' z2: ', z2 )
   if  ( z1 <= z2 ) :
     clinInci = bodyInci(x1, z1, x2, z2 )
@@ -972,11 +1027,14 @@ wingInci( aCfgFid)
 solnIter = scanSoln( solnFid, 'Iterations')
 solnTail = scanSoln( solnFid, 'Tail Incidence')
 solnElev = scanSoln( solnFid, 'Approach Elevator')
-solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
+solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
+cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
+if ( Wb != 0 ) :
+  solnCgWb = ( cofgXval - Wx ) / Wb
 # Did not work: Try a data table to live update soln values
 solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WBase', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
 solnCDS  = ColumnDataSource ( solnDict)
 solnCols = [TableColumn( field="dNames", title="Slvr Main " ),
             TableColumn( field="dValues", title="Init" ), ]
@@ -1078,8 +1136,8 @@ varyAv = Slider(width=132, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), 
 varyEv = Slider(width=132, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyIv = Slider(width=132, title="Incid  Vstab    Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyTv = Slider(width=132, title="Twist  Vstab    Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.1 ))
-varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(0.10 ), end=(8.0), step=(0.10))
-varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-4000), end=(15000),step=(50  ))
+varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.02))
+varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-5000), end=(15000),step=(20  ))
 varyHy = Slider(width=132, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
 varyWv = Slider(width=132, title="Wdth St Vs0     Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
@@ -1095,7 +1153,7 @@ varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), 
 def update_elem(attrname, old, new):
   #  print( 'Entr update_elem')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   #
   ## These vbles correspond to the elements in the config file: 
@@ -1106,7 +1164,8 @@ def update_elem(attrname, old, new):
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
-  global Mb, Xb, Yb, Zb, Hy,   Vy, fracInci, totlInci  # Ballast, Solver Result
+  global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb              # Ballast, Solver, Wheels 
+  global fracInci, totlInci                            # Wing incidence and CoG 
   ##
   global fracInci, totlInci
   #
@@ -1191,13 +1250,16 @@ def update_elem(attrname, old, new):
   solnIter = scanSoln( solnFid, 'Iterations')
   solnTail = scanSoln( solnFid, 'Tail Incidence')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
-  solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
+  solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
+  cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
+  if ( Wb != 0 ) :
+    solnCgWb = ( cofgXval - Wx ) / Wb
   # dunno how to update text boxes so output to console
-  print( 'Try{:s}  HStb:{:s}  Apr Elv:{:s}  CG @{:s} MAC  Wing Inc:{:2.1f}d {:.1f}% St AoA:{:.1f}d   ' \
-          .format( solnIter, solnTail, solnElev, solnCofG, totlInci, (100 * fracInci), Aw))
+  print( '#{:s}  HS:{:s}  ApElv:{:s}  CG{:s} MC  {:.2f} WB  WngInc:{:2.1f}d {:.1f}% St @ {:.1f}d ' \
+          .format( solnIter, solnTail, solnElev, solnCgMC, solnCgWb, totlInci, (100 * fracInci), Aw))
   solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WB', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
   solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
               TableColumn( field="dValues", title="Value" ), ]
@@ -1209,7 +1271,7 @@ def update_elem(attrname, old, new):
 # called if Version string is changed, duplicates actions cf above 
 def dropHdlr(event) :
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCofG
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
   global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
   global     Aw                                        # Wing, Flap, Ailr
@@ -1235,13 +1297,16 @@ def dropHdlr(event) :
   solnIter = scanSoln( solnFid, 'Iterations')
   solnTail = scanSoln( solnFid, 'Tail Incidence')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
-  solnCofG = scanSoln( solnFid, 'CG-x rel. MAC')
+  solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
+  cofgXval = float(scanSoln( solnFid, 'CG-x    ').rstrip('m'))
+  if ( Wb != 0 ) :
+    solnCgWb = ( cofgXval - Wx ) / Wb
   # dunno how to update text input boxes so output to console 
   print( versToDo, ' : Iterations: ', solnIter, \
-         '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCofG )
+         '  Appr Elev:',  solnElev, '  CG-x rel. MAC', solnCgMC )
   solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCofG,   totlInci,  Aw  ])
+              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CoG vs MAC', 'CG on WB', 'IncWg', 'AoAst'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   solnCgWb,   totlInci,  Aw  ])
   solnCDS  = ColumnDataSource ( solnDict)
   solnCols = [TableColumn( field="dNames", title="Slvr DpHd" ),
               TableColumn( field="dValues", title="Value" ), ]
