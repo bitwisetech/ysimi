@@ -918,14 +918,14 @@ def spinYasim(tFid):
   if ( Wb != 0 ) :
     solnCgWB = ( cofgXval - Wx ) / Wb
   # dunno how to update text boxes so output to console
-  print( '#{:s}  HS:{:s}  ApElv:{:s}  CG{:s} MC  {:.2f} WB  WngInc:{:2.1f}d {:.1f}% St @ {:.1f}d ' \
-          .format( solnIter, solnTail, solnElev, solnCgMC, solnCgWB, totlInci, (100 * fracInci), Aw))
+  print( '#{:s}  HS:{:s}  ApElv:{:s}  CG{:s} MC  {:3.0f}% WB  WngInc:{:2.1f}d {:.1f}% St @ {:.1f}d ' \
+          .format( solnIter, solnTail, solnElev, solnCgMC, (100 * solnCgWB), totlInci, (100 * fracInci), Aw))
   solnDict = dict( 
-              dNames  = [ 'Try', 'HStb Fixd', 'Appr Elev', 'CG at MAC', 'CG on WB', 'IncWg', 'AoAst'],
-              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   '{:.2f}'.format(solnCgWB), '{:.1f}'.format(totlInci),  Aw  ])
+              dNames  = [ 'Iterations', 'HStab Inci', 'Appr Elev', 'CG at MAC', 'CG on WB', 'Wing Inci', 'Stall AoA'],
+              dValues = [  solnIter, solnTail, solnElev,    solnCgMC,   '{:3.0f}%'.format(100 * solnCgWB), '{:.1f}'.format(totlInci), Aw ])
   solnCDS  = ColumnDataSource ( solnDict)
-  solnCols = [TableColumn( field="dNames", title="Slvr upEl" ),
-              TableColumn( field="dValues", title="Value" ), ]
+  solnCols = [TableColumn( field="dNames", title="Starting" ),
+              TableColumn( field="dValues", title="Values" ), ]
   solnDT   = DataTable(source=solnCDS, columns=solnCols, width=240, height=200)
   solnCDS.update()
   solnDT.update()
