@@ -1125,7 +1125,7 @@ varyDt = Slider(width=132, title="Ai11 Drag Wg1  Dt", value=Dt, start=( 0.01), e
 varyAh = Slider(width=132, title="Aoa St  Hstab  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyDh = Slider(width=132, title="IDrag-- Hstab  Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyCh = Slider(width=132, title="Camber  Hstab  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
-varyLe = Slider(width=132, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.1 ))
+varyLe = Slider(width=132, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
 varyCv = Slider(width=132, title="Camber Vstab   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
 varyWh = Slider(width=132, title="Wdth St Hstab   Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
@@ -1138,7 +1138,7 @@ varyAv = Slider(width=132, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), 
 varyEv = Slider(width=132, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyIv = Slider(width=132, title="Incid  Vstab    Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyTv = Slider(width=132, title="Twist  Vstab    Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.1 ))
-varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.02))
+varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.01))
 varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-5000), end=(15000),step=(20  ))
 varyHy = Slider(width=132, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
@@ -1146,7 +1146,7 @@ varyWv = Slider(width=132, title="Wdth St Vs0     Wv", value=Wv, start=(0.0  ), 
 varyPv = Slider(width=132, title="Pk   St Vs0     Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
 varyIu = Slider(width=132, title="Incid  ApVst    Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyTu = Slider(width=132, title="Twist  ApVst    Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyDr = Slider(width=132, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0), step=(0.05))
+varyDr = Slider(width=132, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0 ), step=(0.05))
 varyXb = Slider(width=132, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
 varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
 #

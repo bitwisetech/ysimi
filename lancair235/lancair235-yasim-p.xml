@@ -18,12 +18,12 @@
 <airplane mass="948" version="YASIM_VERSION_CURRENT" mtow-kg="1200">
 
   <!-- Approach configuration -->
-  <approach speed="90" aoa="4" fuel="0.2">
+  <approach speed="100" aoa="2" fuel="0.2">
     <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.2"/>
     <control-setting axis="/controls/engines/engine[0]/mixture"         value="1.0"/>
     <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="1.0"/>
 
-    <control-setting axis="/controls/flight/flaps"                      value="1"/>
+    <control-setting axis="/controls/flight/flaps"                      value="0.5"/>
     <control-setting axis="/controls/gear/gear-down"                    value="1"/>
   </approach>
 
@@ -117,7 +117,7 @@
         taper="0.38"
         sweep="40">
         <stall   aoa="20" width="10" peak="1.5"/>
-        <flap0 start="0"    end="1" lift="1.2" drag="1.5"/>
+        <flap0 start="0"    end="1" lift="1.4" drag="1.5"/>
 
         <control-input  control="FLAP0" axis="/controls/flight/rudder"      invert="true"/>
         <control-input  control="FLAP0" axis="/controls/flight/rudder-trim" invert="true"/>
@@ -204,6 +204,6 @@
   <weight x="-0.0651" y=" 0.000" z="-0.056" mass-prop="sim/weight[3]/weight-lb"/>
 
   <!-- Mass distribution -->
-  <ballast x="4.5" y="0" z="-2.35" mass="60"/>
+  <ballast x="4" y="0" z="-2.35" mass="60"/>
 
 </airplane>
