@@ -128,14 +128,18 @@ def tuplValu( tName, tText ):
   endsValu = begnValu + (tText[begnValu:]).find('"')
   return( float( tText[(begnValu) : (endsValu) ] ))
 ##
+
 #  Return given text with given value substituted at name="value" in config file
 #
-def tuplSubs( tName, tText, tValu ):
-  # opening quote is '="' chars beyond name 
-  begnValu = tText.find( tName) + len(tName) + 2 
-  endsValu = begnValu + (tText[begnValu:]).find('"')
-  resp = tText[ : begnValu] + (('%f' % tValu).rstrip('0').rstrip('.')) + tText[endsValu :]
-  return(resp)
+def tuplSubs( tChrs, tText, tValu ):
+  if ( tChrs in tText ) :
+    # opening quote is '="' chars beyond name 
+    begnValu = tText.find( tChrs) + len(tChrs) + 2 
+    endsValu = begnValu + (tText[begnValu:]).find('"')
+    resp = tText[ : begnValu] + (('%f' % tValu).rstrip('0').rstrip('.')) + tText[endsValu :]
+    return(resp)
+  else :  
+    return(tText)
 ##
 
 # Scan original YASim config and extract numeric elements, save for tix menu
@@ -531,11 +535,10 @@ def cfigFromVbls( tFID):
   vstabFlag  = 0
   ballFlag   = 0
   propFlag   = 0
-  aCfgFid  = tFID
   if ( pythVers < 3 ) :
-    aCfgHndl  = open(aCfgFid, 'w', 0)
+    aCfgHndl  = open(tFID, 'w', 0)
   else :
-    aCfgHndl  = open(aCfgFid, 'w')
+    aCfgHndl  = open(tFID, 'w')
   # write auto file via yconfig template and subsVbls from Tix
   with open(yCfgFid, 'r') as yCfgHndl:
   # step each line in template yasim config file
@@ -573,15 +576,12 @@ def cfigFromVbls( tFID):
       ### in each section substitute updated element values
       ## approach
       if (apprFlag == 1):
-        if ('speed' in line):
-          line = tuplSubs( 'speed',   line, Va ) 
-          line = tuplSubs( 'aoa',     line, Aa ) 
-          line = tuplSubs( 'fuel',    line, Ka ) 
-          #print('subsLine: ', line)
-        if ('throttle' in line):
-          line   = tuplSubs( 'value', line, Ta ) 
-        if ('flaps' in line):
-          line   = tuplSubs( 'value', line, Fa ) 
+        line = tuplSubs( 'speed',   line, Va ) 
+        line = tuplSubs( 'aoa',     line, Aa ) 
+        line = tuplSubs( 'fuel',    line, Ka ) 
+        #print('subsLine: ', line)
+        line   = tuplSubs( 'value', line, Ta ) 
+        line   = tuplSubs( 'value', line, Fa ) 
       ## cruise
       if (cruzFlag == 1):
         if ('cruise speed' in line):
@@ -589,25 +589,21 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'speed',   line, Vc ) 
           line = tuplSubs( 'alt',     line, Hc ) 
           line = tuplSubs( 'fuel',    line, Kc ) 
-        if ('throttle' in line):
           line = tuplSubs( 'value',   line, Tc )
       ## wing
       if (wingFlag == 1):
         if ('append=\"1\"' in line):
           wng1Flag = 1
         if ( wng1Flag != 1 ) :          
-          if ('camber' in line):
-            line = tuplSubs( 'camber',  line, Cw ) 
-          if ('idrag' in line):
-            line = tuplSubs( 'idrag',   line, Dw )
-          if ('incidence' in line):
-            line = tuplSubs( 'incidence', line, Iw )
+          line = tuplSubs( 'camber',  line, Cw ) 
+          line = tuplSubs( 'idrag',   line, Dw )
+          line = tuplSubs( 'incidence', line, Iw )
             #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
           #   
           if ('stall' in line):
-            line = tuplSubs( 'aoa'  ,  line, Aw )
-            line = tuplSubs( 'peak' ,  line, Pw ) 
-            line = tuplSubs( 'width',  line, Ww ) 
+           line = tuplSubs( 'aoa'  ,  line, Aw )
+           line = tuplSubs( 'peak' ,  line, Pw ) 
+           line = tuplSubs( 'width',  line, Ww ) 
           #  
           if ('flap0' in line):
             line = tuplSubs( 'lift',   line, Lf ) 
@@ -618,12 +614,9 @@ def cfigFromVbls( tFID):
             line = tuplSubs( 'drag',   line, Da )
           # end wing 
         else :   
-          if ('camber' in line):
-            line = tuplSubs( 'camber',  line, Cx ) 
-          if ('idrag' in line):
-            line = tuplSubs( 'idrag',   line, Dx )
-          if ('incidence' in line):
-            line = tuplSubs( 'incidence', line, Ix )
+          line = tuplSubs( 'camber',  line, Cx ) 
+          line = tuplSubs( 'idrag',   line, Dx )
+          line = tuplSubs( 'incidence', line, Ix )
             #print ('Wrt  Cx: ', Cx, 'Dx: ', Dx, ' Ix: ', Ix)  
           #   
           if ('stall' in line):
@@ -641,12 +634,9 @@ def cfigFromVbls( tFID):
           # end wng1
       ## HStab     
       if (hstabFlag == 1):
-        if ('camber' in line):
-          line = tuplSubs( 'camber', line, Ch ) 
-        if ('idrag' in line):
-          line = tuplSubs( 'idrag',  line, Dh )
-        if ('effectiveness' in line):
-          line = tuplSubs( 'effectiveness',  line, Eh )
+        line = tuplSubs( 'camber', line, Ch ) 
+        line = tuplSubs( 'idrag',  line, Dh )
+        line = tuplSubs( 'effectiveness',  line, Eh )
         #
         if ('stall' in line):
           line = tuplSubs( 'aoa'  ,  line, Ah ) 
@@ -659,18 +649,13 @@ def cfigFromVbls( tFID):
         # 
       ## Vstab   
       if (vstabFlag == 1):
-        if ('camber' in line):
-          line = tuplSubs( 'camber', line, Cv ) 
-        if ('idrag' in line):
-          line = tuplSubs( 'idrag',  line, Dv )
-        if ('effectiveness' in line):
-          line = tuplSubs( 'effectiveness', line, Ev )
+        line = tuplSubs( 'camber', line, Cv ) 
+        line = tuplSubs( 'idrag',  line, Dv )
+        line = tuplSubs( 'effectiveness', line, Ev )
         #
-        if ('incidence' in line):
-          line = tuplSubs( 'incidence', line, Iv )
-        if ('twist' in line):
-          line = tuplSubs( 'twist', line, Tv )
-          #print ('Wrt  Iv: ', Iv, 'Tv: ', Tv)  
+        line = tuplSubs( 'incidence', line, Iv )
+        line = tuplSubs( 'twist', line, Tv )
+        #print ('Wrt  Iv: ', Iv, 'Tv: ', Tv)  
           #   
         #
         if ('stall' in line):
@@ -686,55 +671,25 @@ def cfigFromVbls( tFID):
       ## ballast ( Ensure input config does not enclose ballast in comments )
       if (ballFlag == 1):
         ## ballast section one line for all elements if present
-        if ('mass' in line):
-          line = tuplSubs( 'mass',   line, Mb ) 
-        #
-        if ('x=' in line):
-          line = tuplSubs( 'x',      line, Xb ) 
-        #
-        if ('y=' in line):
-          line = tuplSubs( 'y',      line, Yb ) 
-        #
-        if ('z=' in line):
-          line = tuplSubs( 'z',      line, Zb ) 
-        #
-        if ('/>' in line):
-          ballFlag =  0
-        #
+        line = tuplSubs( 'mass',   line, Mb ) 
+        line = tuplSubs( 'x',      line, Xb ) 
+        line = tuplSubs( 'y',      line, Yb ) 
+        line = tuplSubs( 'z',      line, Zb ) 
+        ballFlag =  0
       #
       ## prop 
       if (propFlag == 1):
         ## prop section parse elements if present
-        if ('mass' in line):
-          line = tuplSubs( 'mass',   line, Mp ) 
-        #
-        if ('radius' in line):
-          line = tuplSubs( 'radius', line, Rp ) 
-        #
-        if ('moment' in line):
-          line = tuplSubs( 'moment', line, Ap ) 
-        #
-        if ('min-rpm' in line):
-          line = tuplSubs( 'min-rpm',line, Np ) 
-        #
-        if ('max-rpm' in line):
-          line = tuplSubs( 'max-rpm',line, Xp ) 
-        #
-        if ('fine-stop' in line):
-          line = tuplSubs( 'fine-stop',   line, Ip ) 
-        #
-        if ('coarse-stop' in line):
-          line = tuplSubs( 'coarse-stop', line, Op ) 
-        #
-        if ('cruise-speed' in line):
-          line = tuplSubs( 'cruise-speed',line, Vp ) 
-        #
-        if ('cruise-rpm' in line):
-          line = tuplSubs( 'cruise-rpm',  line, Cp ) 
-        #
-        if ('takeoff-rpm' in line):
-          line = tuplSubs( 'takeoff-rpm', line, Tp ) 
-        #
+        line = tuplSubs( 'mass',   line, Mp ) 
+        line = tuplSubs( 'radius', line, Rp ) 
+        line = tuplSubs( 'moment', line, Ap ) 
+        line = tuplSubs( 'min-rpm',line, Np ) 
+        line = tuplSubs( 'max-rpm',line, Xp ) 
+        line = tuplSubs( 'fine-stop',   line, Ip ) 
+        line = tuplSubs( 'coarse-stop', line, Op ) 
+        line = tuplSubs( 'cruise-speed',line, Vp ) 
+        line = tuplSubs( 'cruise-rpm',  line, Cp ) 
+        line = tuplSubs( 'takeoff-rpm', line, Tp ) 
         #
       ## Version string   
       # look for <airplane mass="6175" to insert keyword for selected version

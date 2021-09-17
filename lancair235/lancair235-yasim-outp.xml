@@ -19,12 +19,12 @@
 
   <!-- Approach configuration -->
   <approach speed="100" aoa="2" fuel="0.2">
-    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.2"/>
-    <control-setting axis="/controls/engines/engine[0]/mixture"         value="1.0"/>
-    <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="1.0"/>
+    <control-setting axis="/controls/engines/engine[0]/throttle"        value="0.5"/>
+    <control-setting axis="/controls/engines/engine[0]/mixture"         value="0.5"/>
+    <control-setting axis="/controls/engines/engine[0]/propeller-pitch" value="0.5"/>
 
     <control-setting axis="/controls/flight/flaps"                      value="0.5"/>
-    <control-setting axis="/controls/gear/gear-down"                    value="1"/>
+    <control-setting axis="/controls/gear/gear-down"                    value="0.5"/>
   </approach>
 
   <!-- Cruise configuration -->

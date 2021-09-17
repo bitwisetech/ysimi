@@ -1,12 +1,12 @@
 ==========================
 = YASim solution results =
 ==========================
-Iterations        : 1074
-Drag Coefficient  : 9.639
-Lift Ratio        : 156.819
-Cruise AoA        : 0.86 deg
-Tail Incidence    : -1.37 deg
-Approach Elevator : -0.180
+Iterations        : 1131
+Drag Coefficient  : 9.643
+Lift Ratio        : 157.564
+Cruise AoA        : 0.85 deg
+Tail Incidence    : -1.36 deg
+Approach Elevator : -0.202
 
 CG                : x:1.010, y:-0.000, z:-0.213
 Wing MAC          : (x:1.318, y:1.624), length:1.119 
@@ -20,9 +20,9 @@ hard limit CG-x   : 0.820 m
 wing lever        : 0.028 m
 tail lever        : -3.347 m
 
-max thrust        : 1.58 kN
-thrust/empty      : 0.38
-thrust/mtow       : 0.13
+max thrust        : 1.25 kN
+thrust/empty      : 0.30
+thrust/mtow       : 0.11
 
 wing span         : 7.13 m
 sweep lead. edge  : 0.7 .. 0.7 deg
