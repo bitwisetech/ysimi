@@ -122,9 +122,9 @@ def presets():
 
 #  Return numeric value from 'name="nn.nnn"' tuple in config file
 #
-def tuplValu( tName, tText ):
+def tuplValu( tChrs, tText ):
   # opening quote is '="' chars beyond name 
-  begnValu = tText.find( tName) + len(tName) + 2 
+  begnValu = tText.find( tChrs) + len(tChrs) + 2 
   endsValu = begnValu + (tText[begnValu:]).find('"')
   return( float( tText[(begnValu) : (endsValu) ] ))
 ##
@@ -580,15 +580,19 @@ def cfigFromVbls( tFID):
         line = tuplSubs( 'aoa',     line, Aa ) 
         line = tuplSubs( 'fuel',    line, Ka ) 
         #print('subsLine: ', line)
-        line   = tuplSubs( 'value', line, Ta ) 
-        line   = tuplSubs( 'value', line, Fa ) 
+        if ('throttle' in line):
+          line   = tuplSubs( 'value', line, Ta ) 
+        if ('fuel' in line):
+          line   = tuplSubs( 'value', line, Fa ) 
       ## cruise
       if (cruzFlag == 1):
         if ('cruise speed' in line):
           #print ('Vc: ', Vc, ' Hc: ', Hc, ' Kc: ', Kc)  
           line = tuplSubs( 'speed',   line, Vc ) 
           line = tuplSubs( 'alt',     line, Hc ) 
-          line = tuplSubs( 'fuel',    line, Kc ) 
+        if ('fuel' in line):
+          line = tuplSubs( 'value',    line, Kc ) 
+        if ('throttle' in line):
           line = tuplSubs( 'value',   line, Tc )
       ## wing
       if (wingFlag == 1):
@@ -1057,53 +1061,53 @@ varyAw = Slider(width=132, title="AoA St    Wg0 Aw", value=Aw, start=(-2.0 ), en
 varyDw = Slider(width=132, title="iDrag--   Wg0 Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyCw = Slider(width=132, title="Camber    Wgs Cw", value=Cw, start=(0.000), end=(1.00), step=(0.001))
 varyLf = Slider(width=132, title="Flap Lift     Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLa = Slider(width=132, title="Ailr Lift     La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyDf = Slider(width=132, title="Flap Drag Wg0 Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
 # UprRight
-varyWw = Slider(width=132, title="Width St  Wg0  Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
-varyPw = Slider(width=132, title="Peak  St  Wg0  Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyIw = Slider(width=132, title="Incidence Wgs  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDf = Slider(width=132, title="Flap Drag Wg0  Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDa = Slider(width=132, title="Ailr Drag Wg0  Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
+varyWw = Slider(width=132, title="Width St  Wg0 Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
+varyPw = Slider(width=132, title="Peak  St  Wg0 Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyIw = Slider(width=132, title="Incidence Wgs Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyLa = Slider(width=132, title="Ailr Lift     La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyDa = Slider(width=132, title="Ailr Drag Wg0 Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
 # MidLeft
-varyAx = Slider(width=132, title="AoA St    Wg1  Aw", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDx = Slider(width=132, title="iDrag--   Wg1  Dw", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCx = Slider(width=132, title="[Camber]         Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
-varyLg = Slider(width=132, title="Flp1 Lift Wg1    Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
-varyLt = Slider(width=132, title="Ail1 Lift Wg1    Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyAx = Slider(width=132, title="AoA St    Wg1 Ax", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDx = Slider(width=132, title="iDrag--   Wg1 Dx", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCx = Slider(width=132, title="[Camber]      Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
+varyLg = Slider(width=132, title="Flp1 Lift Wg1 Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
+varyLt = Slider(width=132, title="Ail1 Lift Wg1 Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # MidRight
-varyWx = Slider(width=132, title="Width St  Wg1  Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
-varyPx = Slider(width=132, title="Peak  St  Wg1  Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyIx = Slider(width=132, title="[Incid]        Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyDg = Slider(width=132, title="Flp1 Drag Wg1  Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
-varyDt = Slider(width=132, title="Ai11 Drag Wg1  Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
+varyWx = Slider(width=132, title="Width St  Wg1 Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
+varyPx = Slider(width=132, title="Peak  St  Wg1 Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyIx = Slider(width=132, title="[Incid]       Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyDg = Slider(width=132, title="Flp1 Drag Wg1 Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
+varyDt = Slider(width=132, title="Ai11 Drag Wg1 Dt", value=Dt, start=( 0.01), end=(8.0 ), step=(0.1))
 #Low Lft
-varyAh = Slider(width=132, title="Aoa St  Hstab  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDh = Slider(width=132, title="IDrag-- Hstab  Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCh = Slider(width=132, title="Camber  Hstab  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
-varyLe = Slider(width=132, title="Elev  Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
-varyCv = Slider(width=132, title="Camber Vstab   Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
+varyAh = Slider(width=132, title="Aoa St  Hstab Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyDh = Slider(width=132, title="IDrag-- Hstab Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyCh = Slider(width=132, title="Camber  Hstab Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
+varyLe = Slider(width=132, title="Elev  Lift    Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
+varyCv = Slider(width=132, title="Camber Vstab  Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
 #Low Right 
-varyWh = Slider(width=132, title="Wdth St Hstab   Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
-varyPh = Slider(width=132, title="Peak St Hstab   Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyEh = Slider(width=132, title="Effect  Hstab   Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyDe = Slider(width=132, title="Elev Drag       De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
-varyDv = Slider(width=132, title="IDrag-- Vstab   Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
+varyWh = Slider(width=132, title="Wdth St Hstab Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
+varyPh = Slider(width=132, title="Peak St Hstab Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
+varyEh = Slider(width=132, title="Effect  Hstab Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyDe = Slider(width=132, title="Elev Drag     De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
+varyDv = Slider(width=132, title="IDrag-- Vstab Dv", value=Dv, start=(0.01 ), end=(8.0 ), step=(0.1))
 # Bot L
-varyAv = Slider(width=132, title="AoA St Vstab    Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyEv = Slider(width=132, title="Effect Vstab    Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyIv = Slider(width=132, title="Incid  Vstab    Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyTv = Slider(width=132, title="Twist  Vstab    Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.1 ))
-varyLr = Slider(width=132, title="Rudder Lift     Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.01))
-varyMb = Slider(width=132, title="Ballast Mass    Mb", value=Mb, start=(-5000), end=(15000),step=(20  ))
-varyHy = Slider(width=132, title="Solve Alt ft    Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
+varyAv = Slider(width=132, title="AoA St Vstab  Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.1 ))
+varyEv = Slider(width=132, title="Effect Vstab  Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyIv = Slider(width=132, title="Incid  Vstab  Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyTv = Slider(width=132, title="Twist  Vstab  Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.1 ))
+varyLr = Slider(width=132, title="Rudder Lift   Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.01))
+varyMb = Slider(width=132, title="Ballast Mass  Mb", value=Mb, start=(-5000), end=(15000),step=(20  ))
+varyHy = Slider(width=132, title="Solve Alt ft  Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 # Bot R
-varyWv = Slider(width=132, title="Wdth St Vs0     Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(width=132, title="Pk   St Vs0     Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
-varyIu = Slider(width=132, title="Incid  ApVst    Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyTu = Slider(width=132, title="Twist  ApVst    Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyDr = Slider(width=132, title="Rudder Drag     Dr", value=Dr, start=( 0.0 ), end=(4.0 ), step=(0.05))
-varyXb = Slider(width=132, title="Ballast Posn    Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
-varyVy = Slider(width=132, title="Solve IAS kt    Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
+varyWv = Slider(width=132, title="Wdth St Vs0   Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
+varyPv = Slider(width=132, title="Pk   St Vs0   Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.2 ))
+varyIu = Slider(width=132, title="Incid  ApVst  Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyTu = Slider(width=132, title="Twist  ApVst  Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyDr = Slider(width=132, title="Rudder Drag   Dr", value=Dr, start=( 0.0 ), end=(4.0 ), step=(0.05))
+varyXb = Slider(width=132, title="Ballast Posn  Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
+varyVy = Slider(width=132, title="Solve IAS kt  Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
 #
 
 # called whenever a value is changed on browser interface
@@ -1261,10 +1265,10 @@ ApprRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
 CrzeRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
 #
 W0AwRack = column(varyAw,   varyWw, varyDw, varyPw, varyCw)
-W0WwRack = column(varyIw,   varyLf, varyLa, varyDf, varyDa)
+W0WwRack = column(varyIw,   varyLf, varyDf, varyLa, varyDa)
 #
 W1AxRack = column(varyAx,   varyWx, varyDx, varyPx, varyCx)
-W1WxRack = column(varyIx,   varyLg, varyLt, varyDg, varyDt)
+W1WxRack = column(varyIx,   varyLg, varyDg, varyLt, varyDt)
 #
 HsAhRack = column(varyAh,   varyEh,  varyDh, varyLe, varyMb)
 HsWhRack = column(varyWh,   varyPh,  varyCh, varyDe, varyXb)
