@@ -424,7 +424,7 @@ def vblsFromTplt():
           Iv = tuplValu('incidence', line)
         #
         if ( 'twist' in line):
-          Tv = tuplValu('incidence', line)
+          Tv = tuplValu('twist', line)
         #
         #print ('Iv: ', Iv, 'Tv: ', Tv)  
         #in vstab section, find stall elements
@@ -720,7 +720,7 @@ def cfigFromVbls( tFID):
         else :  
           # Use index list to split line into text and numbers
           lineMass = line[0:(sepsList[1]+1)]
-          line = lineMass + 'version="' + versKywd + '">'
+          line = lineMass + ' version="' + versKywd + '">'
         #
       # Write unchanged/modified line into auto.xml
       aCfgHndl.write(line)
@@ -1230,9 +1230,10 @@ def dropHdlr(event) :
   #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
   iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
   iasaDsrc.data  = iasaDfrm
-  #
-  iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
-  iascDsrc.data  = iascDfrm
+  # performance  
+  if (0) :
+    iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+    iascDsrc.data  = iascDfrm
   #
 #
   
