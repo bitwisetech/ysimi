@@ -5,8 +5,8 @@
 #    creates modified YASim configs for different YASim versions
 #    offers slider control of various key YASim elements and re-plots interactively
 #
-#    yCfg.. Input   yasim config xml Original 
-#    test.. Auto    yasim config xml generated with eg modified varied elements
+#   ysimi-yasim.xml yasim config xml Original 
+#   ..-outp Auto    yasim config xml generated with eg modified varied elements
 #   ..-lvsd.txt     yasim generated Lift / Drag tables    ( version specific )
 #   ..-mia?.txt     yasim generated IAS for 0vSpd vs AoA  ( version specific )
 #   ..-soln.txt     yasim generated solution values       ( version specific )
