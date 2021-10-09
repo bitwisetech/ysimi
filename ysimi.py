@@ -168,7 +168,9 @@ def vblsFromTplt():
   wng1Flag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
+  vstabDone  = 0
   ballFlag   = 0
+  ballDone   = 0
   propFlag   = 0
   # YASim 'Solve At' values for Speed and Altitude 
   Vy = 130
@@ -215,16 +217,19 @@ def vblsFromTplt():
         vstabFlag = 1
       if '</vstab' in line:
         vstabFlag = 0
+        vstabDone = 0
       # flag on ballast section
       if '<ballast' in line:
         ballFlag = 1
       if '</ballast' in line:
         ballFlag = 0
+        ballDone = 1
       # flag on prop section
       if '<propeller' in line:
         propFlag = 1
       if '</propeller' in line:
         propFlag = 0
+
       ### appr section parse approach speed and AoA elements
       if (apprFlag == 1):
         ##
@@ -251,6 +256,7 @@ def vblsFromTplt():
             Fa = tuplValu('value', line)
           # print (' Fa: ', Fa,)  
           #
+
       ### cruise section parse cruise speed element
       if (cruzFlag == 1):
           # find element names, save values to post in Tix gui
@@ -269,6 +275,7 @@ def vblsFromTplt():
               Tc = tuplValu('value', line)
           #
         ###
+
       ### wing section parse camber and induced drag elements
       if (wingFlag == 1):
         if ( 'append=\"1\"' in line) :
@@ -371,6 +378,7 @@ def vblsFromTplt():
             #
           #print ('Lt: ', Lt, ' Dt: ', Dt)
           ## end wng1 
+
       ### hstab section parse camber, drag, stall and flap0 elements
       if (hstabFlag == 1):
         ## hstab section parse camber and induced drag elements if present
@@ -407,8 +415,9 @@ def vblsFromTplt():
             De = tuplValu('drag', line)
           #
         #print ('Lh: ', Lh, ' Dh: ', Dh)  
+ 
       ### vstab section parse camber, idrag, stall and flap0 elements
-      if (vstabFlag == 1):
+      if ((vstabFlag == 1) and (vstabDone == 0)):
         ### vstab section parse camber and induced drag elements if present
         if ('camber' in line):
           Cv =  tuplValu('camber', line)
@@ -451,8 +460,9 @@ def vblsFromTplt():
           #
         #print ('Lr: ', Lr, ' Dr: ', Dr)
       ###
+
       #ballast
-      if (ballFlag == 1):
+      if ((ballFlag == 1) and (ballDone == 0)):
         ## ballast section single line for all elements
         if ('mass' in line):
           Mb =  tuplValu('mass', line)
@@ -467,9 +477,11 @@ def vblsFromTplt():
           Zb =  tuplValu('z', line)
         #
         if ('/>' in line):
+          ballDone =  1
           ballFlag =  0
         #
       ###
+
       #prop 
       if (propFlag == 1):
         ## prop section parse elements if present
@@ -533,7 +545,9 @@ def cfigFromVbls( tFID):
   wng1Flag   = 0
   hstabFlag  = 0
   vstabFlag  = 0
+  vstabDone  = 0
   ballFlag   = 0
+  ballDone   = 0
   propFlag   = 0
   if ( pythVers < 3 ) :
     aCfgHndl  = open(tFID, 'w', 0)
@@ -564,16 +578,19 @@ def cfigFromVbls( tFID):
       if '<vstab'     in line:
         vstabFlag = 1
       if '</vstab'    in line:
+        vstabDone = 1
         vstabFlag = 0
       if '<ballast' in line:
         ballFlag = 1
       if '</ballast'in line:
-        propFlag = 0
+        ballFlag = 0
+        ballDone = 1
       if '<propeller' in line:
         propFlag = 1
       if '</propeller'in line:
         propFlag = 0
       ### in each section substitute updated element values
+
       ## approach
       if (apprFlag == 1):
         line = tuplSubs( 'speed',   line, Va ) 
@@ -582,8 +599,9 @@ def cfigFromVbls( tFID):
         #print('subsLine: ', line)
         if ('throttle' in line):
           line   = tuplSubs( 'value', line, Ta ) 
-        if ('fuel' in line):
+        if ('flaps' in line):
           line   = tuplSubs( 'value', line, Fa ) 
+
       ## cruise
       if (cruzFlag == 1):
         if ('cruise speed' in line):
@@ -594,6 +612,7 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'value',    line, Kc ) 
         if ('throttle' in line):
           line = tuplSubs( 'value',   line, Tc )
+
       ## wing
       if (wingFlag == 1):
         if ('append=\"1\"' in line):
@@ -602,7 +621,7 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'camber',  line, Cw ) 
           line = tuplSubs( 'idrag',   line, Dw )
           line = tuplSubs( 'incidence', line, Iw )
-            #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
+          #print ('Wrt  Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw)  
           #   
           if ('stall' in line):
            line = tuplSubs( 'aoa'  ,  line, Aw )
@@ -636,6 +655,7 @@ def cfigFromVbls( tFID):
             line = tuplSubs( 'lift',   line, Lt ) 
             line = tuplSubs( 'drag',   line, Dt )
           # end wng1
+ 
       ## HStab     
       if (hstabFlag == 1):
         line = tuplSubs( 'camber', line, Ch ) 
@@ -651,8 +671,9 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'lift',   line, Le ) 
           line = tuplSubs( 'drag',   line, De ) 
         # 
+
       ## Vstab   
-      if (vstabFlag == 1):
+      if ((vstabFlag == 1) and (vstabDone == 0)):
         line = tuplSubs( 'camber', line, Cv ) 
         line = tuplSubs( 'idrag',  line, Dv )
         line = tuplSubs( 'effectiveness', line, Ev )
@@ -672,15 +693,18 @@ def cfigFromVbls( tFID):
           line = tuplSubs( 'drag',   line, Dr ) 
         # 
       #
+
       ## ballast ( Ensure input config does not enclose ballast in comments )
-      if (ballFlag == 1):
+      if ((ballFlag == 1) and (ballDone == 0)):
         ## ballast section one line for all elements if present
         line = tuplSubs( 'mass',   line, Mb ) 
         line = tuplSubs( 'x',      line, Xb ) 
         line = tuplSubs( 'y',      line, Yb ) 
         line = tuplSubs( 'z',      line, Zb ) 
         ballFlag =  0
+        ballDone =  1
       #
+
       ## prop 
       if (propFlag == 1):
         ## prop section parse elements if present
@@ -695,6 +719,7 @@ def cfigFromVbls( tFID):
         line = tuplSubs( 'cruise-rpm',  line, Cp ) 
         line = tuplSubs( 'takeoff-rpm', line, Tp ) 
         #
+
       ## Version string   
       # look for <airplane mass="6175" to insert keyword for selected version
       if '<airplane mass="' in line:
@@ -958,7 +983,7 @@ def wingInci( tFid) :
     Wx = x1
     Wb = (x2 - x1)
     #    print('Wx: ', Wx, ' Wb: ', Wb)
-  #  print('2 x1: ', x1, ' y1: ', y1, 'z1: ', z1, 'x2: ', x2, ' y2: ', y2, ' z2: ', z2 )
+  #  print('Main x1: ', x1, ' y1: ', y1, 'z1: ',   z1, 'x2: ', x2, ' y2: ', y2, ' z2: ', z2 )
   if  ( z1 <= z2 ) :
     clinInci = bodyInci(x1, z1, x2, z2 )
   else:   
