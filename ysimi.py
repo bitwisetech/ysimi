@@ -94,7 +94,7 @@ def presets():
   #procPref = "ysimi"
   ## Default File IDs 
   # yasim config xml file read input 
-  yCfgFid  = procPref + '-yasim.xml'
+  yCfgFid  = procPref + '-yasim-inpt.xml'
   yCfgName = yCfgFid.find('.xml')
   yCfgName = yCfgFid[0:yCfgName]
   ##   
@@ -721,7 +721,7 @@ def cfigFromVbls( tFID):
         #
 
       ## Version string   
-      # look for <airplane mass="6175" to insert keyword for selected version
+      # look for <airplane mass= to insert keyword for selected version
       if '<airplane mass="' in line:
         #print('airplane kywd:', versKywd, '  todo: ', versToDo)
         # make an index list of double quotes in the line
