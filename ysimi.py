@@ -71,7 +71,7 @@ global yCfgName, yCfgFid, aCfgFid, vCfgFid, versDict, versToDo, versKywd
 global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
 global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
 global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
+global Ix, Ax, Cx, Lg, Lt,   D1, W1, Px, Dg, Dt      # Wng1, Flap, Ailr
 global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
 global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
 global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -154,7 +154,7 @@ def vblsFromTplt():
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   D1, W1, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -178,9 +178,9 @@ def vblsFromTplt():
   # 
   Va = Aa = Ka = Ta = Fa = Vc = Hc = Kc = Tc =           Wx = Wb = Gx = 0.00
   Iw = Aw = Ix = Ax = Ah = Cv = Av = Wv = Pv = Iv = Tv = Iu = Tu = Cw = Cx = Ch = 0.00
-  Eh = Ev = La = Lf = Lg = Lt = Lh = Lv = Lr = Da = Df = Dg = Dt = Dh = Dr = Dw = Dx = Dv = 1.00
+  Eh = Ev = La = Lf = Lg = Lt = Lh = Lv = Lr = Da = Df = Dg = Dt = Dh = Dr = Dw = D1 = Dv = 1.00
   Pw = Px = Ph = 1.50
-  Ww = Wx = Wh = 2.00
+  Ww = W1 = Wh = 2.00
   Mp = Rp = Ap = Np = Xp = Ip = Op = Vp = Cp = Tp = 0
   # in case ballast element is missing, fake with tiny value
   Mb = Xb = Yb = Zb = 0.001
@@ -335,12 +335,12 @@ def vblsFromTplt():
             Cw =  tuplValu('camber', line)
           #
           if ('idrag' in line):
-            Dx = tuplValu('idrag', line)
+            D1 = tuplValu('idrag', line)
           #  
           if ( 'incidence' in line):
             Ix = tuplValu('incidence', line)
           #
-          #print ('Read Cx: ', Cx, 'Dx: ', Dx, ' Ix: ', Ix)  
+          #print ('Read Cx: ', Cx, 'D1: ', D1, ' Ix: ', Ix)  
           ##
           #in wing section, find stall element values
           if ('stall' in line):
@@ -352,9 +352,10 @@ def vblsFromTplt():
               Px = tuplValu('peak', line)
             #
             if ( 'width' in line):
-              Wx = tuplValu('width', line)
+              W1 = tuplValu('width', line)
             #
-          #print ('Ax: ', Ax, ' Wx: ', Wx, ' Px: ', Px)  
+          #
+          print ('Ax: ', Ax, ' W1: ', W1, ' Px: ', Px)  
           ##
           #in wing section, find flap0 element values 
           if ('flap0' in line):
@@ -532,7 +533,7 @@ def cfigFromVbls( tFID):
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   D1, W1, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -638,14 +639,15 @@ def cfigFromVbls( tFID):
           # end wing 
         else :   
           line = tuplSubs( 'camber',  line, Cx ) 
-          line = tuplSubs( 'idrag',   line, Dx )
+          line = tuplSubs( 'idrag',   line, D1 )
           line = tuplSubs( 'incidence', line, Ix )
-            #print ('Wrt  Cx: ', Cx, 'Dx: ', Dx, ' Ix: ', Ix)  
+            #
+          print ('Wrt  Cx: ', Cx, 'D1: ', D1, 'W1: ', W1, ' Ix: ', Ix)  
           #   
           if ('stall' in line):
             line = tuplSubs( 'aoa'  ,  line, Ax )
             line = tuplSubs( 'peak' ,  line, Px ) 
-            line = tuplSubs( 'width',  line, Wx ) 
+            line = tuplSubs( 'width',  line, W1 ) 
           #  
           if ('flap0' in line):
             line = tuplSubs( 'lift',   line, Lg ) 
@@ -967,7 +969,7 @@ def wingInci( tFid) :
       # not a new wheel1: then a non match is wheel2 
       if (( x1 != xVal ) ) :
         if (( x2 == xVal ) &                  ( z2 == zVal )) :
-          # If newv == stored then swap mains into w1
+          # If newv == stored then swap mains into wx
           x2 = x1
           y2 = y1
           z2 = z1
@@ -1095,12 +1097,12 @@ varyLa = Slider(width=132, title="Ailr Lift     La", value=La, start=( 0.01), en
 varyDa = Slider(width=132, title="Ailr Drag Wg0 Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
 # MidLeft
 varyAx = Slider(width=132, title="AoA St    Wg1 Ax", value=Ax, start=(-2.0 ), end=(24.0), step=(0.1 ))
-varyDx = Slider(width=132, title="iDrag--   Wg1 Dx", value=Dx, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
+varyD1 = Slider(width=132, title="iDrag--   Wg1 D1", value=D1, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyCx = Slider(width=132, title="[Camber]      Cx", value=Cx, start=(0.000), end=(1.00), step=(0.001))
 varyLg = Slider(width=132, title="Flp1 Lift Wg1 Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyLt = Slider(width=132, title="Ail1 Lift Wg1 Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
 # MidRight
-varyWx = Slider(width=132, title="Width St  Wg1 Wx", value=Wx, start=(0.0  ), end=(32  ), step=(0.50))
+varyW1 = Slider(width=132, title="Width St  Wg1 W1", value=W1, start=(0.0  ), end=(32  ), step=(0.50))
 varyPx = Slider(width=132, title="Peak  St  Wg1 Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
 varyIx = Slider(width=132, title="[Incid]       Ix", value=Ix, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyDg = Slider(width=132, title="Flp1 Drag Wg1 Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
@@ -1146,7 +1148,7 @@ def update_elem(attrname, old, new):
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
   global Vc, Hc, Kc, Tc                                # Cruise Spd, Alt, Thrt, Fuel
   global Iw, Aw, Cw, Lf, La,   Dw, Ww, Pw, Df, Da      # Wing, Flap, Ailr
-  global Ix, Ax, Cx, Lg, Lt,   Dx, Wx, Px, Dg, Dt      # Wng1, Flap, Ailr
+  global Ix, Ax, Cx, Lg, Lt,   D1, W1, Px, Dg, Dt      # Wng1, Flap, Ailr
   global Ch, Ah, Eh, Le, Cv,   Dh, Wh, Ph, De, Dv      # Hstab, Elev (incidence set by solver ) 
   global Av, Ev, Iv, Tv, Lr,   Wv, Pv, Iu, Tu, Dr      # Vstab V0:'v' V1:'u', Rudder 
   global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
@@ -1185,8 +1187,8 @@ def update_elem(attrname, old, new):
   Lg =  varyLg.value
   Lt =  varyLt.value
   #
-  Dx =  varyDx.value
-  Wx =  varyWx.value
+  D1 =  varyD1.value
+  W1 =  varyW1.value
   Px =  varyPx.value
   Dg =  varyDg.value
   Dt =  varyDt.value
@@ -1269,7 +1271,7 @@ for v in [\
           varyIw, varyAw, varyCw, varyLf, varyLa, \
           varyDw, varyWw, varyPw, varyDf, varyDa, \
           varyIx, varyAx, varyCx, varyLg, varyLt, \
-          varyDx, varyWx, varyPx, varyDg, varyDt, \
+          varyD1, varyW1, varyPx, varyDg, varyDt, \
           varyCh, varyAh, varyEh, varyLe, varyCv, \
           varyDh, varyWh, varyPh, varyDe, varyDv, \
           varyAv, varyEv, varyIv, varyTv, varyLr, varyMb, varyHy, \
@@ -1293,7 +1295,7 @@ CrzeRack = column(versDrop, varyVc, varyHc, varyTc, varyKc)
 W0AwRack = column(varyAw,   varyWw, varyDw, varyPw, varyCw)
 W0WwRack = column(varyIw,   varyLf, varyDf, varyLa, varyDa)
 #
-W1AxRack = column(varyAx,   varyWx, varyDx, varyPx, varyCx)
+W1AxRack = column(varyAx,   varyW1, varyD1, varyPx, varyCx)
 W1WxRack = column(varyIx,   varyLg, varyDg, varyLt, varyDt)
 #
 HsAhRack = column(varyAh,   varyEh,  varyDh, varyLe, varyMb)
