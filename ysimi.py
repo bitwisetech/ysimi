@@ -44,6 +44,11 @@
 #      Open a new tab with new port from your browser : http://localhost:5007
 #      so that two models may be compared in side-by-side browser tabs
 #    
+#    ysim will not write any element that is missing ( ie defaulted ) in the input file,    
+#      if you need to adjust an elemnt slider it must be included in the input file
+#    
+#    only the first ballast element is adjusted, following ones should be untouched. 
+#    
 #   developed from bokeh example: bokehSliders.py: 
 #   https://www.pluralsight.com/guides/
 #     importing-data-from-tab-delimited-files-with-python
@@ -1105,7 +1110,7 @@ varyDf = Slider(width=132, title="Drag  Fp0 Wg0 Df", value=Df, start=( 0.01), en
 #
 varyWw = Slider(width=132, title="Width St  Wg0 Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
 varyPw = Slider(width=132, title="Peak  St  Wg0 Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
-varyIw = Slider(width=132, title="Incidence Wgs Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyIw = Slider(width=132, title="Incidence Wg0 Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyLa = Slider(width=132, title="Lift Ailr Wg0 La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyDa = Slider(width=132, title="Drag Ailr Wg0 Da", value=Da, start=( 0.01), end=(8.0 ), step=(0.1))
 #
