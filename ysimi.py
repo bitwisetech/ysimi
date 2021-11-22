@@ -15,19 +15,26 @@
 #  To run a local server: bokeh serve ysimi.py and then
 #    browse to: http://localhost:5006/ysimi 
 #
-#  Suggested workflow ( various files are created / written ) 
-#    Create a model-specific folder beneath this executable's folder:
-#      mkdir [myModel]; cd [myModel]
-#    Link or copy YASim configuration in Flightgear's Aircraft folder:
-#      ln -s [fgaddon/Aircraft/[myModel-config.xml] ysimi-yasim.xml
+#  Suggested workflow ( various files are created / written )
+#    Make a working directory named for the model ex: '[myModel]' for North-American-T6-Texan
+#      and use it as your working directory:
+#        mkdir [myModel]; cd [myModel]
+#    Copy ysimi.py into this working directory so it can run 
+#    Copy or link the YASim configuration from Flightgear's Aircraft folder
+#      renaming if you need, it must be named  [myModel]-yasim-inpt.xml
+#        ln -s [fgaddon/Aircraft/[myModel-yasim.xml] [myModel]-yasim-inpt.xml
 #      ( the executable's input YASim configuration file has a specific fileID )
-#    Start bokeh server with this executable: 
-#      bokeh serve [ --port 5006 ] ../ysimi.py
-#    Browse to the interactive panel:   
+#    In a command console: start bokeh server, with a refence to the python script:
+#      Watch this console for updated YASim solution summaries
+#      bokeh serve [ --port x ] ../ysimi.py
+#    Browse with your web browser to the interactive panel:
 #      http://localhost:5006/ysimi
+#    As you adjust the sliders: YASim reruns, curves and console are updated
+#       and the changed yasim configuration is written to [myModel]-yasim-outp.xml
+#      
 #    In Flightgear's Aircraft folder use the modified output as YASim config: 
 #      mv [fgaddon/Aircraft/[myModel-config.xml] [fgaddon/Aircraft/[myModel-config.xml-orig]
-#      ln ysim-ysimi-outp.xml [fgaddon/Aircraft/myModel-config.xml]
+#      ln path-to-[mymodel]/-[mymodel]/[mymodel]/yasim-outp.xml [fgaddon/Aircraft/myModel-config.xml]
 #      ( This way you can continually flight test adhustments yo the FDM configuration ) 
 #
 #    If desired, copy this executable to a new name: ?simi.py with a differnt input.xml 
@@ -1113,9 +1120,9 @@ varyDt = Slider(width=132, title="Drag Ai1r Wg1 Dt", value=Dt, start=( 0.01), en
 #
 varyAh = Slider(width=132, title="Aoa St  Hstab Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.1 ))
 varyDh = Slider(width=132, title="IDrag-- Hstab Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
-varyCh = Slider(width=132, title="Camber  Hstab Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.05))
+varyCh = Slider(width=132, title="Camber  Hstab Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.001))
 varyLe = Slider(width=132, title="Lift     Elev Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
-varyCv = Slider(width=132, title="Camber  Vstab Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.05))
+varyCv = Slider(width=132, title="Camber  Vstab Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.001))
 #
 varyWh = Slider(width=132, title="Wdth St Hstab Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
 varyPh = Slider(width=132, title="Peak St Hstab Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
