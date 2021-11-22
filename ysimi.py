@@ -37,8 +37,11 @@
 #      ln path-to-[mymodel]/-[mymodel]/[mymodel]/yasim-outp.xml [fgaddon/Aircraft/myModel-config.xml]
 #      ( This way you can continually flight test adhustments yo the FDM configuration ) 
 #
-#    If desired, copy this executable to a new name: ?simi.py with a differnt input.xml 
-#      and open on a different port: bokeh serve [ --port 5007 ] ../?simi.py
+#    For comparing with a model in aNewModel folder open a second command console:
+#      mkdir aNewmodel;  cd aNewmodel
+#      copy its configuration from flightgear into:  aNewModel-yasim-inpt.xml
+#      and open the app on a different port: bokeh serve --port 5007 ../myModel/ysimi.py
+#      Open a new tab with new port from your browser : http://localhost:5007
 #      so that two models may be compared in side-by-side browser tabs
 #    
 #   developed from bokeh example: bokehSliders.py: 
