@@ -1091,7 +1091,7 @@ if (0) :
 #   A smaller step size affects YASim spins: bigger step <==> faster response 
 #
 varyVa = Slider(width=132, title="Appr IAS      Va", value=Va, start=(40.0 ), end=(180 ), step=(2.0 ))
-varyAa = Slider(width=132, title="Appr AoA      Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.5 ))
+varyAa = Slider(width=132, title="Appr AoA      Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.2 ))
 varyTa = Slider(width=132, title="Appr Throttle Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.05))
 varyKa = Slider(width=132, title="Appr Fuel     Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.05))
 varyFa = Slider(width=132, title="Appr Flaps    Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.05))
@@ -1108,7 +1108,7 @@ varyCx = Slider(width=132, title="Camber    Wg1 Cx", value=Cx, start=(0.000), en
 varyLf = Slider(width=132, title="Lift  Fp0 Wg0 Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyDf = Slider(width=132, title="Drag  Fp0 Wg0 Df", value=Df, start=( 0.01), end=(8.0 ), step=(0.1))
 #
-varyWw = Slider(width=132, title="Width St  Wg0 Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.50))
+varyWw = Slider(width=132, title="Width St  Wg0 Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.10))
 varyPw = Slider(width=132, title="Peak  St  Wg0 Pw", value=Pw, start=(0.0  ), end=(20.0), step=(0.2 ))
 varyIw = Slider(width=132, title="Incidence Wg0 Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
 varyLa = Slider(width=132, title="Lift Ailr Wg0 La", value=La, start=( 0.01), end=(8.0 ), step=(0.1 ))
@@ -1120,7 +1120,7 @@ varyTw = Slider(width=132, title="Twist     Wg0 Tw", value=Tw, start=(-8.00), en
 varyLg = Slider(width=132, title="Lift Fp0  Wg1 Lg", value=Lg, start=( 0.01), end=(8.0 ), step=(0.1 ))
 varyLt = Slider(width=132, title="Lift Ailr Wg1 Lt", value=Lt, start=( 0.01), end=(8.0 ), step=(0.1 ))
 #
-varyW1 = Slider(width=132, title="Width St  Wg1 W1", value=W1, start=(0.0  ), end=(32  ), step=(0.50))
+varyW1 = Slider(width=132, title="Width St  Wg1 W1", value=W1, start=(0.0  ), end=(32  ), step=(0.10))
 varyPx = Slider(width=132, title="Peak  St  Wg1 Px", value=Px, start=(0.0  ), end=(20.0), step=(0.2 ))
 varyTx = Slider(width=132, title="Twist     Wg1 Tx", value=Tx, start=(-8.00), end=(8.00), step=(0.1 ))
 varyDg = Slider(width=132, title="Drag Fp0  Wg1 Dg", value=Dg, start=( 0.01), end=(8.0 ), step=(0.1))
@@ -1132,7 +1132,7 @@ varyCh = Slider(width=132, title="Camber  Hstab Ch", value=Ch, start=(0.00 ), en
 varyLe = Slider(width=132, title="Lift     Elev Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
 varyCv = Slider(width=132, title="Camber  Vstab Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.001))
 #
-varyWh = Slider(width=132, title="Wdth St Hstab Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.50))
+varyWh = Slider(width=132, title="Wdth St Hstab Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.20))
 varyPh = Slider(width=132, title="Peak St Hstab Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.2 ))
 varyEh = Slider(width=132, title="Effect  Hstab Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.1 ))
 varyDe = Slider(width=132, title="Drag     Elev De", value=De, start=(0.01 ), end=(4.0 ), step=(0.1))
@@ -1143,7 +1143,7 @@ varyEv = Slider(width=132, title="Effect Vstab  Ev", value=Ev, start=( 0.1 ), en
 varyIv = Slider(width=132, title="Incid  Vstab  Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyTv = Slider(width=132, title="Twist  Vstab  Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.1 ))
 varyLr = Slider(width=132, title="Lift Rudder   Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.01))
-varyMb = Slider(width=132, title="Ballast Mass  Mb", value=Mb, start=(-5000), end=(15000),step=(20  ))
+varyMb = Slider(width=132, title="Ballast Mass  Mb", value=Mb, start=(-5000), end=(15000),step=(10  ))
 varyHy = Slider(width=132, title="Solve Alt ft  Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
 #
 varyWv = Slider(width=132, title="Wdth St Vs0   Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
@@ -1151,8 +1151,8 @@ varyPv = Slider(width=132, title="Pk   St Vs0   Pv", value=Pv, start=(0.2  ), en
 varyIu = Slider(width=132, title="Incid  ApVst  Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyTu = Slider(width=132, title="Twist  ApVst  Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
 varyDr = Slider(width=132, title="Drag Rudder   Dr", value=Dr, start=( 0.0 ), end=(4.0 ), step=(0.05))
-varyXb = Slider(width=132, title="Ballast Posn  Xb", value=Xb, start=(-200 ), end=(200 ),step=(0.5 ))
-varyVy = Slider(width=132, title="Solve IAS kt  Vy", value=Vy, start=(40   ), end=(400 ),step=(20  ))
+varyXb = Slider(width=132, title="Ballast Posn  Xb", value=Xb, start=(-200 ), end=(200 ), step=(0.10))
+varyVy = Slider(width=132, title="Solve IAS kt  Vy", value=Vy, start=(40   ), end=(400 ), step=(20  ))
 #
 
 # called whenever a value is changed on browser interface
