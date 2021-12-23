@@ -854,7 +854,10 @@ def spinYasim(tFid):
       ##
       # run yasim external process to generate min IAS data table saved dataset file
       vDatHndl = open(drgaFid, 'w')
-      command_line = 'yasim ' + tFid + ' --detail-drag -approach '
+      if  ( sys.platform.startswith('linux')):
+        command_line = 'yasim ' + tFid + ' --detail-drag -approach '
+      else:   
+        command_line = 'yasim ' + tFid + ' -d -approach '
       #    print(command_line)
       args = shlex.split(command_line)
       DEVNULL = open(os.devnull, 'wb')
