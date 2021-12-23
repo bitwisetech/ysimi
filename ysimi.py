@@ -799,8 +799,12 @@ def spinYasim(tFid):
   if ( spinFast < 1 ) :
     # run yasim external process to generate LvsD data table saved dataset file
     vDatHndl = open(lvsdFid, 'w')
-    command_line = 'yasim {:s} --detail-lvsd -a {:.2f} -s {:.2f}' \
-                    .format(tFid,                 (Hy/3.3), (Vy))
+    if  ( sys.platform.startswith('linux')):
+      command_line = 'yasim {:s} --detail-lvsd -a {:.2f} -s {:.2f}' \
+                      .format(tFid,                 (Hy/3.3), (Vy))
+    else:
+      command_line = 'yasim {:s} -g     -a {:.2f} -s {:.2f}' \
+                      .format(tFid,                 (Hy/3.3), (Vy))
     #    print(command_line)
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -813,8 +817,13 @@ def spinYasim(tFid):
     ##
     # run yasim external process to generate min IAS data table saved dataset file
     vDatHndl = open(iasaFid, 'w')
-    command_line = 'yasim {:s} --detail-min-speed -a {:.2f}' \
-                    .format(tFid,                      (Hy/3.3))
+
+    if  ( sys.platform.startswith('linux')):
+      command_line = 'yasim {:s} --detail-min-speed -a {:.2f}' \
+                      .format(tFid,                 (Hy/3.3))
+    else:
+      command_line = 'yasim {:s} --min-speed -a {:.2f}' \
+                      .format(tFid,                 (Hy/3.3))
     #    print(command_line)
     args = shlex.split(command_line)
     DEVNULL = open(os.devnull, 'wb')
@@ -829,7 +838,10 @@ def spinYasim(tFid):
     if (0) :
       # run yasim external process to generate min IAS data table saved dataset file
       vDatHndl = open(iascFid, 'w')
-      command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
+      if  ( sys.platform.startswith('linux')):
+        command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
+      else:
+        command_line = 'yasim ' + tFid + '        --min-speed -cruise '
       #    print(command_line)
       args = shlex.split(command_line)
       DEVNULL = open(os.devnull, 'wb')
