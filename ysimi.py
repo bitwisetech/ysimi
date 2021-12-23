@@ -807,7 +807,8 @@ def spinYasim(tFid):
     p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
     DEVNULL.close()
     vDatHndl.close
-    os.sync()
+    if  ( sys.platform.startswith('linux')):
+      os.sync()
     #p.wait()
     ##
     # run yasim external process to generate min IAS data table saved dataset file
@@ -820,7 +821,8 @@ def spinYasim(tFid):
     p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
     DEVNULL.close()
     vDatHndl.close
-    os.sync()
+    if  ( sys.platform.startswith('linux')):
+      os.sync()
     #p.wait()
     ##
     ##  Perforamnce
@@ -834,7 +836,8 @@ def spinYasim(tFid):
       p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
       DEVNULL.close()
       vDatHndl.close
-      os.sync()
+      if  ( sys.platform.startswith('linux')):
+        os.sync()
       #p.wait()
       ##
       # run yasim external process to generate min IAS data table saved dataset file
@@ -846,7 +849,8 @@ def spinYasim(tFid):
       p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
       DEVNULL.close()
       vDatHndl.close
-      os.sync()
+      if  ( sys.platform.startswith('linux')):
+        os.sync()
       #p.wait()
       ##
   else :  
@@ -859,7 +863,8 @@ def spinYasim(tFid):
     p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
     DEVNULL.close()
     vDatHndl.close
-    os.sync()
+    if  ( sys.platform.startswith('linux')):
+      os.sync()
     #p.wait()
     ##
     # run yasim external process to generate min IAS data table saved dataset file
@@ -871,7 +876,8 @@ def spinYasim(tFid):
     p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
     DEVNULL.close()
     vDatHndl.close
-    os.sync()
+    if  ( sys.platform.startswith('linux')):
+      os.sync()
     #p.wait()
     ##
     ##  Perforamnce
@@ -885,7 +891,8 @@ def spinYasim(tFid):
       p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
       DEVNULL.close()
       vDatHndl.close
-      os.sync()
+      if  ( sys.platform.startswith('linux')):
+        os.sync()
       #p.wait()
       ##
       # run yasim external process to generate min IAS data table saved dataset file
@@ -897,7 +904,8 @@ def spinYasim(tFid):
       p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
       DEVNULL.close()
       vDatHndl.close
-      os.sync()
+      if  ( sys.platform.startswith('linux')):
+        os.sync()
       #p.wait()
       ##
   # run yasim external process to create console output of solution
@@ -909,7 +917,8 @@ def spinYasim(tFid):
   p = subprocess.run(args, stdout=vDatHndl, stderr=DEVNULL)
   DEVNULL.close()
   vDatHndl.close
-  os.sync()
+  if  ( sys.platform.startswith('linux')):
+    os.sync()
   ##
   # Pull key values from yasim solution console output
   wingInci( aCfgFid)
