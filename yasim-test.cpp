@@ -246,7 +246,7 @@ void yasim_graph_detail(Airplane* a, const float alt, const float kts, Airplane:
     int   cl_max_deg = 0, cd_min_deg = 0, ld_max_deg = 0;
     
     printf("aoa\tlift\tdrag\n");
-    for(float  deg=-5.0; deg<=25.0 ; deg+= 0.1 ) {
+    for(float  deg=-2.0; deg<=25.0 ; deg+= 0.1 ) {
         float aoa = deg * DEG2RAD;
         _calculateAcceleration(a, aoa, speed, acc);
         float drag = acc[0] * (-1/9.8);
@@ -281,7 +281,7 @@ void yasim_lvsd_detail(Airplane* a, const float alt, const float kts, Airplane::
     int   cl_max_deg = 0, cd_min_deg = 0, ld_max_deg = 0;
     
     printf("aoa\tlift\tdrag\tlvsd\n");
-    for(float deg=-5; deg<=25; deg += 0.10) {
+    for(float deg=-2; deg<=25; deg += 0.10) {
         float aoa = deg * DEG2RAD;
         _calculateAcceleration(a, aoa, speed, acc);
         float drag = acc[0] * (-1/9.8);
@@ -336,7 +336,7 @@ void findMinSpeedDetail(Airplane* a, float alt)
     float acc[3];
 
     printf("aoa\tknots\tlift\n");
-    for(float deg=-5; deg<=25.0; deg+=0.10) {
+    for(float deg=-2; deg<=25.0; deg+=0.10) {
         float aoa = deg * DEG2RAD;
         for(float kts = 0; kts <= 180.0; kts += 0.1) {
             _calculateAcceleration(a, aoa, kts * KTS2MPS, acc);
@@ -411,11 +411,11 @@ void report(Airplane* a)
       wing->printSectionInfo();
     }
     printf("\nInertia Tensor [kg*m^2], ( Angular Moments ) Origo at CG:\n\n");
-    printf("                       Axis of Effect\n");
-    printf("                  x Roll  y Pitch    z Yaw\n\n");
-    printf(" Axis   x   Roll %7.0f  %7.0f  %7.0f\n", SI_inertia[0], SI_inertia[1], SI_inertia[2]);
-    printf("  of    y  Pitch %7.0f  %7.0f  %7.0f\n", SI_inertia[3], SI_inertia[4], SI_inertia[5]);
-    printf("Impulse z    Yaw %7.0f  %7.0f  %7.0f\n", SI_inertia[6], SI_inertia[7], SI_inertia[8]);
+    printf("                           Effect on Axis\n");
+    printf("                      x Roll  y Pitch    z Yaw\n");
+    printf("Impulse  x    Roll   %7.0f  %7.0f  %7.0f\n", SI_inertia[0], SI_inertia[1], SI_inertia[2]);
+    printf("  on     y   Pitch   %7.0f  %7.0f  %7.0f\n", SI_inertia[3], SI_inertia[4], SI_inertia[5]);
+    printf(" Axis    z     Yaw   %7.0f  %7.0f  %7.0f\n", SI_inertia[6], SI_inertia[7], SI_inertia[8]);
 }
 
 int usage()
