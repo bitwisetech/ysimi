@@ -5,13 +5,12 @@
 #    creates modified YASim configs for different YASim versions
 #    offers slider control of various key YASim elements and re-plots interactively
 #
-#   ysimi-yasim.xml yasim config xml Original 
-#   ..-outp Auto    yasim config xml generated with eg modified varied elements
-#   ..-lvsd.txt     yasim generated Lift / Drag tables    ( version specific )
-#   ..-mia?.txt     yasim generated IAS for 0vSpd vs AoA  ( version specific )
-#   ..-soln.txt     yasim generated solution values       ( version specific )
+#   [cdir]-yasim-inpt.xml yasim config xml Original 
+#             ..-outp.xml yasim config xml generated with eg modified varied elements
+#             ..-lvsd.txt       generated Lift / Drag tables    ( version specific )
+#             ..-mia?.txt       generated IAS for 0vSpd vs AoA  ( version specific )
+#             ..-soln.txt       generated solution values       ( version specific )
 #
-#  install python3-bokeh, python3-pandas, numpy ( plus others ?? ) 
 #  To run a local server: bokeh serve ysimi.py and then
 #    browse to: http://localhost:5006/ysimi 
 #
@@ -20,27 +19,32 @@
 #      and use it as your working directory:
 #        mkdir [myModel]; cd [myModel]
 #    Copy ysimi.py into this working directory so it can run 
-#    Copy or link the YASim configuration from Flightgear's Aircraft folder
-#      renaming if you need, it must be named  [myModel]-yasim-inpt.xml
-#        ln -s [fgaddon/Aircraft/[myModel-yasim.xml] [myModel]-yasim-inpt.xml
+#
+#    Copy the YASim configuration from Flightgear's Aircraft folder
+#      then rename it to retain the original
 #      ( the executable's input YASim configuration file has a specific fileID )
+#        cp    fgaddon/Aircraft/[myModel-yasim.xml] [thisDir]-yasim-inpt.xml
+#        mv    fgaddon/Aircraft/[myModel-yasim.xml] fgaddon/Aircraft/[myModel-yasim-orig.xml] 
+#    In Flightgear's Aircraft folder use the modified output as YASim config: 
+#      ( This way you can continually flight test adhustments yo the FDM configuration ) 
+#        ln -s [thisDir]-yasim-outp.xml] fgaddon/Aircraft/[myModel-yasim.xml]
+#
 #    In a command console: start bokeh server, with a refence to the python script:
 #      Watch this console for updated YASim solution summaries
 #      bokeh serve [ --port x ] ../ysimi.py
+#
 #    Browse with your web browser to the interactive panel:
 #      http://localhost:5006/ysimi
 #    As you adjust the sliders: YASim reruns, curves and console are updated
 #       and the changed yasim configuration is written to [myModel]-yasim-outp.xml
+#       save the changed yasim configuration [myModel]-yasim-outp.xml to the -inpt, 
+#         whenever the web page is refreshed the screen will rload from -inpt
 #      
-#    In Flightgear's Aircraft folder use the modified output as YASim config: 
-#      mv [fgaddon/Aircraft/[myModel-config.xml] [fgaddon/Aircraft/[myModel-config.xml-orig]
-#      ln path-to-[mymodel]/-[mymodel]/[mymodel]/yasim-outp.xml [fgaddon/Aircraft/myModel-config.xml]
-#      ( This way you can continually flight test adhustments yo the FDM configuration ) 
-#
 #    For comparing with a model in aNewModel folder open a second command console:
 #      mkdir aNewmodel;  cd aNewmodel
+#      copy ysomi.py 
 #      copy its configuration from flightgear into:  aNewModel-yasim-inpt.xml
-#      and open the app on a different port: bokeh serve --port 5007 ../myModel/ysimi.py
+#      and open the app on a different port: bokeh serve --port 5007  ysimi.py
 #      Open a new tab with new port from your browser : http://localhost:5007
 #      so that two models may be compared in side-by-side browser tabs
 #    
@@ -108,8 +112,11 @@ def presets():
   #print(procPref)  
   #procPref = "ysimi"
   ## Default File IDs 
+  # aCFig is output yasim config files with element(s) modified 
+  aCfgFid  = procPref + '-yasim-outp.xml'
   # yasim config xml file read input 
   yCfgFid  = procPref + '-yasim-inpt.xml'
+  #
   yCfgName = yCfgFid.find('.xml')
   yCfgName = yCfgFid[0:yCfgName]
   ##   
@@ -122,9 +129,6 @@ def presets():
   versToDo = '-vCurr'
   versKywd = versDict[versToDo]
   #print('presets versKywd:', versKywd)
-  #
-  # aCFig is output yasim config files with element(s) modified 
-  aCfgFid  = procPref + '-yasim-outp.xml'
   #
   lvsdFid  = procPref + versToDo + '-lvsd.txt'
   drgaFid  = procPref + versToDo + '-drga.txt'

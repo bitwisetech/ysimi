@@ -18,15 +18,14 @@ may instantly reload with updated configuration ready for testing.
 
   Installation 
     ysimi.py is a python script, it gets served as a web page by the bokeh package. 
-    after python 3 is properly installed on your sysytem 
+    After python 3 is properly installed on your sysytem 
       check if the pip package manager is installed and then check for 
       and, if needed, have pip install bokeh, pandas 
       
     For Windows, here are some great guides:
       When you install python be sure to check the button to add python onto the system path
-        for me 
-          python needed to be installed after flightgear
-          after installing python then pip and bokeh seemed installed too
+        For me 
+          python needed to be installed after flightgear ( to keep paths intact )
       https://www.liquidweb.com/kb/how-to-install-python-on-windows/
       https://www.liquidweb.com/kb/install-pip-windows/
       if you need pip 
@@ -34,8 +33,8 @@ may instantly reload with updated configuration ready for testing.
     the guides show you how to check if each is installed.
       
     For linux (Fedora) 
-       after  python3 is installed then follow the bokeh guide to installation, 
-       use pip to install bokeh, pandas,  
+      After  python3 is installed then follow the bokeh guide to installation, 
+      Use pip to install bokeh, pandas,  
          if needed: install other packages, see beginning of ysimi.py    
   
   It needs a copy of the flightgear model's YASim configuration named [dddd]-yasim-inpt.xml
