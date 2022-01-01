@@ -188,6 +188,8 @@ def vblsFromTplt():
   hstabFlag  = 0
   vstabFlag  = 0
   vstabDone  = 0
+  mstabFlag  = 0
+  mstabDone  = 0
   ballFlag   = 0
   ballDone   = 0
   propFlag   = 0
@@ -223,9 +225,11 @@ def vblsFromTplt():
       # flag on wing section
       if '<wing' in line:
         wingFlag = 1
+        #print('fromTplt  <wing')
       if '</wing' in line:
         wingFlag = 0
         wng1Flag = 0
+        #print('fromTplt  </wing')
       # flag on hstab section
       if '<hstab' in line:
         hstabFlag = 1
@@ -236,7 +240,15 @@ def vblsFromTplt():
         vstabFlag = 1
       if '</vstab' in line:
         vstabFlag = 0
-        vstabDone = 0
+        vstabDone = 1
+      # flag on mstab section
+      if '<mstab' in line:
+        mstabFlag = 1
+        #print('fromTplt  <mstab')
+      if '</mstab' in line:
+        mstabFlag = 0
+        mstabDone = 1
+        #print('fromTplt  </mstab')
       # flag on ballast section
       if '<ballast' in line:
         ballFlag = 1
@@ -295,11 +307,12 @@ def vblsFromTplt():
           #
         ###
 
-      ### wing section parse camber and induced drag elements
-      if (wingFlag == 1):
-        if ( 'append=\"1\"' in line) :
+      ### wing sections parse camber and induced drag elements
+      if ( (wingFlag  == 1)or  (mstabFlag == 1) ) :
+        if (  ( (wingFlag  == 1) and ( 'append=\"1\"' in line ) )  \
+           or ( (mstabFlag == 1) and ( mstabDone == 0) ) ) :
+          # first mstab uses wing1 settings 
           wng1Flag = 1
-        #
         if ( wng1Flag != 1 ) :
           if ( 'camber' in line):
             Cw =  tuplValu('camber', line)
@@ -313,7 +326,7 @@ def vblsFromTplt():
           if ( 'twist' in line):
             Tw = tuplValu('twist', line)
           #
-          #print ('Read Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw ' Tw: ', Tw)  
+          #     print ('Read Cw: ', Cw, 'Dw: ', Dw, ' Iw: ', Iw, ' Tw: ', Tw)  
           ##
           #in wing section, find stall element values
           if ('stall' in line):
@@ -321,13 +334,13 @@ def vblsFromTplt():
             if ( 'aoa' in line):
               Aw = tuplValu('aoa', line)
             #
-            if ( 'peak' in line):
+            if ( 'peak' in line): 
               Pw = tuplValu('peak', line)
             #
             if ( 'width' in line):
               Ww = tuplValu('width', line)
             #
-          #print ('Aw: ', Aw, ' Ww: ', Ww, ' Pw: ', Pw)  
+          # print (' read Aw: ', Aw, ' Ww: ', Ww, ' Pw: ', Pw)  
           ##
           #in wing section, find flap0 element values 
           if ('flap0' in line):
@@ -354,7 +367,7 @@ def vblsFromTplt():
         else :
           ## wing append 1  print('wng1')
           if ( 'camber' in line):
-            Cw =  tuplValu('camber', line)
+            Cx =  tuplValu('camber', line)
           #
           if ('idrag' in line):
             D1 = tuplValu('idrag', line)
@@ -362,7 +375,7 @@ def vblsFromTplt():
           if ( 'twist' in line):
             Tx = tuplValu('twist', line)
           #
-          #print ('Read Cx: ', Cx, 'D1: ', D1, ' Tx: ', Tx)  
+          # print ('Read Cx: ', Cx, 'D1: ', D1, ' Tx: ', Tx)  
           ##
           #in wing section, find stall element values
           if ('stall' in line):
@@ -376,7 +389,7 @@ def vblsFromTplt():
             if ( 'width' in line):
               W1 = tuplValu('width', line)
             #
-          #print ('Ax: ', Ax, ' W1: ', W1, ' Px: ', Px)  
+          #  print ('Ax: ', Ax, ' W1: ', W1, ' Px: ', Px)  
           ##
           #in wing section, find flap0 element values 
           if ('flap0' in line):
@@ -568,6 +581,8 @@ def cfigFromVbls( tFID):
   hstabFlag  = 0
   vstabFlag  = 0
   vstabDone  = 0
+  mstabFlag  = 0
+  mstabDone  = 0
   ballFlag   = 0
   ballDone   = 0
   propFlag   = 0
@@ -602,6 +617,11 @@ def cfigFromVbls( tFID):
       if '</vstab'    in line:
         vstabDone = 1
         vstabFlag = 0
+      if '<mstab'     in line:
+        mstabFlag = 1
+      if '</mstab'    in line:
+        mstabDone = 1
+        mstabFlag = 0
       if '<ballast' in line:
         ballFlag = 1
       if '</ballast'in line:
@@ -635,9 +655,11 @@ def cfigFromVbls( tFID):
         if ('throttle' in line):
           line = tuplSubs( 'value',   line, Tc )
 
-      ## wing
-      if (wingFlag == 1):
-        if ('append=\"1\"' in line):
+      ### wing sections parse camber and induced drag elements
+      if ( (wingFlag  == 1)or (mstabFlag == 1) ) :
+        if (  ( (wingFlag  == 1) and ( 'append=\"1\"' in line ) )  \
+           or ( (mstabFlag == 1) and ( mstabDone == 0) ) ) :
+          # first mstab uses wing1 settings 
           wng1Flag = 1
         if ( wng1Flag != 1 ) :          
           line = tuplSubs( 'camber',    line, Cw ) 
@@ -939,7 +961,7 @@ def spinYasim(tFid):
   if  ( sys.platform.startswith('linux')):
     os.sync()
   ##
-  # Pull key values from yasim solution console output
+  # Pull key values from yasim solution console output for dict, dataTable
   wingInci( aCfgFid)
   solnIter = scanSoln( solnFid, 'Iterations')
   solnTail = scanSoln( solnFid, 'Tail Incidence')
