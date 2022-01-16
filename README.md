@@ -17,19 +17,19 @@ be altered by sliders in the web app while Lift / Drag curves are updated with l
 may instantly reload with updated configuration ready for testing.
 
   Installation 
-  
     ysimi.py is a python script, it gets served as a web page by the bokeh package. 
-    After python 3 is properly installed on your sysytem check if the pip package manager
-    is installed and then check for  and, if needed, have pip install bokeh, pandas 
+    After python 3 is properly installed on your sysytem 
+      check if the pip package manager is installed and then check for 
+      and, if needed, have pip install bokeh, pandas 
       
-    For Windows:
-      When you install packcges be sure to check the button to add onto the system path
-        ( for me python needed to be installed after flightgear to keep paths intact )
-      here are some great guides: 
-       https://www.liquidweb.com/kb/how-to-install-python-on-windows/
-       https://www.liquidweb.com/kb/install-pip-windows/
+    For Windows, here are some great guides:
+      When you install python be sure to check the button to add python onto the system path
+        For me 
+          python needed to be installed after flightgear ( to keep paths intact )
+      https://www.liquidweb.com/kb/how-to-install-python-on-windows/
+      https://www.liquidweb.com/kb/install-pip-windows/
       if you need pip 
-       https://bootstrap.pypa.io/get-pip.py
+      https://bootstrap.pypa.io/get-pip.py
     the guides show you how to check if each is installed.
       
     For linux (Fedora) 
@@ -37,50 +37,48 @@ may instantly reload with updated configuration ready for testing.
       Use pip to install bokeh, pandas,  
          if needed: install other packages, see beginning of ysimi.py    
   
-  It needs a copy of the flightgear model's YASim configuration named dddd-yasim-inpt.xml
-    where dddd is the current working directory's name: for example user/moi/model/
-    folder would include a copy of ysimi.py and a configuration called model-yasim-inpt.xml
+  It needs a copy of the flightgear model's YASim configuration named [dddd]-yasim-inpt.xml
+    [dddd] is the current working directory, for example user/moi/[ysimi]
 
-  It is started by running in a command window:   bokeh serve ysimi.py
+  It is started by running in a command window: bokeh serve ysimi.py
+    which then displays on a web browser at URL:  http://localhost:5006/ysimi
     
-  Explore the FDM by opening on a web browser URL:  http://localhost:5006/ysimi
-    
-  On the browser:   Lift, Drag, MIas plots are updated live as sliders adjust the configuration
-  On the console are updated key YASim solution results that affect the model's motion
-  An output configuration file: model-yasim-outp.xml is live updated so it can be linked
-  to flightgear's fgaddon model, examples: 
-
-    on Linux: 
-      ln -s fgaddon/Aircraft/model/model-yasim.xml model-yasim-inpt.xml
-      mv    fgaddon/Aircraft/model/model-yasim.xml fgaddon/Aircraft/model/model-yasim-orig.xml
-      ln -s model-yasim-outp.xml fgaddon/Aircraft/model/model-yasim.xml
-
-    on Windows: 
-      makelink model-yasim-inpt.xml fgaddon/Aircraft/model/model-yasim.xml 
-      copy     fgaddon/Aircraft/model/model-yasim.xml fgaddon/Aircraft/model/model-yasim-orig.xml
-      makelink fgaddon/Aircraft/model/model-yasim.xml model-yasim-outp.xml
-      
-  If you link the files then flightgear can be instantly restarted, automatically using
-   the adjusted YASim configuration file.       
+  On the browser Lift, Drag, MIas plots are updated live with slider input  
+  On the console are updated key YASim solution results that affect the model's motion.     
 
   An example workflow details are commented at the start of file: ysimi.py 
 
-  Buckaroo's Yasim Reference, it is invaluable  :  
-    https://buckarooshangar.com/flightgear/yasimtut.html
-    
+  Buckaroo's Yasim Reference :  
+    https://buckarooshangar.com/flightgear/yasimtut.html  
   
   Running Real-Time Plots:
+  
+  Make a working directory with a short name denoting the model:
+    cd user/moi 
+    mkdir myModel; chdir myModel
+    copy ysimi.py into this working folder 
+    copy / create a base configuration file from the YASim configuration file(s) of interest :
+    cp /pathTo/fgaddon/Aircraft/theModel/model-yasim.xml ysimi-yasim-inpt.xml
+
+  start the server: 
+  pathToEnv/bokeh serve ysimi.py 
+  (The standard bokeh port is 5006 ) 
+  
+  open a web browser and in a new tab: 
+  http://localhost:5006/ysimi 
 
   To see the effect on Lift and Drag curves slowly adjust any pointer. Each step will 
 trigger a yasim re-run and re-plot of the three curves while on the console a brief message
 reports key results: Elevator on Approach  and  Center of Gravity relative to Wing's MAC.
 
+  A new YASim configuration is created as adjustments are made at the browser,  the new file 
+is named: [dirName]-yasim-outp.xml.   
 
 
-inciMarg.py 
+## inciMarg.py 
   A command line logout of Wing Incidence, derived from wheel / cenreline geometry, compared to 
 wing stall AoA values read from a named YASim configuration file: 
   
-inciMarg.py -f t6/t6-yasim.xml
+> inciMarg.py -f t6/t6-yasim.xml
  t6-yasim.xml   CL incidence: 11.294  Wing incidence: 2.000  Total Incidence : 13.294    Wing AoaStall: 15.000   % Margin: 11.374
 
