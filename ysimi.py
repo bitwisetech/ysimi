@@ -1075,18 +1075,18 @@ cfigFromVbls( aCfgFid)
 spinYasim( aCfgFid )
 
 # use pandas to read sources and create bokeh dataframes
-lvsdDfrm  = pd.read_csv(lvsdFid, delimiter='\t')
+lvsdDfrm  = pd.read_csv(lvsdFid, sep='\t')
 lvsdDsrc  = ColumnDataSource(lvsdDfrm)
 #
-iasaDfrm  = pd.read_csv(iasaFid, delimiter='\t')
+iasaDfrm  = pd.read_csv(iasaFid, sep='\t')
 iasaDsrc  = ColumnDataSource(iasaDfrm)
 ## 
 if (0) :
-  drgaDfrm  = pd.read_csv(drgaFid, delimiter='\t')
+  drgaDfrm  = pd.read_csv(drgaFid, sep='\t')
   drgaDsrc  = ColumnDataSource(drgaDfrm)
   #
   #
-  iascDfrm  = pd.read_csv(iascFid, delimiter='\t')
+  iascDfrm  = pd.read_csv(iascFid, sep='\t')
   iascDsrc  = ColumnDataSource(iascDfrm)
   #
 # Dropdown for selecting which YASim version to run 
@@ -1292,14 +1292,14 @@ def update_elem(attrname, old, new):
   #
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDfrm  = pd.read_csv( lvsdFid, sep='\t')
   lvsdDsrc.data  = lvsdDfrm
-  iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
+  iasaDfrm  = pd.read_csv( iasaFid, sep='\t')
   iasaDsrc.data  = iasaDfrm
   #
   ## performance
   if (0) :
-    iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+    iascDfrm  = pd.read_csv( iascFid, sep='\t')
     iascDsrc.data  = iascDfrm
   # Here: figure wing incidence vs stall angle
   wingInci( aCfgFid)
@@ -1321,14 +1321,14 @@ def dropHdlr(event) :
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
   #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
-  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDfrm  = pd.read_csv( lvsdFid, sep='\t')
   lvsdDsrc.data  = lvsdDfrm
   #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
-  iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
+  iasaDfrm  = pd.read_csv( iasaFid, sep='\t')
   iasaDsrc.data  = iasaDfrm
   # performance  
   if (0) :
-    iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+    iascDfrm  = pd.read_csv( iascFid, sep='\t')
     iascDsrc.data  = iascDfrm
   #
 #
