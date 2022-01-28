@@ -826,7 +826,7 @@ def spinYasim(tFid):
     # run yasim external process to generate LvsD data table saved dataset file
     vDatHndl = open(lvsdFid, 'w')
     if  ( sys.platform.startswith('linux')):
-      command_line = 'yasim {:s} --detail-lvsd -a {:.2f} -s {:.2f}' \
+      command_line = 'yasim {:s} --detailed-graph -a {:.2f} -s {:.2f}' \
                       .format(tFid,                 (Hy/3.3), (Vy))
     else:
       command_line = 'yasim {:s} -g     -a {:.2f} -s {:.2f}' \
@@ -845,7 +845,7 @@ def spinYasim(tFid):
     vDatHndl = open(iasaFid, 'w')
 
     if  ( sys.platform.startswith('linux')):
-      command_line = 'yasim {:s} --detail-min-speed -a {:.2f}' \
+      command_line = 'yasim {:s} --detailed-min-speed -a {:.2f}' \
                       .format(tFid,                 (Hy/3.3))
     else:
       command_line = 'yasim {:s} --min-speed -a {:.2f}' \
@@ -865,7 +865,7 @@ def spinYasim(tFid):
       # run yasim external process to generate min IAS data table saved dataset file
       vDatHndl = open(iascFid, 'w')
       if  ( sys.platform.startswith('linux')):
-        command_line = 'yasim ' + tFid + ' --detail-min-speed -cruise '
+        command_line = 'yasim ' + tFid + ' --detailed-min-speed -cruise '
       else:
         command_line = 'yasim ' + tFid + '        --min-speed -cruise '
       #    print(command_line)
@@ -881,7 +881,7 @@ def spinYasim(tFid):
       # run yasim external process to generate min IAS data table saved dataset file
       vDatHndl = open(drgaFid, 'w')
       if  ( sys.platform.startswith('linux')):
-        command_line = 'yasim ' + tFid + ' --detail-drag -approach '
+        command_line = 'yasim ' + tFid + ' --detailed-drag -approach '
       else:   
         command_line = 'yasim ' + tFid + ' -d -approach '
       #    print(command_line)
@@ -964,6 +964,9 @@ def spinYasim(tFid):
   # Pull key values from yasim solution console output for dict, dataTable
   wingInci( aCfgFid)
   solnIter = scanSoln( solnFid, 'Iterations')
+  solnDrgC = scanSoln( solnFid, 'Drag Coefficient')
+  solnLftR = scanSoln( solnFid, 'Lift Ratio')
+  solnAoAc = scanSoln( solnFid, 'CruiseAoA')
   solnTail = scanSoln( solnFid, 'Tail Incidence')
   solnElev = scanSoln( solnFid, 'Approach Elevator')
   solnCgMC = scanSoln( solnFid, 'CG-x rel. MAC')
@@ -1120,7 +1123,7 @@ if (1) :
 # Enable for patched yasim-test else no LvsD column exists
   liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
   dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-  lvsdPlot.line( x='aoa', y='lvsd',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  lvsdPlot.line( x='aoa', y='LD',    source=lvsdDsrc, line_width=3, line_alpha=0.6)
 else : 
   liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
   dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
@@ -1321,14 +1324,14 @@ def dropHdlr(event) :
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
   #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
-  lvsdDfrm  = pd.read_csv( lvsdFid, sep='\t')
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
   lvsdDsrc.data  = lvsdDfrm
   #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
-  iasaDfrm  = pd.read_csv( iasaFid, sep='\t')
+  iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
   iasaDsrc.data  = iasaDfrm
   # performance  
   if (0) :
-    iascDfrm  = pd.read_csv( iascFid, sep='\t')
+    iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
     iascDsrc.data  = iascDfrm
   #
 #

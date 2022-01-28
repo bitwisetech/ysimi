@@ -17,7 +17,7 @@ if (pythVers < 3):
   import xml.etree.ElementTree as ET
 else:  
   import xml.etree.ElementTree as ET
-  from lxml import html
+  #from lxml import html
   import requests
 #
 ##
