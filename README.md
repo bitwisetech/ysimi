@@ -58,7 +58,7 @@ Make a working directory with a short name denoting the model
     mkdir myModel; chdir myModel
     copy ysimi.py into this working folder
     copy / create a base configuration file from the YASim configuration file(s) of interest :
-    cp /pathTo/fgaddon/Aircraft/theModel/model-yasim.xml ysimi-yasim-inpt.xml
+    cp /pathTo/fgaddon/Aircraft/theModel/model-yasim.xml  myModel-yasim-inpt.xml
 
 start the server:
 
