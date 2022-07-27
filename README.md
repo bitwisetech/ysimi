@@ -38,7 +38,8 @@ The guides show you how to check if each is installed.
 
 ### Usage
 
-It needs a copy of the FlightGear model's YASim configuration named [dddd]-yasim-inpt.xml.  [dddd] is the current working directory, for example user/moi/[ysimi]
+It needs a copy of the FlightGear model's YASim configuration named [dddd]-yasim-inpt.xml where [dddd] is the current working directory,
+for example user/moi/[dddd].  Use the prefix name of the original's yasim config makes linking convenient. 
 It is started by running in a command window:
 
     bokeh serve ysimi.py
