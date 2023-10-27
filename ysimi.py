@@ -854,7 +854,7 @@ def spinYasim(tFid):
   solnFid  = procPref + versToDo + '-soln.txt'
   #print('spinYasim tFid: ', tFid)
   ##
-  spinFast = 1
+  spinFast = 0
   if ( spinFast < 1 ) :
     # run yasim external process to generate LvsD data table saved dataset file
     vDatHndl = open(lvsdFid, 'w')
@@ -1136,22 +1136,22 @@ menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 wingInci( aCfgFid)
 #
 # Set up plots
-liftPlot  = figure(plot_height=250, plot_width=208, title="Body Lift n100 vs AoA",
+liftPlot  = figure(height=250, plot_width=208, title="Body Lift n100 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-dragPlot  = figure(plot_height=250, plot_width=208, title="Body Drag  n10 vs AoA",
+dragPlot  = figure(height=250, plot_width=208, title="Body Drag  n10 vs AoA",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-lvsdPlot  = figure(plot_height=250, plot_width=208, title="Body L/D vs AoA @Appr",
+lvsdPlot  = figure(height=250, plot_width=208, title="Body L/D vs AoA @Appr",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-drgaPlot  = figure(plot_height=250, plot_width=208, title="Drag vs Kias @ Appr ",
+drgaPlot  = figure(height=250, plot_width=208, title="Drag vs Kias @ Appr ",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-iasaPlot  = figure(plot_height=250, plot_width=208, title="VSzero IAS vs AoA @ Appr",
+iasaPlot  = figure(height=250, plot_width=208, title="VSzero IAS vs AoA @ Appr",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
-iascPlot  = figure(plot_height=250, plot_width=208, title="VSzero IAS vs AoA @ Cruz",
+iascPlot  = figure(height=250, plot_width=208, title="VSzero IAS vs AoA @ Cruz",
               tools="crosshair,pan,reset,save,wheel_zoom" )
 
 ##
