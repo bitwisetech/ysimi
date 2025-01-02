@@ -295,7 +295,7 @@ def vblsFromTplt():
     if (extnWing.has_attr('idrag')) :
       Dm = float(extnWing['idrag']) 
     if (extnWing.has_attr('incidence')) :
-      Im = float(extnWing['ncidence']) 
+      Im = float(extnWing['incidence']) 
     if (extnWing.has_attr('twist')) :
       Tm = float(extnWing['twist']) 
     if (extnWing.has_attr('dihedral')) :
