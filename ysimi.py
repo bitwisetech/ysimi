@@ -137,13 +137,20 @@ def presets():
   ## Default File IDs 
   # aCFig is output yasim config files with element(s) modified 
   aCfgFid  = wdir + '/' + procPref + '-yasim-outp.xml'
-  # yasim config xml file read input 
-  yCfgFid  = wdir + '/' + procPref + '-yasim-inpt.xml'
+  ##   
+  # Possible suffixes to select config file, OrderedDict
+  suffixes =  OrderedDict([ ('ckpt', 'ckpt'), \
+                            ('inpt', 'inpt'),   \
+                            ('orig', 'orig',  )])
+  sfixKywd = 'inpt'
+  cfigSuff = suffixes[sfixKywd]
+  #print('presets sfixKywd:', sfixKywd)
+  yCfgFid  = wdir + '/' + procPref + '-yasim-' + cfigSuff + '.xml'
   #
   yCfgName = yCfgFid.find('.xml')
   yCfgName = yCfgFid[0:yCfgName]
   ##   
-  # Versions in YASim configuration strings, OrderedDict
+  # Release versions in YASim configuration strings, OrderedDict
   # all versions 
   rlseDict =  OrderedDict([ ('-vOrig',   'YASIM_VERSION_ORIGINAL'), \
                             ('-v2017-2', '2017.2'),   \
@@ -158,6 +165,7 @@ def presets():
   iasaFid  = procPref + rlseToDo + '-iasa.txt'
   iascFid  = procPref + rlseToDo + '-iasc.txt'
   solnFid  = procPref + rlseToDo + '-soln.txt'
+  #
   #
   #print( 'Exit presets')
 ##
@@ -958,6 +966,10 @@ if (0) :
 rlseDrop = Dropdown(width=64, label='YASim VERSION', \
 menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 #
+# Dropdown for selecting which input suffix to read 
+sfixDrop = Dropdown(width=64, label='Select Config to Read', \
+menu=['-ckpt (RdOnly)', '-inpt (Write -outp)', '-orig (RdOnly)'])
+#
 wingInci( aCfgFid)
 #
 # Set up plots
@@ -1177,7 +1189,7 @@ def update_elem(attrname, old, new):
 #
 
 # called if Version string is changed, duplicates actions cf above 
-def dropHdlr(event) :
+def rlseHdlr(event) :
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
   global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
@@ -1187,6 +1199,33 @@ def dropHdlr(event) :
   # On dropdown action, record YASim version selected
   rlseToDo = event.item
   rlseKywd = rlseDict[rlseToDo]
+  # cf update_elem
+  cfigFromVbls( aCfgFid )
+  spinYasim( aCfgFid )
+  #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
+  lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
+  lvsdDsrc.data  = lvsdDfrm
+  #iasaDfrm  = pd.read_csv( iasaFid, delimiter=', ')
+  iasaDfrm  = pd.read_csv( iasaFid, delimiter='\t')
+  iasaDsrc.data  = iasaDfrm
+  # performance  
+  if (0) :
+    iascDfrm  = pd.read_csv( iascFid, delimiter='\t')
+    iascDsrc.data  = iascDfrm
+  #
+#
+# called if suffix string is changed, selects readin config file  
+def sfixHdlr(event) :
+  global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
+  global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
+  global     Aw                                        # Wing, Flap, Ailr
+  ##
+  # On dropdown action, record YASim version selected
+  sfixItem = event.item
+  sfixKywd = sfixDict[sfixItem]
+  yCfgFid  = wdir + '/' + procPref + '-yasim-' + cfigSuff + '.xml'
   # cf update_elem
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
@@ -1217,8 +1256,9 @@ for v in [\
           varyWv, varyPv, varyIu, varyTu, varyDr, varyXb, varyVy  ]:
   v.on_change('value', update_elem)
 #
-rlseDrop.on_click( dropHdlr)
+rlseDrop.on_click( rlseHdlr)
 #
+sfixDrop.on_click( sfixHdlr)
 #
 solnDT_callback = CustomJS(args=dict(source=solnDT), code="""
     source.change.emit()
