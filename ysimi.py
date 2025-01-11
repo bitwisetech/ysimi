@@ -87,7 +87,7 @@ else :
 ##
 global wdir, procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
 global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
 #
 ## These vbles correspond to the elements in the config file: 
 global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
@@ -100,9 +100,9 @@ global Mp, Rp, Ap, Np, Xp,   Ip, Op, Vp, Cp, Tp      # Prop
 global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
 global fracInci, totlInci                            # Wing incidence and CoG 
 ##
-#  Pull args from command line 
+#  Pull args from command line ( not fully implemented, unsuited to preferred workflow ) 
 def pullArgs(argv):
-  global wdir
+  global wdir, yCfgFid
   try:
     opts, args = getopt.getopt(argv, "i:w:", \
          ["inputID=", "workdir="] )
@@ -110,10 +110,10 @@ def pullArgs(argv):
      print ('sorry, args do not make sense ')
      sys.exit(2)
   #
-  wdir = ''
+  wdir = yCfgFid = ''
   for opt, arg in opts:
     if   opt in ("-i", "--inputID"):
-      print( "args I: ", arg)
+      yCfgFid = arg
     if   opt in ("-w", "--workdir"):
       wdir = arg 
       print( "wdir now: ", wdir)
@@ -121,9 +121,9 @@ def pullArgs(argv):
 #  Set Defaults
 def presets():
   global wdir, procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   global Hy, Vy                                      # Solver    parms
-  #print( 'Entr presets')
+  #  print( 'Entr presets')
   # non blank wdir: work folder is specified in args
   if (wdir == ''): 
     wdir = os.getcwd()
@@ -133,19 +133,20 @@ def presets():
   else :    
     procPref =  wdir[ ( wdirTail + 1 ):]
   #print(procPref)  
-  #procPref = "ysimi"
   ## Default File IDs 
   # aCFig is output yasim config files with element(s) modified 
   aCfgFid  = wdir + '/' + procPref + '-yasim-outp.xml'
   ##   
-  # Possible suffixes to select config file, OrderedDict
-  suffixes =  OrderedDict([ ('ckpt', 'ckpt'), \
-                            ('inpt', 'inpt'),   \
-                            ('orig', 'orig',  )])
-  sfixKywd = 'inpt'
-  cfigSuff = suffixes[sfixKywd]
-  #print('presets sfixKywd:', sfixKywd)
-  yCfgFid  = wdir + '/' + procPref + '-yasim-' + cfigSuff + '.xml'
+  # Possible suffixes for quick view of plots
+  sfixDict =  OrderedDict([ ('-ckpt', 'ckpt'),  \
+                            ('-inpt', 'inpt'),  \
+                            ('-orig', 'orig'),  \
+                            ('-wip',  'wip',  )])
+  if (yCfgFid == '' ) :                            
+    sfixKywd = '-inpt'
+    cfigSfix = sfixDict[sfixKywd]
+    #print('presets sfixKywd:', sfixKywd)
+    yCfgFid  = wdir + '/' + procPref + '-yasim-' + cfigSfix + '.xml'
   #
   yCfgName = yCfgFid.find('.xml')
   yCfgName = yCfgFid[0:yCfgName]
@@ -195,11 +196,11 @@ def tuplSubs( tChrs, tText, tValu ):
 
 # Scan original YASim config and extract numeric elements, save for tix menu
 #
-def vblsFromTplt():
-  #print( 'Entr vblsFromTplt')
+def vblsFromYCfg():
+  #print( 'Entr vblsFromYCfg')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   #
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
@@ -415,7 +416,7 @@ def cfigFromVbls( tFID):
   #print( 'Entr cfigFromVbls')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   #
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
@@ -445,6 +446,7 @@ def cfigFromVbls( tFID):
   else :
     aCfgHndl  = open(tFID, 'w')
   # write auto file via yconfig template and subsVbls from Tix
+  #  print ('cfigFrom: ', yCfgFid)
   with open(yCfgFid, 'r') as yCfgHndl:
   # step each line in template yasim config file
     for line in yCfgHndl:
@@ -658,11 +660,12 @@ def cfigFromVbls( tFID):
       # Write unchanged/modified line into auto.xml
       aCfgHndl.write(line)
   #close and sync files
+  #print(' close ', tFID)
   aCfgHndl.flush
   os.fsync(aCfgHndl.fileno())
   aCfgHndl.close
   yCfgHndl.close
-  #print( 'Exit cfigFromVbls')
+  #  print( 'Exit cfigFromVbls')
 ## 
 
 # Make up command line and execuute external process call to YASim   
@@ -670,7 +673,7 @@ def spinYasim(tFid):
   #print( 'Entr spinYasim')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   #
   global Mb, Xb, Yb, Zb, Hy,   Vy, Wx, Wb, Gx          # Ballast, Solver, Wh main, base, CG
   global fracInci, totlInci                            # Wing incidence and CoG 
@@ -937,160 +940,13 @@ def wingInci( tFid) :
     wingAoaS = float(wingElem.find('stall').get('aoa'))
   totlInci = clinInci + wingInci
   fracInci = totlInci / wingAoaS
-##  
-##  
-
-#  main section: Run the calls to YASim ready for bokeh interface to browser 
-pullArgs(sys.argv[1:])
-presets()
-vblsFromTplt()
-cfigFromVbls( aCfgFid)
-spinYasim( aCfgFid )
-
-# use pandas to read sources and create bokeh dataframes
-lvsdDfrm  = pd.read_csv(lvsdFid, sep='\t')
-lvsdDsrc  = ColumnDataSource(lvsdDfrm)
-#
-iasaDfrm  = pd.read_csv(iasaFid, sep='\t')
-iasaDsrc  = ColumnDataSource(iasaDfrm)
-## 
-if (0) :
-  drgaDfrm  = pd.read_csv(drgaFid, sep='\t')
-  drgaDsrc  = ColumnDataSource(drgaDfrm)
-  #
-  #
-  iascDfrm  = pd.read_csv(iascFid, sep='\t')
-  iascDsrc  = ColumnDataSource(iascDfrm)
-  #
-# Dropdown for selecting which YASim version to run 
-rlseDrop = Dropdown(width=64, label='YASim VERSION', \
-menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
-#
-# Dropdown for selecting which input suffix to read 
-sfixDrop = Dropdown(width=64, label='Select Config to Read', \
-menu=['-ckpt (RdOnly)', '-inpt (Write -outp)', '-orig (RdOnly)'])
-#
-wingInci( aCfgFid)
-#
-# Set up plots
-liftPlot  = figure(height=250, width=208, title="Acft Lift G  vs  AoA",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
-
-dragPlot  = figure(height=250, width=208, title="Acft Drag G  vs  AoA",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
-
-lvsdPlot  = figure(height=250, width=208, title="Acft L/D vs AoA @Appr",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
-
-drgaPlot  = figure(height=250, width=208, title="Drag vs Kias @ Appr ",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
-
-iasaPlot  = figure(height=250, width=208, title="VSzero IAS vs AoA @ Appr",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
-
-iascPlot  = figure(height=250, width=208, title="VSzero IAS vs AoA @ Cruz",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
-
-##
-#if (0) :
-if (1) :
-# Enable for patched yasim-test else no LvsD column exists
-  liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-  dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-  lvsdPlot.line( x='aoa', y='LD',    source=lvsdDsrc, line_width=3, line_alpha=0.6)
-else : 
-  liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-  dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
-# 
-iasaPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
-iasaPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)
-#
-  ##
-  ##  Perforamnce
-if (0) :
-  drgaPlot.line( x='knots', y='drag',  source=drgaDsrc, line_width=3, line_alpha=0.6)
-  #
-  iascPlot.line( x='aoa', y='knots', source=iascDsrc, line_width=3, line_alpha=0.6)
-  iascPlot.line( x='aoa', y='lift',  source=iascDsrc, line_width=3, line_alpha=0.6)  
-##
-#
-# Set up widgets, balance range / step size each affects re-calc
-#   A smaller step size affects YASim spins: bigger step <==> faster response 
-#
-varyVa = Slider(bar_color='silver', width=132, title="Appr IAS      Va", value=Va, start=(20.0 ), end=(240 ), step=(1.0 ))
-varyAa = Slider(bar_color='silver', width=132, title="Appr Acft AoA Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.10))
-varyTa = Slider(bar_color='silver', width=132, title="Appr Throttle Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.02))
-varyKa = Slider(bar_color='silver', width=132, title="Appr Fuel     Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.02))
-varyFa = Slider(bar_color='silver', width=132, title="Appr Flaps    Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.10))
-#
-varyVc = Slider(bar_color='silver', width=132, title="Cruz IAS Kt   Vc", value=Vc, start=(50   ), end=(650),  step=( 5.0))
-varyHc = Slider(bar_color='silver', width=132, title="Cruz Alt Ft   Hc", value=Hc, start=(1000 ), end=(50000),step=(200 ))
-varyTc = Slider(bar_color='silver', width=132, title="Cruz Throttle Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyKc = Slider(bar_color='silver', width=132, title="Cruz Fuel     Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
-varyGc = Slider(bar_color='silver', width=132, title="Cruz Gl Angle Gc", value=Gc, start=(0.0  ), end=(20.0), step=(0.20))
-#
-varyAw = Slider(bar_color='silver', width=132, title="W0 AoA St     Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.10))
-varyDw = Slider(bar_color='silver', width=132, title="W0 iDrag--    Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.005))
-varyCw = Slider(bar_color='silver', width=132, title="W0 Camb  CL0/CLs", value=Cw, start=(0.000), end=(2.00), step=(0.005))
-varyCm = Slider(bar_color='silver', width=132, title="WM Camb  CL0/CLs", value=Cm, start=(0.000), end=(2.00), step=(0.005))
-varyLf = Slider(bar_color='silver', width=132, title="W0 Flap0 Lift Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.01 ))
-varyDf = Slider(bar_color='silver', width=132, title="W0 Flap0 Drag Df", value=Df, start=( 0.00), end=(20.0 ),step=(0.05))
-#
-varyWw = Slider(bar_color='silver', width=132, title="W0 Width St   Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.10))
-varyPw = Slider(bar_color='silver', width=132, title="W0 Peak  St   Pw", value=Pw, start=(0.0  ), end=(10.0), step=(0.10))
-varyIw = Slider(bar_color='silver', width=132, title="W0 Incidence  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
-varyLa = Slider(bar_color='silver', width=132, title="W0 Ailr Lift  La", value=La, start=( 0.00), end=(4.0 ), step=(0.02 ))
-varyDa = Slider(bar_color='silver', width=132, title="W0 Ailr Drag  Da", value=Da, start=( 0.00), end=(4.0 ), step=(0.02))
-#
-varyAm = Slider(bar_color='silver', width=132, title="WM AoA St     Am", value=Am, start=(-2.0 ), end=(24.0), step=(0.10))
-varyDm = Slider(bar_color='silver', width=132, title="WM iDrag--    Dm", value=Dm, start=( 0.1 ), end=(4.0 ), step=(0.10))
-varyTw = Slider(bar_color='silver', width=132, title="W0 Twist      Tw", value=Tw, start=(-8.00), end=(12.0), step=(0.10))
-varyHw = Slider(bar_color='silver', width=132, title="W0 Dihedral   Hw", value=Hw, start=(-8.00), end=(12.0), step=(0.05))
-varyLg = Slider(bar_color='silver', width=132, title="WM Flap0 Lift Lg", value=Lg, start=( 0.00), end=(4.0 ), step=(0.01))
-varyDg = Slider(bar_color='silver', width=132, title="WM Flap0 Drag Dg", value=Dg, start=( 0.00), end=(10.0 ),step=(0.01))
-#
-varyWm = Slider(bar_color='silver', width=132, title="WM Width St   Wm", value=Wm, start=(0.0  ), end=(32  ), step=(0.10))
-varyPm = Slider(bar_color='silver', width=132, title="WM Peak  St   Pm", value=Pm, start=(0.0  ), end=(20.0), step=(0.10))
-varyTm = Slider(bar_color='silver', width=132, title="WM Twist      Tm", value=Tm, start=(-8.00), end=(8.00), step=(0.10))
-varyHm = Slider(bar_color='silver', width=132, title="WM Dihedral   Hm", value=Hm, start=(-8.00), end=(8.00), step=(0.05))
-varyLt = Slider(bar_color='silver', width=132, title="WM Ailr Lift  Lt", value=Lt, start=( 0.00), end=(4.0 ), step=(0.10))
-varyDt = Slider(bar_color='silver', width=132, title="WM Ailr Drag  Dt", value=Dt, start=( 0.00), end=(4.0 ), step=(0.01))
-#
-varyAh = Slider(bar_color='silver', width=132, title="HStab Aoa St  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.10))
-varyDh = Slider(bar_color='silver', width=132, title="HStab IDrag-- Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.10))
-varyCh = Slider(bar_color='silver', width=132, title="HStab Camber  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.01))
-varyLe = Slider(bar_color='silver', width=132, title="Elev Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
-varyCv = Slider(bar_color='silver', width=132, title="VStab Camber  Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.01))
-#
-varyWh = Slider(bar_color='silver', width=132, title="HStab Wdth St Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.20))
-varyPh = Slider(bar_color='silver', width=132, title="HStab Peak St Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.20))
-varyEh = Slider(bar_color='silver', width=132, title="HStab Effect  Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.10))
-varyDe = Slider(bar_color='silver', width=132, title="Elev Drag     De", value=De, start=(0.00 ), end=(4.0 ), step=(0.01))
-varyDv = Slider(bar_color='silver', width=132, title="VStab IDrag-- Dv", value=Dv, start=(0.00 ), end=(8.0 ), step=(0.01))
-#
-varyAv = Slider(bar_color='silver', width=132, title="VStab AoA St  Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.10))
-varyEv = Slider(bar_color='silver', width=132, title="VStab Effect  Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.10))
-varyIv = Slider(bar_color='silver', width=132, title="VStab Incid   Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyTv = Slider(bar_color='silver', width=132, title="VStab Twist   Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.10))
-varyLr = Slider(bar_color='silver', width=132, title="Rudder Lift   Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.02))
-varyMb = Slider(bar_color='silver', width=132, title="Bllst Mass    Mb", value=Mb, start=(-5000), end=(50000),step=(20.0))
-varyHy = Slider(bar_color='silver', width=132, title="Solve Alt ft  Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
-#
-varyWv = Slider(bar_color='silver', width=132, title="VStab StWdth  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
-varyPv = Slider(bar_color='silver', width=132, title="VStab StPeak  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.20))
-varyIu = Slider(bar_color='silver', width=132, title="VStab Incid   Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyTu = Slider(bar_color='silver', width=132, title="VStab Twist   Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
-varyDr = Slider(bar_color='silver', width=132, title="Rudder Drag   Dr", value=Dr, start=( 0.0 ), end=(4.0 ), step=(0.05))
-varyXb = Slider(bar_color='silver', width=132, title="Bllst Posn    Xb", value=Xb, start=(-200 ), end=(200 ), step=(0.25))
-varyVy = Slider(bar_color='silver', width=132, title="Solve IAS kt  Vy", value=Vy, start=(40   ), end=(650 ), step=(20  ))
-#
-
+  
 # called whenever a value is changed on browser interface
 def update_elem(attrname, old, new):
-  #  print( 'Entr update_elem')
+  #    print( 'Entr update_elem')
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   #
   ## These vbles correspond to the elements in the config file: 
   global Va, Aa, Ka, Ta, Fa                            # Appr   Spd, Aoa, Thrt, Fuel, Flaps
@@ -1192,14 +1048,13 @@ def update_elem(attrname, old, new):
 def rlseHdlr(event) :
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
   global     Aw                                        # Wing, Flap, Ailr
   ##
   # On dropdown action, record YASim version selected
   rlseToDo = event.item
   rlseKywd = rlseDict[rlseToDo]
-  # cf update_elem
   cfigFromVbls( aCfgFid )
   spinYasim( aCfgFid )
   #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
@@ -1218,16 +1073,19 @@ def rlseHdlr(event) :
 def sfixHdlr(event) :
   global procPref, lvsdFid, iasaFid, iascFid, drgaFid, solnFid
   global solnDict, solnCDS, solnCols, solnDT, solnIter, solnElev, solnCgMC, solnCgWB
-  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd
+  global yCfgName, yCfgFid, aCfgFid, vCfgFid, rlseDict, rlseToDo, rlseKywd, sfixDict, sfixKywd
   global Yb, Zb, Hy, Vy, fracInci, totlInci            # Ballast, Solver Result
   global     Aw                                        # Wing, Flap, Ailr
   ##
   # On dropdown action, record YASim version selected
-  sfixItem = event.item
-  sfixKywd = sfixDict[sfixItem]
-  yCfgFid  = wdir + '/' + procPref + '-yasim-' + cfigSuff + '.xml'
-  # cf update_elem
+  sfixKywd = event.item
+  cfigSfix = sfixDict[sfixKywd]
+  yCfgFid  = wdir + '/' + procPref + '-yasim-' + cfigSfix + '.xml'
+  vblsFromYCfg()
+  #update_elem( 1, 2, 3)
+  #  
   cfigFromVbls( aCfgFid )
+  #
   spinYasim( aCfgFid )
   #lvsdDfrm  = pd.read_csv( lvsdFid, delimiter=', ')
   lvsdDfrm  = pd.read_csv( lvsdFid, delimiter='\t')
@@ -1241,7 +1099,151 @@ def sfixHdlr(event) :
     iascDsrc.data  = iascDfrm
   #
 #
-  
+
+#  main section: Run the calls to YASim ready for bokeh interface to browser 
+pullArgs(sys.argv[1:])
+presets()
+vblsFromYCfg()
+cfigFromVbls( aCfgFid)
+spinYasim( aCfgFid )
+
+# use pandas to read sources and create bokeh dataframes
+lvsdDfrm  = pd.read_csv(lvsdFid, sep='\t')
+lvsdDsrc  = ColumnDataSource(lvsdDfrm)
+#
+iasaDfrm  = pd.read_csv(iasaFid, sep='\t')
+iasaDsrc  = ColumnDataSource(iasaDfrm)
+## 
+if (0) :
+  drgaDfrm  = pd.read_csv(drgaFid, sep='\t')
+  drgaDsrc  = ColumnDataSource(drgaDfrm)
+  #
+  #
+  iascDfrm  = pd.read_csv(iascFid, sep='\t')
+  iascDsrc  = ColumnDataSource(iascDfrm)
+  #
+# Dropdown for selecting which YASim version to run 
+rlseDrop = Dropdown(width=128, label='YASim VERSION', \
+menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
+#
+# Dropdown for selecting which input suffix to read 
+sfixDrop = Dropdown(width=128, label='Compare Plot', \
+menu=['-ckpt', '-inpt', '-orig', '-wip'])
+#
+wingInci( aCfgFid)
+#
+# Set up plots
+liftPlot  = figure(height=250, width=208, title="Acft Lift G  vs  AoA",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+dragPlot  = figure(height=250, width=208, title="Acft Drag G  vs  AoA",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+lvsdPlot  = figure(height=250, width=208, title="Acft L/D vs AoA @Appr",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+drgaPlot  = figure(height=250, width=208, title="Drag vs Kias @ Appr ",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+iasaPlot  = figure(height=250, width=208, title="VSzero IAS vs AoA @ Appr",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+iascPlot  = figure(height=250, width=208, title="VSzero IAS vs AoA @ Cruz",
+              tools="crosshair,pan,reset,save,wheel_zoom" )
+
+##
+if (1) :
+# Enable for patched yasim-test else no LvsD column exists
+  liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  lvsdPlot.line( x='aoa', y='LD',    source=lvsdDsrc, line_width=3, line_alpha=0.6)
+else : 
+  liftPlot.line( x='aoa', y='lift',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+  dragPlot.line( x='aoa', y='drag',  source=lvsdDsrc, line_width=3, line_alpha=0.6)
+# 
+iasaPlot.line( x='aoa', y='knots', source=iasaDsrc, line_width=3, line_alpha=0.6)
+iasaPlot.line( x='aoa', y='lift',  source=iasaDsrc, line_width=3, line_alpha=0.6)
+#
+  ##
+  ##  Perforamnce
+if (0) :
+  drgaPlot.line( x='knots', y='drag',  source=drgaDsrc, line_width=3, line_alpha=0.6)
+  #
+  iascPlot.line( x='aoa', y='knots', source=iascDsrc, line_width=3, line_alpha=0.6)
+  iascPlot.line( x='aoa', y='lift',  source=iascDsrc, line_width=3, line_alpha=0.6)  
+##
+#
+# Set up widgets, balance range / step size each affects re-calc
+#   A smaller step size affects YASim spins: bigger step <==> faster response 
+#
+varyVa = Slider(bar_color='silver', width=132, title="Appr IAS      Va", value=Va, start=(20.0 ), end=(240 ), step=(1.0 ))
+varyAa = Slider(bar_color='silver', width=132, title="Appr Acft AoA Aa", value=Aa, start=(-5.0 ), end=(20  ), step=(0.10))
+varyTa = Slider(bar_color='silver', width=132, title="Appr Throttle Ta", value=Ta, start=(0.0  ), end=(1.0 ), step=(0.02))
+varyKa = Slider(bar_color='silver', width=132, title="Appr Fuel     Ka", value=Ka, start=(0.0  ), end=(1.0 ), step=(0.02))
+varyFa = Slider(bar_color='silver', width=132, title="Appr Flaps    Fa", value=Fa, start=(0.0  ), end=(1.0 ), step=(0.10))
+#
+varyVc = Slider(bar_color='silver', width=132, title="Cruz IAS Kt   Vc", value=Vc, start=(50   ), end=(650),  step=( 5.0))
+varyHc = Slider(bar_color='silver', width=132, title="Cruz Alt Ft   Hc", value=Hc, start=(1000 ), end=(50000),step=(200 ))
+varyTc = Slider(bar_color='silver', width=132, title="Cruz Throttle Tc", value=Tc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyKc = Slider(bar_color='silver', width=132, title="Cruz Fuel     Kc", value=Kc, start=(0.0  ), end=(1.0 ), step=(0.05))
+varyGc = Slider(bar_color='silver', width=132, title="Cruz Gl Angle Gc", value=Gc, start=(0.0  ), end=(20.0), step=(0.20))
+#
+varyAw = Slider(bar_color='silver', width=132, title="W0 AoA St     Aw", value=Aw, start=(-2.0 ), end=(24.0), step=(0.10))
+varyDw = Slider(bar_color='silver', width=132, title="W0 iDrag--    Dw", value=Dw, start=( 0.1 ), end=(4.0 ), step=(0.005))
+varyCw = Slider(bar_color='silver', width=132, title="W0 Camb  CL0/CLs", value=Cw, start=(0.000), end=(2.00), step=(0.005))
+varyCm = Slider(bar_color='silver', width=132, title="WM Camb  CL0/CLs", value=Cm, start=(0.000), end=(2.00), step=(0.005))
+varyLf = Slider(bar_color='silver', width=132, title="W0 Flap0 Lift Lf", value=Lf, start=( 0.01), end=(8.0 ), step=(0.01 ))
+varyDf = Slider(bar_color='silver', width=132, title="W0 Flap0 Drag Df", value=Df, start=( 0.00), end=(20.0 ),step=(0.05))
+#
+varyWw = Slider(bar_color='silver', width=132, title="W0 Width St   Ww", value=Ww, start=(0.0  ), end=(32  ), step=(0.10))
+varyPw = Slider(bar_color='silver', width=132, title="W0 Peak  St   Pw", value=Pw, start=(0.0  ), end=(10.0), step=(0.10))
+varyIw = Slider(bar_color='silver', width=132, title="W0 Incidence  Iw", value=Iw, start=(-5.0 ), end=(10.0), step=(0.1 ))
+varyLa = Slider(bar_color='silver', width=132, title="W0 Ailr Lift  La", value=La, start=( 0.00), end=(4.0 ), step=(0.02 ))
+varyDa = Slider(bar_color='silver', width=132, title="W0 Ailr Drag  Da", value=Da, start=( 0.00), end=(4.0 ), step=(0.02))
+#
+varyAm = Slider(bar_color='silver', width=132, title="WM AoA St     Am", value=Am, start=(-2.0 ), end=(24.0), step=(0.10))
+varyDm = Slider(bar_color='silver', width=132, title="WM iDrag--    Dm", value=Dm, start=( 0.1 ), end=(4.0 ), step=(0.10))
+varyTw = Slider(bar_color='silver', width=132, title="W0 Twist      Tw", value=Tw, start=(-8.00), end=(12.0), step=(0.10))
+varyHw = Slider(bar_color='silver', width=132, title="W0 Dihedral   Hw", value=Hw, start=(-8.00), end=(12.0), step=(0.05))
+varyLg = Slider(bar_color='silver', width=132, title="WM Flap0 Lift Lg", value=Lg, start=( 0.00), end=(4.0 ), step=(0.01))
+varyDg = Slider(bar_color='silver', width=132, title="WM Flap0 Drag Dg", value=Dg, start=( 0.00), end=(10.0 ),step=(0.01))
+#
+varyWm = Slider(bar_color='silver', width=132, title="WM Width St   Wm", value=Wm, start=(0.0  ), end=(32  ), step=(0.10))
+varyPm = Slider(bar_color='silver', width=132, title="WM Peak  St   Pm", value=Pm, start=(0.0  ), end=(20.0), step=(0.10))
+varyTm = Slider(bar_color='silver', width=132, title="WM Twist      Tm", value=Tm, start=(-8.00), end=(8.00), step=(0.10))
+varyHm = Slider(bar_color='silver', width=132, title="WM Dihedral   Hm", value=Hm, start=(-8.00), end=(8.00), step=(0.05))
+varyLt = Slider(bar_color='silver', width=132, title="WM Ailr Lift  Lt", value=Lt, start=( 0.00), end=(4.0 ), step=(0.10))
+varyDt = Slider(bar_color='silver', width=132, title="WM Ailr Drag  Dt", value=Dt, start=( 0.00), end=(4.0 ), step=(0.01))
+#
+varyAh = Slider(bar_color='silver', width=132, title="HStab Aoa St  Ah", value=Ah, start=(-2.0 ), end=(24.0), step=(0.10))
+varyDh = Slider(bar_color='silver', width=132, title="HStab IDrag-- Dh", value=Dh, start=( 0.1 ), end=(4.0 ), step=(0.10))
+varyCh = Slider(bar_color='silver', width=132, title="HStab Camber  Ch", value=Ch, start=(0.00 ), end=(2.00), step=(0.01))
+varyLe = Slider(bar_color='silver', width=132, title="Elev Lift     Le", value=Le, start=( 0.1 ), end=(8.0 ), step=(0.01))
+varyCv = Slider(bar_color='silver', width=132, title="VStab Camber  Cv", value=Cv, start=(0.00 ), end=(2.50), step=(0.01))
+#
+varyWh = Slider(bar_color='silver', width=132, title="HStab Wdth St Wh", value=Wh, start=(0.0  ), end=(32  ), step=(0.20))
+varyPh = Slider(bar_color='silver', width=132, title="HStab Peak St Ph", value=Ph, start=(0.0  ), end=(20.0), step=(0.20))
+varyEh = Slider(bar_color='silver', width=132, title="HStab Effect  Eh", value=Eh, start=( 0.1 ), end=(4.0 ), step=(0.10))
+varyDe = Slider(bar_color='silver', width=132, title="Elev Drag     De", value=De, start=(0.00 ), end=(4.0 ), step=(0.01))
+varyDv = Slider(bar_color='silver', width=132, title="VStab IDrag-- Dv", value=Dv, start=(0.00 ), end=(8.0 ), step=(0.01))
+#
+varyAv = Slider(bar_color='silver', width=132, title="VStab AoA St  Av", value=Av, start=(-2.0 ), end=(24.0), step=(0.10))
+varyEv = Slider(bar_color='silver', width=132, title="VStab Effect  Ev", value=Ev, start=( 0.1 ), end=(4.0 ), step=(0.10))
+varyIv = Slider(bar_color='silver', width=132, title="VStab Incid   Iv", value=Iv, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyTv = Slider(bar_color='silver', width=132, title="VStab Twist   Tv", value=Tv, start=(-4.0 ), end=(4.0 ), step=(0.10))
+varyLr = Slider(bar_color='silver', width=132, title="Rudder Lift   Lr", value=Lr, start=(-4.0 ), end=(8.0 ), step=(0.02))
+varyMb = Slider(bar_color='silver', width=132, title="Bllst Mass    Mb", value=Mb, start=(-5000), end=(50000),step=(20.0))
+varyHy = Slider(bar_color='silver', width=132, title="Solve Alt ft  Hy", value=Hy, start=(   0 ), end=(40000),step=(100))
+#
+varyWv = Slider(bar_color='silver', width=132, title="VStab StWdth  Wv", value=Wv, start=(0.0  ), end=(32  ), step=(0.50))
+varyPv = Slider(bar_color='silver', width=132, title="VStab StPeak  Pv", value=Pv, start=(0.2  ), end=(20.0), step=(0.20))
+varyIu = Slider(bar_color='silver', width=132, title="VStab Incid   Iu", value=Iu, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyTu = Slider(bar_color='silver', width=132, title="VStab Twist   Tu", value=Tu, start=(-4.0 ), end=(4.0 ), step=(0.05))
+varyDr = Slider(bar_color='silver', width=132, title="Rudder Drag   Dr", value=Dr, start=( 0.0 ), end=(4.0 ), step=(0.05))
+varyXb = Slider(bar_color='silver', width=132, title="Bllst Posn    Xb", value=Xb, start=(-200 ), end=(200 ), step=(0.25))
+varyVy = Slider(bar_color='silver', width=132, title="Solve IAS kt  Vy", value=Vy, start=(40   ), end=(650 ), step=(20  ))
+#
+
 # listeners for interface slider changes 
 for v in [\
           varyVa, varyAa, varyTa, varyKa, varyFa, \
@@ -1271,7 +1273,7 @@ solnDT.js_on_change('source', solnDT_callback)
 ApprRack = column(varyVa,   varyAa, varyTa, varyKa, varyFa)
 # Show Cruise Fuel CrzeRack = column(rlseDrop, varyVc, varyHc, varyTc, varyKc)
 # Show Cruise Glide Angle
-CrzeRack = column(rlseDrop, varyVc, varyHc, varyTc, varyGc)
+CrzeRack = column(varyVc, varyHc, varyTc, varyKc, varyGc)
 #
 W0AwRack = column(varyAw,   varyWw, varyPw, varyHw, varyTw)
 W0CwRack = column(varyCw,   varyLf, varyDf, varyLa, varyDa)
@@ -1285,18 +1287,19 @@ HsWhRack = column(varyWh,   varyPh,  varyCh, varyDe, varyXb)
 VsAvRack = column(varyAv,   varyEv, varyIv, varyLr, varyHy)
 VsWvRack = column(varyWv,   varyPv, varyCv, varyDr, varyVy )
 ##
-presets()
-vblsFromTplt()
+#presets()
+vblsFromYCfg()
 cfigFromVbls(aCfgFid )
 spinYasim(aCfgFid)
 #
 # plan overall interface layout 
 #curdoc().title = yCfgName
 curdoc().title = procPref
+curdoc().add_root(row(rlseDrop, sfixDrop,   width=300))
 curdoc().add_root(row(ApprRack, W0AwRack, liftPlot, dragPlot, WMAmRack, width=400))
 curdoc().add_root(row(CrzeRack, W0CwRack, iasaPlot, lvsdPlot, WMWxRack, width=400))
 curdoc().add_root(row(HsAhRack, HsWhRack, VsAvRack, VsWvRack, solnDT,   width=400))
-# Cannot get table of YASim output values to update, ergo console printout
+# Cannot get Data Table of YASim output values to update, use console printout for latest
 #curdoc().add_root(row(solnDT, width=360))
 #
 ## ysimi ends
