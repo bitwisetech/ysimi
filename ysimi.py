@@ -139,6 +139,7 @@ def presets():
   ##   
   # Possible suffixes for quick view of plots
   sfixDict =  OrderedDict([ ('-ckpt', 'ckpt'),  \
+                            ('-fgad', 'fgad'),  \
                             ('-inpt', 'inpt'),  \
                             ('-orig', 'orig'),  \
                             ('-wip',  'wip',  )])
@@ -1128,28 +1129,28 @@ menu=['-vOrig', '-v2017-2', '-v32', '-vCurr'])
 #
 # Dropdown for selecting which input suffix to read 
 sfixDrop = Dropdown(width=128, label='Compare Plot', \
-menu=['-ckpt', '-inpt', '-orig', '-wip'])
+menu=['-ckpt', '-inpt', '-fgad', '-orig', '-wip'])
 #
 wingInci( aCfgFid)
 #
 # Set up plots
 liftPlot  = figure(height=250, width=208, title="Acft Lift G  vs  AoA",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
+              tools="crosshair,pan,wheel_zoom", active_scroll="wheel_zoom" )
 
 dragPlot  = figure(height=250, width=208, title="Acft Drag G  vs  AoA",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
+              tools="crosshair,pan,wheel_zoom", active_scroll="wheel_zoom" )
 
 lvsdPlot  = figure(height=250, width=208, title="Acft L/D vs AoA @Appr",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
+              tools="crosshair,pan,wheel_zoom", active_scroll="wheel_zoom" )
 
 drgaPlot  = figure(height=250, width=208, title="Drag vs Kias @ Appr ",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
+              tools="crosshair,pan,wheel_zoom", active_scroll="wheel_zoom" )
 
 iasaPlot  = figure(height=250, width=208, title="VSzero IAS vs AoA @ Appr",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
+              tools="crosshair,pan,wheel_zoom", active_scroll="wheel_zoom" )
 
 iascPlot  = figure(height=250, width=208, title="VSzero IAS vs AoA @ Cruz",
-              tools="crosshair,pan,reset,save,wheel_zoom" )
+              tools="crosshair,pan,wheel_zoom", active_scroll="wheel_zoom" )
 
 ##
 if (1) :
@@ -1201,15 +1202,15 @@ varyIw = Slider(bar_color='silver', width=132, title="W0 Incidence  Iw", value=I
 varyLa = Slider(bar_color='silver', width=132, title="W0 Ailr Lift  La", value=La, start=( 0.00), end=(4.0 ), step=(0.02 ))
 varyDa = Slider(bar_color='silver', width=132, title="W0 Ailr Drag  Da", value=Da, start=( 0.00), end=(4.0 ), step=(0.02))
 #
-varyAm = Slider(bar_color='silver', width=132, title="WM AoA St     Am", value=Am, start=(-2.0 ), end=(24.0), step=(0.10))
+varyAm = Slider(bar_color='silver', width=132, title="WM AoA St     Am", value=Am, start=(-2.0 ), end=(32.0), step=(0.10))
 varyDm = Slider(bar_color='silver', width=132, title="WM iDrag--    Dm", value=Dm, start=( 0.1 ), end=(4.0 ), step=(0.10))
 varyTw = Slider(bar_color='silver', width=132, title="W0 Twist      Tw", value=Tw, start=(-8.00), end=(12.0), step=(0.10))
 varyHw = Slider(bar_color='silver', width=132, title="W0 Dihedral   Hw", value=Hw, start=(-8.00), end=(12.0), step=(0.05))
 varyLg = Slider(bar_color='silver', width=132, title="WM Flap0 Lift Lg", value=Lg, start=( 0.00), end=(4.0 ), step=(0.01))
 varyDg = Slider(bar_color='silver', width=132, title="WM Flap0 Drag Dg", value=Dg, start=( 0.00), end=(10.0 ),step=(0.01))
 #
-varyWm = Slider(bar_color='silver', width=132, title="WM Width St   Wm", value=Wm, start=(0.0  ), end=(32  ), step=(0.10))
-varyPm = Slider(bar_color='silver', width=132, title="WM Peak  St   Pm", value=Pm, start=(0.0  ), end=(20.0), step=(0.10))
+varyWm = Slider(bar_color='silver', width=132, title="WM Width St   Wm", value=Wm, start=(0.0  ), end=(32.0), step=(0.10))
+varyPm = Slider(bar_color='silver', width=132, title="WM Peak  St   Pm", value=Pm, start=(0.0  ), end=(32.0), step=(0.10))
 varyTm = Slider(bar_color='silver', width=132, title="WM Twist      Tm", value=Tm, start=(-8.00), end=(8.00), step=(0.10))
 varyHm = Slider(bar_color='silver', width=132, title="WM Dihedral   Hm", value=Hm, start=(-8.00), end=(8.00), step=(0.05))
 varyLt = Slider(bar_color='silver', width=132, title="WM Ailr Lift  Lt", value=Lt, start=( 0.00), end=(4.0 ), step=(0.10))
